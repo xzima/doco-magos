@@ -1,0 +1,23 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base"
+  ],
+  "assigneesFromCodeOwners": true,
+  "semanticCommits": "enabled",
+  "semanticCommitType": "build",
+  "semanticCommitScope": "deps",
+  "packageRules": [
+    {
+      "matchPackagePatterns": "*",
+      "semanticCommitType": "build"
+    }
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "baseBranches": [
+    "develop"
+  ],
+  "dependencyDashboardApproval": true
+}
