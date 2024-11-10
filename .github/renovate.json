@@ -19,7 +19,7 @@
     "dependencies"
   ],
   "baseBranches": [
-    "develop"
+    "master"
   ],
   "dependencyDashboardApproval": true
 }
