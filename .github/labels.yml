@@ -1,0 +1,22 @@
+---
+- name: "feature"
+  color: 0e8a16
+  description: "Новая функциональность."
+- name: "bug"
+  color: ee0701
+  description: "Исправление проблем в продукте."
+
+- name: "maintenance"
+  color: 2af79e
+  description: "Общие задачи для обслуживания проекта."
+
+- name: "documentation"
+  color: 0052cc
+  description: "Исключительно о документации проекта."
+- name: "ci"
+  color: 1d76db
+  description: "Улучшение процессов непрерывной интеграции и автоматизации проекта."
+
+- name: "dependencies"
+  color: 1d76db
+  description: "Изменение зависимостей проекта."
