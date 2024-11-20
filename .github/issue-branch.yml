@@ -1,0 +1,32 @@
+# see https://github.com/robvanderleek/create-issue-branch#configuration=
+# mode: auto
+
+branchName: tiny # example: i15
+openDraftPR: true
+prSkipCI: true
+autoLinkIssue: true
+#openPR: true
+copyIssueDescriptionToPR: true
+copyIssueLabelsToPR: true
+copyIssueAssigneeToPR: true
+# copyIssueProjectsToPR: true
+# copyIssueMilestoneToPR: true
+
+defaultBranch: develop
+branches:
+  - label: feature
+    name: master
+    prefix: feature/
+  - label: bug
+    name: master
+    prefix: bugs/
+
+  - label: documentation
+    name: master
+    prefix: docs/
+  - label: ci
+    name: master
+    prefix: ci/
+
+  - label: '*'
+    skip: true
