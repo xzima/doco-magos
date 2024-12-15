@@ -1,10 +1,14 @@
 {
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "local": "dotenv-run-script .env .env.local --",
+    "serverApp": "serverApp/build/bin/linuxX64/releaseExecutable/serverApp.kexe",
+    "runLocal": "npm run local serverApp"
   },
   "devDependencies": {
     "@commitlint/cli": "19.5.0",
     "@commitlint/config-conventional": "19.5.0",
-    "husky": "9.1.6"
+    "husky": "9.1.6",
+    "dotenv-run-script": "0.4.1"
   }
 }
