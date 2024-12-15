@@ -1,0 +1,39 @@
+[versions]
+kotlin = "2.0.21"
+androidx-lifecycle = "2.8.3"
+rsocket = "0.16.0"
+
+[libraries]
+bom-kotlinxCoroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-bom", version = "1.9.0" }
+bom-kotlinWrappers = { group = "org.jetbrains.kotlin-wrappers", name = "kotlin-wrappers-bom", version = "1.0.0-pre.818" }
+bom-kotlinxSerialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-bom", version = "1.7.3" }
+bom-kotlinLibs = { group = "org.jetbrains.kotlin", name = "kotlin-bom", version.ref = "kotlin" }
+bom-ktor = { group = "io.ktor", name = "ktor-bom", version = "2.3.12" }
+bom-koin = { group = "io.insert-koin", name = "koin-bom", version = "4.0.0" }
+bom-kotest = { group = "io.kotest", name = "kotest-bom", version = "5.9.1" }
+
+ui-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
+ui-lifecycle-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
+ui-highlights = { group = "dev.snipme", name = "highlights", version = "0.9.3" }
+ui-routing = { group = "app.softwork", name = "routing-compose", version = "0.4.0" }
+
+okio = { group = "com.squareup.okio", name = "okio", version = "3.9.1" }
+kotest-assertions-ktor = { group = "io.kotest.extensions", name = "kotest-assertions-ktor", version = "2.0.0" }
+kommand = { group = "com.kgit2", name = "kommand", version = "2.2.1" }
+rsocket-ktor-ws-client = { group = "io.rsocket.kotlin", name = "rsocket-transport-ktor-websocket-client", version.ref = "rsocket" }
+rsocket-ktor-ws-server = { group = "io.rsocket.kotlin", name = "rsocket-transport-ktor-websocket-server", version.ref = "rsocket" }
+rsocket-core = { group = "io.rsocket.kotlin", name = "rsocket-core", version.ref = "rsocket" }
+rsocket-ktor-server = { group = "io.rsocket.kotlin", name = "rsocket-ktor-server", version.ref = "rsocket" }
+rsocket-ktor-client = { group = "io.rsocket.kotlin", name = "rsocket-ktor-client", version.ref = "rsocket" }
+logging = { group = "io.github.oshai", name = "kotlin-logging", version = "7.0.0" }
+kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version = "0.6.1" }
+
+[bundles]
+
+[plugins]
+multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+compose = { id = "org.jetbrains.compose", version = "1.7.0" }
+mock = { id = "dev.mokkery", version = "2.4.0" }
+
