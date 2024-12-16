@@ -31,3 +31,5 @@ docomagos doco-magos документальные маги
 
 - https://github.com/Tlaster/PreCompose/tree/master
 - https://github.com/GabrielLasso/compose-todo-app
+---
+[OCI-specified labels](https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys)
