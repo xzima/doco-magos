@@ -40,9 +40,8 @@ class DockerComposeService {
             .stdout(Stdio.Pipe)
         val child = command.spawn()
         val output = child.waitWithOutput()
-        //output.status == 0 //isOk
+        // output.status == 0 //isOk
         println("ls result: $output")
         Json.decodeFromString<List<DCListProjects>>(output.stdout!!)
     }
 }
-

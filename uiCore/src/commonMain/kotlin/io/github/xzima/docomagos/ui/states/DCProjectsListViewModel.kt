@@ -21,7 +21,6 @@ import io.github.xzima.docomagos.client.DockerComposeApiService
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
-
 class DCProjectsListViewModel(
     private val dockerComposeApiService: DockerComposeApiService,
 ) : ViewModel() {

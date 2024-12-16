@@ -27,11 +27,7 @@ import kotlinx.coroutines.*
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun DCProjectsCardColumn(
-    modifier: Modifier,
-    defaultPadding: Dp,
-    snackbarHostState: SnackbarHostState,
-) {
+fun DCProjectsCardColumn(modifier: Modifier, defaultPadding: Dp, snackbarHostState: SnackbarHostState) {
     val coroutineScope = rememberCoroutineScope()
     val projectsViewModel = koinViewModel<DCProjectsListViewModel>()
     val projectsList by projectsViewModel

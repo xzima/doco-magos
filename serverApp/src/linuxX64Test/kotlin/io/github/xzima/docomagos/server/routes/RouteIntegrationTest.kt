@@ -60,8 +60,8 @@ class RouteIntegrationTest {
 
     @AfterTest
     fun afterTest(): Unit = runBlocking {
-            server.stop()
-            stopKoin()
+        server.stop()
+        stopKoin()
     }
 
     @Test

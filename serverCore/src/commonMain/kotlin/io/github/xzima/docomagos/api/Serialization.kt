@@ -35,9 +35,8 @@ val ConfiguredProtoBuf = ProtoBuf
 inline fun <reified T> ProtoBuf.decodeFromPayload(payload: Payload): T = decodeFromByteArray(payload.data.readBytes())
 
 @ExperimentalSerializationApi
-fun ProtoBuf.decodeFromRequest(payload: Payload): Req<Any> {
-    return decodeFromByteArray(Req.polymorphicSerializer, payload.data.readBytes())
-}
+fun ProtoBuf.decodeFromRequest(payload: Payload): Req<Any> =
+    decodeFromByteArray(Req.polymorphicSerializer, payload.data.readBytes())
 
 @ExperimentalSerializationApi
 inline fun <reified T> ProtoBuf.encodeToPayload(value: T): Payload = buildPayload {

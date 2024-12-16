@@ -24,7 +24,5 @@ class DockerComposeApiServiceImpl(
     private val client: RSocket,
 ) : DockerComposeApiService {
 
-    override suspend fun listProjects(): ListProjectsResp {
-        return client.reqResp(Req.ListProjects)
-    }
+    override suspend fun listProjects(): ListProjectsResp = client.reqResp(Req.ListProjects)
 }

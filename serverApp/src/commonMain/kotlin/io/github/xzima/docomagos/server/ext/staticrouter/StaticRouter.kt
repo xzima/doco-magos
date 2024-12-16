@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.server.ext.static_router
+package io.github.xzima.docomagos.server.ext.staticrouter
 
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import okio.*
+import okio.FileSystem
+import okio.Path
 
 open class StaticRouter(
     private val staticRootFolder: Path,

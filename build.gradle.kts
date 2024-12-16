@@ -51,6 +51,7 @@ spotless {
 }
 
 fun BaseKotlinExtension.configureSpotlessKotlin(yearPlaceholder: String, author: String) {
+    ktlint("1.5.0")
     licenseHeader(
         """
         /**
@@ -72,4 +73,3 @@ fun BaseKotlinExtension.configureSpotlessKotlin(yearPlaceholder: String, author:
         "(package |@file|import |plugins )", // based on KotlinConstants.LICENSE_HEADER_DELIMITER
     )
 }
-

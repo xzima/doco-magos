@@ -55,7 +55,6 @@ dependencyResolutionManagement {
     }
 }
 
-
 include(":serverApp")
 include(":serverClient")
 include(":serverCore")

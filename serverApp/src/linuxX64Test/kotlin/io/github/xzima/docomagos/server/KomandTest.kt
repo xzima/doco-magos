@@ -27,7 +27,6 @@ import kotlin.time.Duration.Companion.seconds
 @FlowPreview
 class KomandTest {
 
-
     @Test
     fun testKomand() = runBlocking {
         getForever(getStats())

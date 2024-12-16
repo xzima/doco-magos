@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.server.ext.static_router
+package io.github.xzima.docomagos.server.ext.staticrouter
 
 import io.ktor.http.*
 import io.ktor.http.content.*
@@ -22,7 +22,9 @@ import io.ktor.utils.io.*
 import io.ktor.utils.io.charsets.*
 import okio.*
 
-class LocalFileContent(private val path: Path) : OutgoingContent.WriteChannelContent() {
+class LocalFileContent(
+    private val path: Path,
+) : OutgoingContent.WriteChannelContent() {
 
     override val contentLength: Long get() = stat().size ?: -1
 
