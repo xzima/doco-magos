@@ -23,11 +23,11 @@ import app.softwork.routingcompose.HashRouter
 import io.github.xzima.docomagos.ui.UiConstants
 
 @Composable
-fun AppScaffold() {
+fun AppScaffold(modifier: Modifier = Modifier) {
     val scaffoldState = rememberScaffoldState()
 
     HashRouter("") {
-        Row {
+        Row(modifier = modifier) {
             AppNavigationRail()
             Scaffold(
                 scaffoldState = scaffoldState,
@@ -37,9 +37,9 @@ fun AppScaffold() {
                 Box(Modifier.padding(innerPadding).fillMaxSize()) {
                     Row(modifier = Modifier.padding(PaddingValues(UiConstants.DEFAULT_PADDING))) {
                         DCProjectsCardColumn(
-                            modifier = Modifier.weight(1f),
                             defaultPadding = UiConstants.DEFAULT_PADDING,
                             snackbarHostState = scaffoldState.snackbarHostState,
+                            modifier = Modifier.weight(1f),
                         )
                         Box(Modifier.weight(2f))
                     }

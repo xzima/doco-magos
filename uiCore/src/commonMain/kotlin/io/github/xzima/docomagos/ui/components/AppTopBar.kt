@@ -17,11 +17,13 @@ package io.github.xzima.docomagos.ui.components
 
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import io.github.xzima.docomagos.ui.UiConstants
 
 @Composable
-fun AppTopBar() {
+fun AppTopBar(modifier: Modifier = Modifier) {
     TopAppBar(
+        modifier = modifier,
         title = { Text(UiConstants.APP_NAME) },
     )
 }

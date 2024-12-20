@@ -19,15 +19,16 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import app.softwork.routingcompose.Router
 
 @Composable
-fun AppNavigationRail() {
+fun AppNavigationRail(modifier: Modifier = Modifier) {
     val router = Router.current
-    var selectedItem by remember { mutableStateOf(0) }
+    var selectedItem by remember { mutableIntStateOf(0) }
     val items = listOf("Home", "Search", "Settings")
     val icons = listOf(Icons.Filled.Home, Icons.Filled.Search, Icons.Filled.Settings)
-    NavigationRail(windowInsets = NavigationRailDefaults.windowInsets) {
+    NavigationRail(modifier = modifier, windowInsets = NavigationRailDefaults.windowInsets) {
         items.forEachIndexed { index, item ->
             NavigationRailItem(
                 icon = { Icon(icons[index], contentDescription = item) },

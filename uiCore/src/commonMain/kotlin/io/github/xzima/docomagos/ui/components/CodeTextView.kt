@@ -29,7 +29,7 @@ import dev.snipme.highlights.model.BoldHighlight
 import dev.snipme.highlights.model.ColorHighlight
 
 @Composable
-fun CodeTextView(modifier: Modifier = Modifier.background(Color.Transparent), highlights: Highlights) = Surface {
+fun CodeTextView(highlights: Highlights, modifier: Modifier = Modifier.background(Color.Transparent)) = Surface {
     Text(
         modifier = modifier,
         text = buildAnnotatedString {
