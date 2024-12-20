@@ -6,7 +6,7 @@ nebula-info = "13.3.0"
 vlsi = "1.90"
 
 [libraries]
-bom-kotlinxCoroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-bom", version = "1.9.0" }
+bom-kotlinxCoroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-bom", version = "1.10.1" }
 bom-kotlinWrappers = { group = "org.jetbrains.kotlin-wrappers", name = "kotlin-wrappers-bom", version = "1.0.0-pre.818" }
 bom-kotlinxSerialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-bom", version = "1.7.3" }
 bom-kotlinLibs = { group = "org.jetbrains.kotlin", name = "kotlin-bom", version.ref = "kotlin" }
