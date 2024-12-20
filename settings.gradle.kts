@@ -20,7 +20,7 @@ import org.tomlj.Toml
 rootProject.name = "doco-magos"
 
 plugins {
-    id("dev.aga.gradle.version-catalog-generator") version ("2.0.0")
+    id("dev.aga.gradle.version-catalog-generator") version ("2.1.2")
 }
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
