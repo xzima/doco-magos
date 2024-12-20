@@ -27,7 +27,7 @@ rsocket-ktor-ws-server = { group = "io.rsocket.kotlin", name = "rsocket-transpor
 rsocket-core = { group = "io.rsocket.kotlin", name = "rsocket-core", version.ref = "rsocket" }
 rsocket-ktor-server = { group = "io.rsocket.kotlin", name = "rsocket-ktor-server", version.ref = "rsocket" }
 rsocket-ktor-client = { group = "io.rsocket.kotlin", name = "rsocket-ktor-client", version.ref = "rsocket" }
-logging = { group = "io.github.oshai", name = "kotlin-logging", version = "7.0.0" }
+logging = { group = "io.github.oshai", name = "kotlin-logging", version = "7.0.3" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version = "0.6.1" }
 
 [bundles]
