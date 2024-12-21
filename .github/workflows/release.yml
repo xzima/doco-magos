@@ -38,7 +38,7 @@ jobs:
         name: Release
         run: npx semantic-release # --debug
         env:
-          GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Do something when a new release published
         run: |
