@@ -1,0 +1,54 @@
+---
+name: Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  checks: write
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    outputs:
+      new_release_published: ${{ steps.release.outputs.new_release_published }}
+      new_release_version: ${{ steps.release.outputs.new_release_version }}
+      branch_type: ${{ steps.release.outputs.branch_type }}
+      branch_name: ${{ steps.release.outputs.branch_name }}
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: init npm
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - id: release
+        name: Release
+        run: npx semantic-release # --debug
+        env:
+          GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+
+      - name: Do something when a new release published
+        run: |
+          echo ${{ steps.release.outputs.new_release_published }}
+          echo ${{ steps.release.outputs.new_release_version }}
+          echo ${{ steps.release.outputs.branch_type }}
+          echo ${{ steps.release.outputs.branch_name }}
+
+
+concurrency:
+  # один запуск workflow для каждой ветки
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
