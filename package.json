@@ -2,6 +2,7 @@
   "scripts": {
     "semantic-release": "semantic-release",
     "prepare": "husky",
+    "publish-docker-release": "zx ./publish-docker-release.mjs",
     "local": "dotenv-run-script .env .env.local --",
     "serverApp": "serverApp/build/bin/linuxX64/releaseExecutable/serverApp.kexe",
     "runLocal": "npm run local serverApp"
@@ -14,6 +15,9 @@
     "semantic-release": "24.2.0",
     "@semantic-release/git": "10.0.1",
     "@semantic-release/changelog": "6.0.3",
-    "conventional-changelog-conventionalcommits": "8.0.0"
+    "conventional-changelog-conventionalcommits": "8.0.0",
+    "zx": "8.2.4",
+    "@inquirer/prompts": "7.2.1",
+    "properties-reader": "2.3.0"
   }
 }
