@@ -4,6 +4,7 @@
 <br />
 
 ![GitHub](https://img.shields.io/github/license/xzima/gradle-semantic-release-example?style=for-the-badge)
+![wakatime](https://wakatime.com/badge/user/788aae3b-fd3f-456f-891e-ed57a2526f9f/project/2488c43a-aa0d-4f7e-8aa6-d8e3e3e9185a.svg?style=for-the-badge)
 
 </div>
 <details open="open">
