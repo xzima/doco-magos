@@ -27,13 +27,12 @@ private val holder = AtomicReference(Job())
 
 @OptIn(ExperimentalForeignApi::class)
 fun initGracefulShutdown(): CompletableJob {
-    signal(
-        SIGINT,
-        staticCFunction<Int, Unit> {
-            logger.info { "start holder complete" }
-            holder.value.complete()
-            logger.info { "end holder complete" }
-        },
-    )
+    val handler = staticCFunction<Int, Unit> {
+        logger.info { "start holder complete" }
+        holder.value.complete()
+        logger.info { "end holder complete" }
+    }
+    signal(SIGINT, handler)
+    signal(SIGTERM, handler)
     return holder.value
 }
