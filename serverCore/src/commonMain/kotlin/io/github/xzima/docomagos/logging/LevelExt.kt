@@ -13,8 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos
+package io.github.xzima.docomagos.logging
 
-object Constants {
-    const val RSOCKET_API_PATH = "rSocket"
+import io.github.oshai.kotlinlogging.Level
+import org.koin.core.logger.Level as KoinLevel
+
+fun Level.toKoinLevel() = when (this) {
+    Level.TRACE, Level.DEBUG -> KoinLevel.DEBUG
+    Level.INFO -> KoinLevel.INFO
+    Level.WARN -> KoinLevel.WARNING
+    Level.ERROR -> KoinLevel.ERROR
+    Level.OFF -> KoinLevel.NONE
+}
+
+fun String.toLevel(): Level {
+    val level = Level.entries.firstOrNull { it.toString().equals(toString(), ignoreCase = true) }
+    if (null == level) {
+        throw IllegalStateException("$this is not valid logging level")
+    }
+    return level
 }

@@ -42,8 +42,6 @@ kotlin {
             implementation(libs.rsocket.ktor.server)
             implementation(libs.rsocket.ktor.ws.server)
 
-            implementation(koin.koinCore)
-
             implementation(libs.kommand)
             implementation(kotlinxSerialization.kotlinxSerializationJson)
         }

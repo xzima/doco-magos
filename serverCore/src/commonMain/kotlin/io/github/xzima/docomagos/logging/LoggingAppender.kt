@@ -13,15 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.ui
+package io.github.xzima.docomagos.logging
 
-import io.github.xzima.docomagos.client.DockerComposeApiService
-import io.github.xzima.docomagos.client.DockerComposeApiServiceImpl
-import io.github.xzima.docomagos.koin.configureKoin
-import io.github.xzima.docomagos.ui.states.DCProjectsListViewModel
-import io.rsocket.kotlin.RSocket
+import io.github.oshai.kotlinlogging.Appender
 
-fun initKoinModule(client: RSocket) = configureKoin {
-    single<DockerComposeApiService> { DockerComposeApiServiceImpl(client) }
-    factory { DCProjectsListViewModel(get()) }
-}
+expect fun loggingAppender(): Appender

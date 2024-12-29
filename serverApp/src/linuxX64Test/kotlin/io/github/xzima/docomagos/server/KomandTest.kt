@@ -13,26 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(FlowPreview::class)
+
 package io.github.xzima.docomagos.server
 
 import com.kgit2.kommand.process.Command
 import com.kgit2.kommand.process.Stdio
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.xzima.docomagos.logging.from
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
 
+private val logger = KotlinLogging.from(KomandTest::class)
+
 @Ignore
-@FlowPreview
 class KomandTest {
 
     @Test
     fun testKomand() = runBlocking {
         getForever(getStats())
-            .onCompletion { println("Completion: $it") }
+            .onCompletion { logger.info { "Completion: $it" } }
             .timeout(10.seconds)
-            .collect { println(it) }
+            .collect { logger.info { it } }
     }
 
     private suspend fun getContainers() = withContext(Dispatchers.IO) {
@@ -45,7 +50,7 @@ class KomandTest {
         var i = 0
         do {
             emitAll(source)
-            println("retry: $i")
+            logger.info { "retry: $i" }
             delay(1000)
             i++
         } while (true)

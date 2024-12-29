@@ -13,27 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.server
+package io.github.xzima.docomagos.logging
 
+import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.github.xzima.docomagos.logging.from
-import kotlinx.cinterop.*
-import kotlinx.coroutines.*
-import platform.posix.*
-import kotlin.concurrent.AtomicReference
+import kotlin.reflect.KClass
 
-private val logger = KotlinLogging.from(::initGracefulShutdown)
-private val holder = AtomicReference(Job())
-
-@OptIn(ExperimentalForeignApi::class)
-fun initGracefulShutdown(): CompletableJob {
-    signal(
-        SIGINT,
-        staticCFunction<Int, Unit> {
-            logger.info { "start holder complete" }
-            holder.value.complete()
-            logger.info { "end holder complete" }
-        },
-    )
-    return holder.value
-}
+actual fun KotlinLogging.from(kClass: KClass<*>): KLogger = logger(kClass.qualifiedName ?: "")

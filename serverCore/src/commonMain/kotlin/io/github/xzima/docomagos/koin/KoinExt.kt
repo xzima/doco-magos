@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.ui
+package io.github.xzima.docomagos.koin
 
-import io.github.xzima.docomagos.client.DockerComposeApiService
-import io.github.xzima.docomagos.client.DockerComposeApiServiceImpl
-import io.github.xzima.docomagos.koin.configureKoin
-import io.github.xzima.docomagos.ui.states.DCProjectsListViewModel
-import io.rsocket.kotlin.RSocket
+import org.koin.core.context.startKoin
+import org.koin.core.module.Module
+import org.koin.dsl.module
+import org.koin.mp.KoinPlatform
 
-fun initKoinModule(client: RSocket) = configureKoin {
-    single<DockerComposeApiService> { DockerComposeApiServiceImpl(client) }
-    factory { DCProjectsListViewModel(get()) }
+inline fun <reified T : Any> inject() = KoinPlatform.getKoin().get<T>()
+
+fun configureKoin(moduleDeclaration: Module.() -> Unit) = startKoin {
+    logger(KoinLogger())
+    modules(
+        module(moduleDeclaration = moduleDeclaration),
+    )
 }

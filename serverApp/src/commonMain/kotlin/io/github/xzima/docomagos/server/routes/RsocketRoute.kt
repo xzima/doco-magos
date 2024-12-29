@@ -17,27 +17,31 @@
 
 package io.github.xzima.docomagos.server.routes
 
-import io.github.xzima.docomagos.Constants
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.xzima.docomagos.RsocketConst
 import io.github.xzima.docomagos.api.ConfiguredProtoBuf
 import io.github.xzima.docomagos.api.Req
 import io.github.xzima.docomagos.api.decodeFromRequest
 import io.github.xzima.docomagos.api.encodeToPayload
+import io.github.xzima.docomagos.koin.inject
+import io.github.xzima.docomagos.logging.from
 import io.github.xzima.docomagos.server.handlers.ListProjectsHandler
-import io.github.xzima.docomagos.server.inject
 import io.ktor.server.routing.*
 import io.rsocket.kotlin.RSocketRequestHandler
 import io.rsocket.kotlin.ktor.server.rSocket
 import kotlinx.serialization.*
 
-fun Routing.rSocketRoute() {
-    rSocket(Constants.RSOCKET_API_PATH) {
-        println(config.setupPayload.data.readText()) // print setup payload data
+private val logger = KotlinLogging.from(Routing::rsocketRoute)
+
+fun Routing.rsocketRoute() {
+    rSocket(path = RsocketConst.PATH) {
+        logger.info { config.setupPayload.data.readText() } // print setup payload data
 
         RSocketRequestHandler {
             // handler for request/response
             requestResponse { requestPayload ->
                 val request = ConfiguredProtoBuf.decodeFromRequest(requestPayload)
-                println(request)
+                logger.info { request }
 
                 val response = when (request) {
                     is Req.ListProjects -> inject<ListProjectsHandler>().handle(request)

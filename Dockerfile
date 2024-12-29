@@ -22,6 +22,7 @@ RUN apt-get -y update; apt-get -y install curl
 RUN curl -SL https://github.com/docker/compose/releases/download/$APP_BUILD_DOCKER_COMPOSE_VERSION/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
 RUN chmod +x /usr/local/bin/docker-compose
 # default app env variables
+ENV LOGGING_LEVEL=INFO
 ENV RSOCKET_MAX_FRAGMENT_SIZE=1024
 ENV KTOR_PORT=4444
 ENV KTOR_REUSE_ADDRESS=true

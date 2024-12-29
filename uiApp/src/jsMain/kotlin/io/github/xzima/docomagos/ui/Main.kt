@@ -17,13 +17,21 @@ package io.github.xzima.docomagos.ui
 
 import androidx.compose.ui.*
 import androidx.compose.ui.window.*
+import io.github.oshai.kotlinlogging.Level
 import io.github.xzima.docomagos.client.createRsocketClient
+import io.github.xzima.docomagos.logging.configureLogging
+import io.ktor.client.plugins.logging.*
 import kotlinx.browser.*
 import org.jetbrains.skiko.wasm.onWasmReady
 
 @OptIn(ExperimentalComposeUiApi::class)
 suspend fun main() {
-    val client = createRsocketClient(window.location.host)
+    val loggingLevel = Level.INFO
+    val reqRespLogLevel = LogLevel.ALL
+
+    configureLogging(loggingLevel)
+
+    val client = createRsocketClient(window.location.host, reqRespLogLevel)
     initKoinModule(client)
     onWasmReady {
         CanvasBasedWindow(title = UiConstants.APP_NAME) {

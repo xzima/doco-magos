@@ -15,14 +15,26 @@
  */
 package io.github.xzima.docomagos.server
 
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.xzima.docomagos.koin.inject
+import io.github.xzima.docomagos.logging.configureLogging
+import io.github.xzima.docomagos.logging.from
+import io.github.xzima.docomagos.logging.toLevel
+import io.github.xzima.docomagos.server.App.stopServer
+import io.github.xzima.docomagos.server.env.EnvUtils
 import io.github.xzima.docomagos.server.services.DockerComposeService
 import kotlinx.coroutines.*
 
-fun main() = runBlocking {
+private val logger = KotlinLogging.from(::main)
+
+fun main(): Unit = runBlocking {
+    configureLogging(EnvUtils.getEnvVar("LOGGING_LEVEL") { it.toLevel() })
     initKoinModule()
     // TODO create check external services task
-    println("DC: " + inject<DockerComposeService>().listProjects().size)
-    val server = createServer().start()
+    inject<DockerComposeService>().listProjects().also {
+        logger.debug { "DC: ${it.size}" }
+    }
+    val server = App.createServer().start()
     initGracefulShutdown().join()
     server.stopServer()
 }

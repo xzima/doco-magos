@@ -15,10 +15,14 @@
  */
 package io.github.xzima.docomagos.server
 
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.xzima.docomagos.koin.inject
+import io.github.xzima.docomagos.logging.from
 import io.github.xzima.docomagos.server.env.KtorEnv
 import io.github.xzima.docomagos.server.env.RSocketEnv
+import io.github.xzima.docomagos.server.ext.ktor.customEmbeddedServer
 import io.github.xzima.docomagos.server.routes.http
-import io.github.xzima.docomagos.server.routes.rSocketRoute
+import io.github.xzima.docomagos.server.routes.rsocketRoute
 import io.github.xzima.docomagos.server.services.StaticUiService
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
@@ -27,13 +31,10 @@ import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.rsocket.kotlin.ktor.server.RSocketSupport
 
-fun createServer(): CIOApplicationEngine {
-    val ktorEnv = inject<KtorEnv>()
+object App {
+    private val logger = KotlinLogging.from(App::class)
 
-    val configure: CIOApplicationEngine.Configuration.() -> Unit = {
-        reuseAddress = ktorEnv.reuseAddress
-    }
-    return embeddedServer(CIO, port = ktorEnv.port, configure = configure) {
+    fun createServer(): CIOApplicationEngine = customEmbeddedServer {
         install(WebSockets)
         install(RSocketSupport) {
             server {
@@ -41,17 +42,18 @@ fun createServer(): CIOApplicationEngine {
                 maxFragmentSize = rSocketEnv.maxFragmentSize
             }
         }
+
         environment.monitor.subscribe(ApplicationStarted) {
-            println("ApplicationStarted")
+            logger.info { "ApplicationStarted" }
         }
         environment.monitor.subscribe(ApplicationStopping) {
-            println("ApplicationStopping")
+            logger.info { "ApplicationStopping" }
         }
         environment.monitor.subscribe(ApplicationStopped) {
-            println("ApplicationStopped")
+            logger.info { "ApplicationStopped" }
         }
         environment.monitor.subscribe(ApplicationStopPreparing) {
-            println("ApplicationStopPreparing")
+            logger.info { "ApplicationStopPreparing" }
         }
 
         routing {
@@ -60,14 +62,14 @@ fun createServer(): CIOApplicationEngine {
                 val staticUiService = inject<StaticUiService>()
                 staticUiService.configureStaticUi(this)
             }
-            rSocketRoute()
+            rsocketRoute()
         }
     }
-}
 
-fun ApplicationEngine.stopServer() {
-    val ktorEnv = inject<KtorEnv>()
-    environment.log.info("start server stopping")
-    stop(ktorEnv.gracePeriodMillis, ktorEnv.graceTimeoutMillis)
-    environment.log.info("server successfully stopped")
+    fun ApplicationEngine.stopServer() {
+        val ktorEnv = inject<KtorEnv>()
+        logger.info { "start server stopping" }
+        stop(ktorEnv.gracePeriodMillis, ktorEnv.graceTimeoutMillis)
+        logger.info { "server successfully stopped" }
+    }
 }

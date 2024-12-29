@@ -33,6 +33,8 @@ kotlin {
 
             api(libs.logging)
             api(libs.kotlinx.datetime)
+
+            api(koin.koinCore)
         }
     }
 }

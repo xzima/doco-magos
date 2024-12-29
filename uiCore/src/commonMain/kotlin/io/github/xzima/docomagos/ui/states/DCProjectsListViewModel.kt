@@ -17,14 +17,19 @@ package io.github.xzima.docomagos.ui.states
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.xzima.docomagos.client.DockerComposeApiService
+import io.github.xzima.docomagos.logging.from
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+
+private val logger = KotlinLogging.from(DCProjectsListViewModel::class)
 
 class DCProjectsListViewModel(
     private val dockerComposeApiService: DockerComposeApiService,
 ) : ViewModel() {
     init {
+        logger.info { "ViewModel initialized" }
         onLaunch()
     }
 

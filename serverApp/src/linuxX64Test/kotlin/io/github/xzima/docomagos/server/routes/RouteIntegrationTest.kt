@@ -16,15 +16,18 @@
 package io.github.xzima.docomagos.server.routes
 
 import initTestKoinModule
+import io.github.oshai.kotlinlogging.Level
 import io.github.xzima.docomagos.client.DockerComposeApiServiceImpl
 import io.github.xzima.docomagos.client.createRsocketClient
-import io.github.xzima.docomagos.server.createServer
+import io.github.xzima.docomagos.logging.configureLogging
+import io.github.xzima.docomagos.server.App
 import io.kotest.assertions.ktor.client.shouldHaveStatus
 import io.kotest.common.runBlocking
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.ktor.client.*
 import io.ktor.client.plugins.*
+import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -47,15 +50,16 @@ class RouteIntegrationTest {
 
     @BeforeTest
     fun beforeTest(): Unit = runBlocking {
+        configureLogging(Level.TRACE)
         initTestKoinModule(port = TEST_PORT)
-        server = createServer().start(wait = false)
+        server = App.createServer().start(wait = false)
 
         httpClient = HttpClient {
             defaultRequest {
                 url("http://$TEST_HOST")
             }
         }
-        rSocketClient = createRsocketClient(TEST_HOST)
+        rSocketClient = createRsocketClient(TEST_HOST, LogLevel.ALL)
     }
 
     @AfterTest

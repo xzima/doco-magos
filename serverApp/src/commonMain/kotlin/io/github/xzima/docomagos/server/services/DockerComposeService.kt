@@ -17,10 +17,14 @@ package io.github.xzima.docomagos.server.services
 
 import com.kgit2.kommand.process.Command
 import com.kgit2.kommand.process.Stdio
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.xzima.docomagos.logging.from
 import io.github.xzima.docomagos.server.services.models.DCListProjects
 import io.github.xzima.docomagos.server.services.models.DCVersion
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.*
+
+private val logger = KotlinLogging.from(DockerComposeService::class)
 
 class DockerComposeService {
 
@@ -30,7 +34,7 @@ class DockerComposeService {
             .stdout(Stdio.Pipe)
         val child = command.spawn()
         val output = child.waitWithOutput()
-        println("version result: $output")
+        logger.info { "version result: $output" }
         Json.decodeFromString<DCVersion>(output.stdout!!)
     }
 
@@ -41,7 +45,7 @@ class DockerComposeService {
         val child = command.spawn()
         val output = child.waitWithOutput()
         // output.status == 0 //isOk
-        println("ls result: $output")
+        logger.info { "ls result: $output" }
         Json.decodeFromString<List<DCListProjects>>(output.stdout!!)
     }
 }
