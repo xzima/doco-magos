@@ -1,5 +1,5 @@
 /**
- * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
+ * Copyright 2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.server.env
+package io.github.xzima.docomagos.server.services.impl
 
-data class AppEnv(
-    val staticUiPath: String,
-    val jobPeriodMs: Int,
-)
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.xzima.docomagos.logging.from
+import io.github.xzima.docomagos.server.services.PingService
+
+private val logger = KotlinLogging.from(PingServiceImpl::class)
+
+class PingServiceImpl : PingService {
+    override suspend fun ping() {
+        logger.info { "Ping" }
+    }
+}

@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Alex Zima(xzima@ro.ru)
+ * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,10 +33,12 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.engine.*
 import io.rsocket.kotlin.RSocket
+import kotlinx.coroutines.delay
 import org.koin.core.context.stopKoin
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.seconds
 
 class RouteIntegrationTest {
     private companion object {
@@ -66,6 +68,7 @@ class RouteIntegrationTest {
     fun afterTest(): Unit = runBlocking {
         server.stop()
         stopKoin()
+        delay(1.seconds)
     }
 
     @Test

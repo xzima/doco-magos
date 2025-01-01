@@ -29,6 +29,7 @@ ENV KTOR_REUSE_ADDRESS=true
 ENV KTOR_GRACE_PERIOD_MILLIS=5000
 ENV KTOR_GRACE_TIMEOUT_MILLIS=10000
 ENV STATIC_UI_PATH=/static-ui
+ENV JOB_PERIOD_MS=3000
 # copy app binaries
 COPY ./serverApp/build/bin/linuxX64/releaseExecutable/serverApp.kexe /app.kexe
 COPY ./uiApp/build/dist/js/productionExecutable $STATIC_UI_PATH

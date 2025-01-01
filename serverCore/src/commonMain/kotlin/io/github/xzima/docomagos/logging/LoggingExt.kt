@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Alex Zima(xzima@ro.ru)
+ * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,5 +40,8 @@ internal tailrec fun createThrowableMsg(throwable: Throwable?, msg: String = "")
     if (throwable == null || throwable.cause == throwable) {
         msg
     } else {
-        createThrowableMsg(throwable.cause, "$msg, Caused by: '${throwable.message}'")
+        createThrowableMsg(
+            throwable.cause,
+            "$msg\n Caused by: ${throwable.stackTraceToString()}",
+        )
     }
