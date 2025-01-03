@@ -1,0 +1,2 @@
+#!/bin/bash
+[[ -v GIT_TOKEN ]] && echo $GIT_TOKEN || ([[ -v GIT_TOKEN_FILE ]] && cat $GIT_TOKEN_FILE)

@@ -208,3 +208,4 @@ replay_pid*
 
 .kotlin
 .release.properties
+.git-token
