@@ -19,7 +19,8 @@ import com.kgit2.kommand.process.Command
 import com.kgit2.kommand.process.Stdio
 import io.github.oshai.kotlinlogging.Level
 import io.github.xzima.docomagos.logging.configureLogging
-import io.kotest.matchers.nulls.shouldBeNull
+import io.github.xzima.docomagos.server.services.impl.GitClientImpl
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldEndWith
@@ -50,7 +51,7 @@ class GitClientTest {
         repoRoot = pwdPath.resolve("build/repo", normalize = true)
         FileSystem.SYSTEM.deleteRecursively(repoRoot, false)
 
-        gitClient = GitClient(pwdPath.resolve("../GIT_ASKPASS", normalize = true).toString())
+        gitClient = GitClientImpl(pwdPath.resolve("../GIT_ASKPASS", normalize = true).toString())
     }
 
     @Test
@@ -193,10 +194,12 @@ class GitClientTest {
     @Test
     fun testGetRepoPathFromNotGitDirectory(): Unit = runBlocking {
         // WHEN
-        val actual = gitClient.getRepoPathBy("/tmp")
+        val actual = shouldThrow<RuntimeException> { gitClient.getRepoPathBy("/tmp") }
 
         // THEN
-        actual.shouldBeNull()
+        actual.shouldNotBeNull().message shouldBe
+            "command failed. status: 128 message: fatal: not a git repository (or any parent up to mount point /)\n" +
+            "Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\n"
     }
 
     @Test
@@ -225,19 +228,22 @@ class GitClientTest {
         )
 
         // WHEN
-        val actual = gitClient.getRepoUrlBy(repoRoot.toString(), "strange-remote")
+        val actual = shouldThrow<RuntimeException> { gitClient.getRepoUrlBy(repoRoot.toString(), "strange-remote") }
 
         // THEN
-        actual.shouldBeNull()
+        actual.message shouldBe
+            "command failed. status: 2 message: error: No such remote 'strange-remote'\n"
     }
 
     @Test
     fun testGetRepoFromNotGitDirectory(): Unit = runBlocking {
         // WHEN
-        val actual = gitClient.getRepoUrlBy("/tmp", "origin")
+        val actual = shouldThrow<RuntimeException> { gitClient.getRepoUrlBy("/tmp", "origin") }
 
         // THEN
-        actual.shouldBeNull()
+        actual.message shouldBe
+            "command failed. status: 128 message: fatal: not a git repository (or any parent up to mount point /)\n" +
+            "Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\n"
     }
 
     @Test
@@ -250,10 +256,7 @@ class GitClientTest {
         )
 
         // WHEN
-        val actual = gitClient.fetchRemote(repoRoot.toString(), "origin", gitTokenFile = gitTokenFile.toString())
-
-        // THEN
-        actual shouldBe true
+        gitClient.fetchRemote(repoRoot.toString(), "origin", gitTokenFile = gitTokenFile.toString())
     }
 
     @Test
@@ -266,10 +269,12 @@ class GitClientTest {
         )
 
         // WHEN
-        val actual = gitClient.fetchRemote(repoRoot.toString(), "origin")
+        val actual = shouldThrow<RuntimeException> { gitClient.fetchRemote(repoRoot.toString(), "origin") }
 
         // THEN
-        actual shouldBe false
+        actual.message shouldBe
+            "command failed. status: 128 message: " +
+            "fatal: could not read Username for 'https://github.com': No such device or address\n"
     }
 
     @Test
@@ -282,23 +287,30 @@ class GitClientTest {
         )
 
         // WHEN
-        val actual = gitClient.fetchRemote(
-            repoRoot.toString(),
-            "strange-remote",
-            gitTokenFile = gitTokenFile.toString(),
-        )
+        val actual = shouldThrow<RuntimeException> {
+            gitClient.fetchRemote(repoRoot.toString(), "strange-remote", gitTokenFile = gitTokenFile.toString())
+        }
 
         // THEN
-        actual shouldBe false
+        actual.message shouldBe
+            "command failed. status: 128 message: fatal: 'strange-remote' does not appear to be a git repository\n" +
+            "fatal: Could not read from remote repository.\n" +
+            "\n" +
+            "Please make sure you have the correct access rights\n" +
+            "and the repository exists.\n"
     }
 
     @Test
     fun testFetchFromNotGitDirectory(): Unit = runBlocking {
         // WHEN
-        val actual = gitClient.fetchRemote("/tmp", "origin", gitTokenFile = gitTokenFile.toString())
+        val actual = shouldThrow<RuntimeException> {
+            gitClient.fetchRemote("/tmp", "origin", gitTokenFile = gitTokenFile.toString())
+        }
 
         // THEN
-        actual shouldBe false
+        actual.message shouldBe
+            "command failed. status: 128 message: fatal: not a git repository (or any parent up to mount point /)\n" +
+            "Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\n"
     }
 
     @Test
@@ -384,18 +396,26 @@ class GitClientTest {
         )
 
         // WHEN
-        val actual = gitClient.getLastCommitByRef(repoRoot.toString(), "origin/strange-branch")
+        val actual = shouldThrow<RuntimeException> {
+            gitClient.getLastCommitByRef(repoRoot.toString(), "origin/strange-branch")
+        }
 
         // THEN
-        actual.shouldBeNull()
+        actual.message shouldBe
+            "command failed. status: 128 message: fatal: ambiguous argument 'origin/strange-branch': " +
+            "unknown revision or path not in the working tree.\n" +
+            "Use '--' to separate paths from revisions, like this:\n" +
+            "'git <command> [<revision>...] -- [<file>...]'\n"
     }
 
     @Test
     fun testGetLastCommitFromNotGitDirectory(): Unit = runBlocking {
         // WHEN
-        val actual = gitClient.getLastCommitByRef("/tmp", "origin/master")
+        val actual = shouldThrow<RuntimeException> { gitClient.getLastCommitByRef("/tmp", "origin/master") }
 
         // THEN
-        actual.shouldBeNull()
+        actual.message shouldBe
+            "command failed. status: 128 message: fatal: not a git repository (or any parent up to mount point /)\n" +
+            "Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\n"
     }
 }

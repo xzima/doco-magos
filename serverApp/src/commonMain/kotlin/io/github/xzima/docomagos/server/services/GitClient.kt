@@ -15,44 +15,14 @@
  */
 package io.github.xzima.docomagos.server.services
 
-import com.kgit2.kommand.io.Output
-import com.kgit2.kommand.process.Command
-import com.kgit2.kommand.process.Stdio
-import io.github.oshai.kotlinlogging.KotlinLogging
-import io.github.xzima.docomagos.logging.from
 import io.github.xzima.docomagos.server.services.models.GitVersion
-import kotlinx.coroutines.*
 
-private val logger = KotlinLogging.from(GitClient::class)
-
-class GitClient(
-    private val gitAskPass: String,
-) {
+interface GitClient {
     companion object {
         const val HEAD_REF_NAME = "HEAD"
-
-        private const val GIT_ASK_PASS_ENV_NAME = "GIT_ASKPASS"
-        private const val GIT_TOKEN_ENV_NAME = "GIT_TOKEN"
-        private const val GIT_TOKEN_FILE_ENV_NAME = "GIT_TOKEN_FILE"
-
-        private val VERSION_REGEX = Regex("^git version (?<version>.*)$")
     }
 
-    suspend fun version(): GitVersion? = withContext(Dispatchers.IO) {
-        val output = gitCommand {
-            args("--version")
-        }
-        logger.debug { "version result: $output" }
-
-        val result = output.resultOrNull() ?: return@withContext null
-        val version = VERSION_REGEX.find(result)
-            ?.groups
-            ?.get("version")
-            ?.value
-            ?.trim() ?: return@withContext null
-
-        return@withContext GitVersion(version)
-    }
+    suspend fun version(): GitVersion?
 
     /**
      * @return is success
@@ -62,104 +32,21 @@ class GitClient(
         repoPath: String,
         gitToken: String? = null,
         gitTokenFile: String? = null,
-    ): Boolean = withContext(Dispatchers.IO) {
-        val output = gitCommand {
-            args("clone", repoUrl, repoPath)
-            configureCredentials(gitToken = gitToken, gitTokenFile = gitTokenFile)
-        }
-        logger.debug { "clone result: $output" }
-
-        return@withContext 0 == output.status
-    }
+    ): Boolean
 
     /**
      * @return repo root path
      */
-    suspend fun getRepoPathBy(repoPath: String): String? = withContext(Dispatchers.IO) {
-        val output = gitCommand {
-            cwd(repoPath)
-            args("rev-parse", "--show-toplevel")
-        }
-
-        logger.debug { "get repo path result: $output" }
-
-        return@withContext output.resultOrNull()
-    }
+    suspend fun getRepoPathBy(repoPath: String): String?
 
     /**
      * @return repo origin url
      */
-    suspend fun getRepoUrlBy(repoPath: String, remote: String): String? = withContext(Dispatchers.IO) {
-        val output = gitCommand {
-            cwd(repoPath)
-            args("remote", "get-url", remote)
-        }
+    suspend fun getRepoUrlBy(repoPath: String, remote: String): String?
 
-        logger.debug { "get repo url result: $output" }
+    suspend fun fetchRemote(repoPath: String, remote: String, gitToken: String? = null, gitTokenFile: String? = null)
 
-        return@withContext output.resultOrNull()
-    }
+    suspend fun hardResetHeadToRef(repoPath: String, ref: String): Boolean
 
-    suspend fun fetchRemote(
-        repoPath: String,
-        remote: String,
-        gitToken: String? = null,
-        gitTokenFile: String? = null,
-    ): Boolean = withContext(Dispatchers.IO) {
-        val output = gitCommand {
-            cwd(repoPath)
-            args("fetch", remote)
-            configureCredentials(gitToken = gitToken, gitTokenFile = gitTokenFile)
-        }
-
-        logger.debug { "fetch repo result: $output" }
-
-        return@withContext 0 == output.status
-    }
-
-    suspend fun hardResetHeadToRef(repoPath: String, ref: String): Boolean = withContext(Dispatchers.IO) {
-        val output = gitCommand {
-            cwd(repoPath)
-            args("reset", "--hard", ref)
-        }
-
-        logger.debug { "hard reset repo result: $output" }
-
-        return@withContext 0 == output.status
-    }
-
-    suspend fun getLastCommitByRef(repoPath: String, ref: String): String? = withContext(Dispatchers.IO) {
-        val output = gitCommand {
-            cwd(repoPath)
-            args("rev-parse", ref)
-        }
-
-        logger.debug { "get last commit by ref=$ref result: $output" }
-
-        return@withContext output.resultOrNull()
-    }
-
-    private fun Command.configureCredentials(gitToken: String? = null, gitTokenFile: String? = null) {
-        val gitToken = gitToken.takeUnless { it.isNullOrBlank() }
-        val gitTokenFile = gitTokenFile.takeUnless { it.isNullOrBlank() }
-        if (null != gitToken || null != gitTokenFile) {
-            env(GIT_ASK_PASS_ENV_NAME, gitAskPass)
-            if (null != gitTokenFile) {
-                env(GIT_TOKEN_FILE_ENV_NAME, gitTokenFile)
-            }
-            if (null != gitToken) {
-                env(GIT_TOKEN_ENV_NAME, gitToken)
-            }
-        }
-    }
-
-    private fun gitCommand(builder: Command.() -> Unit): Output {
-        val command = Command("git").stdout(Stdio.Pipe).stderr(Stdio.Pipe)
-        command.builder()
-        val child = command.spawn()
-        val output = child.waitWithOutput()
-        return output
-    }
-
-    private fun Output.resultOrNull() = takeIf { 0 == it.status }?.stdout?.trim().takeUnless { it.isNullOrBlank() }
+    suspend fun getLastCommitByRef(repoPath: String, ref: String): String?
 }

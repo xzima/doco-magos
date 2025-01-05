@@ -27,6 +27,7 @@ private val logger = KotlinLogging.from(JobService::class)
 class JobService(
     private val appEnv: AppEnv,
     private val pingService: PingService,
+    private val gitService: GitService,
 ) {
 
     fun createJob(scope: CoroutineScope): Job = scope.launch(start = CoroutineStart.LAZY) {
@@ -41,17 +42,33 @@ class JobService(
         }
     }
 
-    suspend fun onStart() {
-        logger.info { "Initializing ping" }
+    suspend fun onStart() = try {
+        logger.debug { "on start phase: started" }
+        gitService.checkMainRepoPath()
+        gitService.checkMainRepoUrl()
+        gitService.checkMainRepoHead()
+    } catch (e: Exception) {
+        logger.error(e) { "on start phase: failed" }
+    } finally {
+        logger.debug { "on start phase: finished" }
     }
 
     suspend fun onEach() = try {
+        logger.debug { "on each phase: started" }
         pingService.ping()
+        val isActualRepoHead = gitService.isActualRepoHead()
+        logger.info { "isActualRepoHead: $isActualRepoHead" }
     } catch (e: Exception) {
-        logger.error(e) { "Job iteration failed" }
+        logger.error(e) { "on each phase: failed" }
+    } finally {
+        logger.debug { "on each phase: finished" }
     }
 
-    suspend fun onStop() {
-        logger.info { "finally ping" }
+    suspend fun onStop() = try {
+        logger.debug { "on stop phase: started" }
+    } catch (e: Exception) {
+        logger.error(e) { "on stop phase: failed" }
+    } finally {
+        logger.debug { "on stop phase: finished" }
     }
 }

@@ -16,13 +16,17 @@
 package io.github.xzima.docomagos.server.services
 
 import dev.mokkery.MockMode
+import dev.mokkery.answering.returns
 import dev.mokkery.answering.throws
 import dev.mokkery.everySuspend
 import dev.mokkery.mock
 import dev.mokkery.resetAnswers
 import dev.mokkery.resetCalls
 import dev.mokkery.verify.VerifyMode
+import dev.mokkery.verifyNoMoreCalls
 import dev.mokkery.verifySuspend
+import io.github.oshai.kotlinlogging.Level
+import io.github.xzima.docomagos.logging.configureLogging
 import io.github.xzima.docomagos.server.env.AppEnv
 import io.kotest.common.runBlocking
 import kotlinx.coroutines.*
@@ -39,23 +43,27 @@ class JobServiceTest {
         jobPeriodMs = 100,
     )
     private val pingService = mock<PingService>(MockMode.autoUnit)
+    private val gitService = mock<GitService>(MockMode.autoUnit)
     private lateinit var service: JobService
 
     @BeforeTest
     fun beforeTest(): Unit = runBlocking {
-        service = JobService(appEnv, pingService)
+        configureLogging(Level.DEBUG)
+        service = JobService(appEnv, pingService, gitService)
     }
 
     @AfterTest
     fun afterTest(): Unit = runBlocking {
-        resetCalls(pingService)
-        resetAnswers(pingService)
+        verifyNoMoreCalls(pingService, gitService)
+        resetCalls(pingService, gitService)
+        resetAnswers(pingService, gitService)
     }
 
     @Test
-    fun testEachCall(): Unit = runBlocking {
+    fun testPositiveExecution(): Unit = runBlocking {
         coroutineScope {
             // GIVEN
+            everySuspend { gitService.isActualRepoHead() } returns true
             val job = service.createJob(this)
 
             // WHEN
@@ -64,7 +72,11 @@ class JobServiceTest {
             job.cancelAndJoin()
 
             // THEN
+            verifySuspend(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoPath() }
+            verifySuspend(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoUrl() }
+            verifySuspend(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoHead() }
             verifySuspend(mode = VerifyMode.atLeast(9)) { pingService.ping() }
+            verifySuspend(mode = VerifyMode.atLeast(9)) { gitService.isActualRepoHead() }
         }
     }
 
@@ -72,6 +84,7 @@ class JobServiceTest {
     fun testFailedEachCall(): Unit = runBlocking {
         coroutineScope {
             // GIVEN
+            everySuspend { gitService.checkMainRepoPath() } throws Exception("Any error")
             everySuspend { pingService.ping() } throws Exception("Any error")
             val job = service.createJob(this)
 
@@ -81,6 +94,7 @@ class JobServiceTest {
             job.cancelAndJoin()
 
             // THEN
+            verifySuspend(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoPath() }
             verifySuspend(mode = VerifyMode.atLeast(1)) { pingService.ping() }
         }
     }

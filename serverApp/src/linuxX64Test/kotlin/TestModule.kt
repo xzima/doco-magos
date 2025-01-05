@@ -15,13 +15,18 @@
  */
 import io.github.xzima.docomagos.koin.configureKoin
 import io.github.xzima.docomagos.server.env.AppEnv
+import io.github.xzima.docomagos.server.env.GitEnv
 import io.github.xzima.docomagos.server.env.KtorEnv
 import io.github.xzima.docomagos.server.env.RSocketEnv
 import io.github.xzima.docomagos.server.handlers.ListProjectsHandler
 import io.github.xzima.docomagos.server.services.DockerComposeService
+import io.github.xzima.docomagos.server.services.GitClient
+import io.github.xzima.docomagos.server.services.GitService
 import io.github.xzima.docomagos.server.services.JobService
 import io.github.xzima.docomagos.server.services.PingService
 import io.github.xzima.docomagos.server.services.StaticUiService
+import io.github.xzima.docomagos.server.services.impl.GitClientImpl
+import io.github.xzima.docomagos.server.services.impl.GitServiceImpl
 import io.github.xzima.docomagos.server.services.impl.PingServiceImpl
 
 fun initTestKoinModule(port: Int) = configureKoin {
@@ -44,10 +49,23 @@ fun initTestKoinModule(port: Int) = configureKoin {
             jobPeriodMs = 3_000,
         )
     }
-    single { StaticUiService(get()) }
+    single {
+        GitEnv(
+            mainRepoPath = "/tmp/repo",
+            mainRepoUrl = "https://github.com/xzima/home-composes.git",
+            mainRepoRemote = "origin",
+            mainRepoBranch = "master",
+            gitAskPass = "/tmp/GIT_ASKPASS",
+            gitToken = null,
+            gitTokenFile = null,
+        )
+    }
+    single { StaticUiService(get<AppEnv>()) }
     single { DockerComposeService() }
+    single<GitClient> { GitClientImpl(get<GitEnv>().gitAskPass) }
+    single<GitService> { GitServiceImpl(get<GitEnv>(), get<GitClient>()) }
     single<PingService> { PingServiceImpl() }
-    single { JobService(get(), get()) }
+    single { JobService(get<AppEnv>(), get<PingService>(), get<GitService>()) }
     // handlers
     single { ListProjectsHandler(get()) }
 }
