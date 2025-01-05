@@ -17,10 +17,12 @@ LABEL org.opencontainers.image.description="Docker Compose management and gitops
 #LABEL org.opencontainers.image.base.digest=
 #LABEL org.opencontainers.image.base.name=
 # install curl for install docker-compose standalone
-RUN apt-get -y update; apt-get -y install curl
+RUN apt-get -y update; apt-get -y install curl git
 # download and install docker-compose
 RUN curl -SL https://github.com/docker/compose/releases/download/$APP_BUILD_DOCKER_COMPOSE_VERSION/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
 RUN chmod +x /usr/local/bin/docker-compose
+# configure git
+RUN git config --global --add safe.directory '*'
 # default app env variables
 ENV LOGGING_LEVEL=INFO
 ENV RSOCKET_MAX_FRAGMENT_SIZE=1024
@@ -30,8 +32,16 @@ ENV KTOR_GRACE_PERIOD_MILLIS=5000
 ENV KTOR_GRACE_TIMEOUT_MILLIS=10000
 ENV STATIC_UI_PATH=/static-ui
 ENV JOB_PERIOD_MS=3000
+ENV GIT_MAIN_REPO_PATH=/main-repo
+ENV GIT_MAIN_REPO_REMOTE=origin
+ENV GIT_MAIN_REPO_BRANCH=master
+ENV GIT_ASK_PASS=/GIT_ASKPASS
+#ENV GIT_MAIN_REPO_URL=
+#ENV GIT_TOKEN=
+#ENV GIT_TOKEN_FILE=
 # copy app binaries
-COPY ./serverApp/build/bin/linuxX64/releaseExecutable/serverApp.kexe /app.kexe
+COPY ./GIT_ASKPASS $GIT_ASK_PASS
 COPY ./uiApp/build/dist/js/productionExecutable $STATIC_UI_PATH
+COPY ./serverApp/build/bin/linuxX64/releaseExecutable/serverApp.kexe /app.kexe
 
 ENTRYPOINT ["/app.kexe"]

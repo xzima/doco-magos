@@ -58,9 +58,9 @@ fun initKoinModule() = configureKoin {
             mainRepoUrl = EnvUtils.getEnvVar("GIT_MAIN_REPO_URL"),
             mainRepoRemote = EnvUtils.getEnvVar("GIT_MAIN_REPO_REMOTE"),
             mainRepoBranch = EnvUtils.getEnvVar("GIT_MAIN_REPO_BRANCH"),
-            gitAskPass = EnvUtils.getEnvVar("GIT_GIT_ASK_PASS"),
-            gitToken = EnvUtils.findEnvVar("GIT_GIT_TOKEN"),
-            gitTokenFile = EnvUtils.findEnvVar("GIT_GIT_TOKEN_FILE"),
+            gitAskPass = EnvUtils.getEnvVar("GIT_ASK_PASS"),
+            gitToken = EnvUtils.findEnvVar("GIT_TOKEN"),
+            gitTokenFile = EnvUtils.findEnvVar("GIT_TOKEN_FILE"),
         )
     }
     single { StaticUiService(get<AppEnv>()) }
