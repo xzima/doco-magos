@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.server.env
+package io.github.xzima.docomagos.server.services.models
 
-data class AppEnv(
-    val staticUiPath: String,
-    val jobPeriodMs: Int,
+data class GitVersion(
+    val version: String,
 )

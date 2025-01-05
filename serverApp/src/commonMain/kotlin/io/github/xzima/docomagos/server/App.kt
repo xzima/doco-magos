@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Alex Zima(xzima@ro.ru)
+ * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import io.github.xzima.docomagos.server.env.RSocketEnv
 import io.github.xzima.docomagos.server.ext.ktor.customEmbeddedServer
 import io.github.xzima.docomagos.server.routes.http
 import io.github.xzima.docomagos.server.routes.rsocketRoute
+import io.github.xzima.docomagos.server.services.JobService
 import io.github.xzima.docomagos.server.services.StaticUiService
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
@@ -30,6 +31,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.rsocket.kotlin.ktor.server.RSocketSupport
+import kotlinx.coroutines.*
 
 object App {
     private val logger = KotlinLogging.from(App::class)
@@ -43,13 +45,17 @@ object App {
             }
         }
 
+        val pingJob = inject<JobService>().createJob(this)
+
         environment.monitor.subscribe(ApplicationStarted) {
-            logger.info { "ApplicationStarted" }
+            pingJob.start()
+            logger.info { "ApplicationStarted $it" }
         }
         environment.monitor.subscribe(ApplicationStopping) {
             logger.info { "ApplicationStopping" }
         }
         environment.monitor.subscribe(ApplicationStopped) {
+            runBlocking { pingJob.join() }
             logger.info { "ApplicationStopped" }
         }
         environment.monitor.subscribe(ApplicationStopPreparing) {

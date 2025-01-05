@@ -1,5 +1,5 @@
 /**
- * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
+ * Copyright 2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,20 @@
  */
 package io.github.xzima.docomagos.server.env
 
-data class AppEnv(
-    val staticUiPath: String,
-    val jobPeriodMs: Int,
+data class GitEnv(
+    val mainRepoPath: String,
+    val mainRepoUrl: String,
+    val mainRepoRemote: String,
+    val mainRepoBranch: String,
+    /**
+     * example:
+     *
+     * ```
+     * #!/bin/bash
+     * [[ -v GIT_TOKEN ]] && echo $GIT_TOKEN || ([[ -v GIT_TOKEN_FILE ]] && cat $GIT_TOKEN_FILE)
+     * ```
+     */
+    val gitAskPass: String,
+    val gitToken: String?,
+    val gitTokenFile: String?,
 )

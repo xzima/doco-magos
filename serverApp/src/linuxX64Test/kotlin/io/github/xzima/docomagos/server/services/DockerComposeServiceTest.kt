@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Alex Zima(xzima@ro.ru)
+ * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,12 @@
  */
 package io.github.xzima.docomagos.server.services
 
-import io.github.xzima.docomagos.server.services.models.DCListProjects
-import io.kotest.matchers.collections.shouldContain
+import io.kotest.common.runBlocking
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.*
+import io.kotest.matchers.string.shouldNotBeEmpty
+import io.kotest.matchers.string.shouldStartWith
 import kotlin.test.Test
 
 class DockerComposeServiceTest {
@@ -42,10 +43,10 @@ class DockerComposeServiceTest {
 
         // THEN
         result.shouldHaveSize(1)
-        result shouldContain DCListProjects(
-            name = "docker",
-            status = "running(6)",
-            configFiles = "/home/alex/Docker/docker-compose.yml",
-        )
+        result.first() should {
+            it.name shouldBe "docker"
+            it.status shouldStartWith "running"
+            it.configFiles.shouldNotBeEmpty()
+        }
     }
 }

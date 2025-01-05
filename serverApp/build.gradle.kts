@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Alex Zima(xzima@ro.ru)
+ * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.serialization)
+    alias(libs.plugins.mock)
 }
 
 kotlin {
@@ -36,6 +37,7 @@ kotlin {
             implementation(ktor.ktorServerCio)
             implementation(ktor.ktorServerContentNegotiation)
             implementation(ktor.ktorServerCallId)
+            implementation(ktor.ktorNetwork)
 
             implementation(libs.okio)
 
