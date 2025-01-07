@@ -5,7 +5,7 @@
     "publish-docker-release": "zx ./publish-docker-release.mjs",
     "local": "dotenv-run-script .env .env.local --",
     "serverApp": "serverApp/build/bin/linuxX64/releaseExecutable/serverApp.kexe",
-    "runLocal": "npm run local serverApp"
+    "runLocal": "npm run local serverApp serve"
   },
   "devDependencies": {
     "@commitlint/cli": "19.6.1",

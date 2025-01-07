@@ -44,9 +44,6 @@ class JobService(
 
     suspend fun onStart() = try {
         logger.debug { "on start phase: started" }
-        gitService.checkMainRepoPath()
-        gitService.checkMainRepoUrl()
-        gitService.checkMainRepoHead()
     } catch (e: Exception) {
         logger.error(e) { "on start phase: failed" }
     } finally {

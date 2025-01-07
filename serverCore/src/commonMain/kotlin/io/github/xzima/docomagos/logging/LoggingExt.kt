@@ -40,5 +40,5 @@ internal tailrec fun createThrowableMsg(throwable: Throwable?, msg: String = "")
     if (throwable == null || throwable.cause == throwable) {
         msg
     } else {
-        createThrowableMsg(throwable.cause, "$msg\n Caused by: $throwable")
+        createThrowableMsg(throwable.cause, "$msg\n  Caused by: ${throwable.stackTraceToString()}")
     }

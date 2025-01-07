@@ -72,9 +72,6 @@ class JobServiceTest {
             job.cancelAndJoin()
 
             // THEN
-            verifySuspend(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoPath() }
-            verifySuspend(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoUrl() }
-            verifySuspend(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoHead() }
             verifySuspend(mode = VerifyMode.atLeast(9)) { pingService.ping() }
             verifySuspend(mode = VerifyMode.atLeast(9)) { gitService.isActualRepoHead() }
         }
@@ -84,7 +81,6 @@ class JobServiceTest {
     fun testFailedEachCall(): Unit = runBlocking {
         coroutineScope {
             // GIVEN
-            everySuspend { gitService.checkMainRepoPath() } throws Exception("Any error")
             everySuspend { pingService.ping() } throws Exception("Any error")
             val job = service.createJob(this)
 
@@ -94,7 +90,6 @@ class JobServiceTest {
             job.cancelAndJoin()
 
             // THEN
-            verifySuspend(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoPath() }
             verifySuspend(mode = VerifyMode.atLeast(1)) { pingService.ping() }
         }
     }

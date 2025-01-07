@@ -45,6 +45,7 @@ kotlin {
             implementation(libs.rsocket.ktor.ws.server)
 
             implementation(libs.kommand)
+            implementation(libs.clikt)
             implementation(kotlinxSerialization.kotlinxSerializationJson)
         }
 
