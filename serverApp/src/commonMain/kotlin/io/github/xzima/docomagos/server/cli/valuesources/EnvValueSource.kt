@@ -13,22 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.server.env
+package io.github.xzima.docomagos.server.cli.valuesources
 
-data class GitEnv(
-    val mainRepoPath: String,
-    val mainRepoUrl: String,
-    val mainRepoRemote: String,
-    val mainRepoBranch: String,
-    /**
-     * example:
-     *
-     * ```
-     * #!/bin/bash
-     * [[ -v GIT_TOKEN ]] && echo $GIT_TOKEN || ([[ -v GIT_TOKEN_FILE ]] && cat $GIT_TOKEN_FILE)
-     * ```
-     */
-    val gitAskPass: String,
-    val gitToken: String?,
-    val gitTokenFile: String?,
-)
+import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.parameters.options.Option
+import com.github.ajalt.clikt.sources.ValueSource
+
+class EnvValueSource : ValueSource {
+    override fun getValues(context: Context, option: Option): List<ValueSource.Invocation> {
+        val key = option.valueSourceKey ?: return emptyList()
+        val envKey = key.replace(Regex("\\W"), "_").uppercase()
+        val value = context.readEnvvar(envKey) ?: return emptyList()
+        return ValueSource.Invocation.just(value)
+    }
+}

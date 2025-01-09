@@ -13,9 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.server.env
+package io.github.xzima.docomagos.server.props
 
-data class AppEnv(
-    val staticUiPath: String,
-    val jobPeriodMs: Int,
-)
+import com.github.ajalt.clikt.parameters.groups.OptionGroup
+import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.types.int
+
+interface AppProps {
+    val staticUiPath: String
+    val jobPeriodMs: Int
+}
+
+class AppOptionGroup :
+    OptionGroup(),
+    AppProps {
+    override val staticUiPath: String by option(valueSourceKey = "app.static-ui-path").required()
+    override val jobPeriodMs: Int by option(valueSourceKey = "app.job-period-ms").int().required()
+}

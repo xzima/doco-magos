@@ -13,18 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.server.cli
+package io.github.xzima.docomagos.server.cli.commands
 
 import com.github.ajalt.clikt.core.CliktCommand
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.xzima.docomagos.koin.inject
 import io.github.xzima.docomagos.logging.from
+import io.github.xzima.docomagos.server.services.GitService
 import kotlinx.coroutines.*
 
-private val logger = KotlinLogging.from(SyncCommand::class)
+private val logger = KotlinLogging.from(AbstractServeCommand::class)
 
-class SyncCommand : CliktCommand() {
+abstract class AbstractServeCommand : CliktCommand(name = "serve") {
+    private val gitService by lazy { inject<GitService>() }
+
     override fun run(): Unit = runBlocking {
-        logger.info { "Hello from SyncCommand" }
-        throw RuntimeException("Error from ServeCommand")
+        checkMainRepo()
+        serveServer()
+    }
+
+    abstract suspend fun serveServer()
+
+    private suspend fun checkMainRepo() {
+        logger.debug { "main repo: start check" }
+        gitService.checkMainRepoPath()
+        gitService.checkMainRepoUrl()
+        gitService.checkMainRepoHead()
+        logger.debug { "main repo: check successfully completed" }
     }
 }

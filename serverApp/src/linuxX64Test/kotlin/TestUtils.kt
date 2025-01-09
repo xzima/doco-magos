@@ -1,5 +1,5 @@
 /**
- * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
+ * Copyright 2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.koin
+import okio.Path.Companion.toPath
 
-import org.koin.core.context.startKoin
-import org.koin.core.module.Module
-import org.koin.dsl.module
-import org.koin.mp.KoinPlatform
-
-inline fun <reified T : Any> inject() = KoinPlatform.getKoin().get<T>()
-
-inline fun <reified T : Any> injectAll() = KoinPlatform.getKoin().getAll<T>()
-
-fun configureKoin(moduleDeclaration: Module.() -> Unit) = startKoin {
-    logger(KoinLogger())
-    modules(
-        module(moduleDeclaration = moduleDeclaration),
-    )
+object TestUtils {
+    val testResourcesDir = "./src/linuxX64Test/resources".toPath()
 }

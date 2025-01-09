@@ -17,6 +17,7 @@ package io.github.xzima.docomagos.server.services
 
 import com.kgit2.kommand.process.Command
 import com.kgit2.kommand.process.Stdio
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.Level
 import io.github.xzima.docomagos.logging.configureLogging
 import io.github.xzima.docomagos.server.services.impl.GitClientImpl
@@ -39,7 +40,7 @@ class GitClientTest {
 
     @BeforeTest
     fun setup() {
-        configureLogging(Level.TRACE)
+        KotlinLogging.configureLogging(Level.TRACE)
         val pwdPath = Command("pwd")
             .stdout(Stdio.Pipe).stderr(Stdio.Pipe)
             .spawn().waitWithOutput()

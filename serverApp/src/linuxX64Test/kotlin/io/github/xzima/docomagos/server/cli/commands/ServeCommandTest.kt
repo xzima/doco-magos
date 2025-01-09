@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.server.cli
+package io.github.xzima.docomagos.server.cli.commands
 
 import com.github.ajalt.clikt.testing.test
 import dev.mokkery.MockMode
@@ -26,9 +26,11 @@ import dev.mokkery.resetCalls
 import dev.mokkery.verify.VerifyMode
 import dev.mokkery.verifyNoMoreCalls
 import dev.mokkery.verifySuspend
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.Level
 import io.github.xzima.docomagos.koin.configureKoin
 import io.github.xzima.docomagos.logging.configureLogging
+import io.github.xzima.docomagos.server.cli.commands.AbstractServeCommand
 import io.github.xzima.docomagos.server.services.GitService
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.common.runBlocking
@@ -46,7 +48,7 @@ class ServeCommandTest {
 
     @BeforeTest
     fun before() {
-        configureLogging(Level.DEBUG)
+        KotlinLogging.configureLogging(Level.DEBUG)
         configureKoin {
             single<GitService> { gitService }
         }

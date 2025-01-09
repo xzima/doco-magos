@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.server.cli
+package io.github.xzima.docomagos.server.cli.commands
 
 import com.github.ajalt.clikt.testing.test
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.Level
 import io.github.xzima.docomagos.logging.configureLogging
 import io.kotest.assertions.throwables.shouldThrow
@@ -30,7 +31,7 @@ class SyncCommandTest {
 
     @BeforeTest
     fun before() {
-        configureLogging(Level.DEBUG)
+        KotlinLogging.configureLogging(Level.DEBUG)
         command = SyncCommand()
     }
 

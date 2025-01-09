@@ -20,14 +20,15 @@ import com.github.ajalt.clikt.core.parse
 import com.github.ajalt.clikt.core.subcommands
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.xzima.docomagos.logging.from
-import io.github.xzima.docomagos.server.cli.DocoMagosCommand
-import io.github.xzima.docomagos.server.cli.SyncCommand
+import io.github.xzima.docomagos.server.cli.commands.AppCommand
+import io.github.xzima.docomagos.server.cli.commands.SyncCommand
 import kotlin.system.exitProcess
 
 private val logger = KotlinLogging.from(::main)
+private const val CONFIG_PATH = "./config.yaml"
 
 fun main(args: Array<String>) {
-    val cli = DocoMagosCommand().subcommands(ServeCommand(), SyncCommand())
+    val cli = AppCommand(CONFIG_PATH).subcommands(ServeCommand(), SyncCommand())
     try {
         cli.parse(args)
     } catch (e: CliktError) {

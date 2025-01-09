@@ -47,6 +47,7 @@ kotlin {
             implementation(libs.kommand)
             implementation(libs.clikt)
             implementation(kotlinxSerialization.kotlinxSerializationJson)
+            implementation(libs.kaml)
         }
 
         linuxX64Main.dependencies { }

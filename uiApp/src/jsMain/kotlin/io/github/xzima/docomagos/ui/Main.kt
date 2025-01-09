@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Alex Zima(xzima@ro.ru)
+ * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package io.github.xzima.docomagos.ui
 
 import androidx.compose.ui.*
 import androidx.compose.ui.window.*
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.Level
 import io.github.xzima.docomagos.client.createRsocketClient
 import io.github.xzima.docomagos.logging.configureLogging
@@ -29,7 +30,7 @@ suspend fun main() {
     val loggingLevel = Level.INFO
     val reqRespLogLevel = LogLevel.ALL
 
-    configureLogging(loggingLevel)
+    KotlinLogging.configureLogging(loggingLevel)
 
     val client = createRsocketClient(window.location.host, reqRespLogLevel)
     initKoinModule(client)

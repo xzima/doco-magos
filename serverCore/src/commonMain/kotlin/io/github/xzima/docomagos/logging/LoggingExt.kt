@@ -28,7 +28,7 @@ expect fun KotlinLogging.from(kClass: KClass<*>): KLogger
 
 fun KotlinLogging.from(function: KCallable<*>): KLogger = logger(function.name)
 
-fun configureLogging(logLevel: Level) {
+fun KotlinLogging.configureLogging(logLevel: Level) {
     KotlinLoggingConfiguration.logLevel = logLevel
     KotlinLoggingConfiguration.appender = loggingAppender()
     KotlinLoggingConfiguration.formatter = object : Formatter {

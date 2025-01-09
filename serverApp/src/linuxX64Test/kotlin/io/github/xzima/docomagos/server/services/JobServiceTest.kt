@@ -25,9 +25,11 @@ import dev.mokkery.resetCalls
 import dev.mokkery.verify.VerifyMode
 import dev.mokkery.verifyNoMoreCalls
 import dev.mokkery.verifySuspend
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.Level
 import io.github.xzima.docomagos.logging.configureLogging
-import io.github.xzima.docomagos.server.env.AppEnv
+import io.github.xzima.docomagos.server.props.AppProps
+import io.github.xzima.docomagos.server.services.impl.JobServiceImpl
 import io.kotest.common.runBlocking
 import kotlinx.coroutines.*
 import kotlin.test.AfterTest
@@ -38,18 +40,19 @@ import kotlin.time.Duration.Companion.seconds
 
 class JobServiceTest {
 
-    private val appEnv: AppEnv = AppEnv(
-        staticUiPath = "any",
-        jobPeriodMs = 100,
-    )
+    private val appEnv = object : AppProps {
+        override val staticUiPath: String = "any"
+        override val jobPeriodMs: Int = 100
+    }
+
     private val pingService = mock<PingService>(MockMode.autoUnit)
     private val gitService = mock<GitService>(MockMode.autoUnit)
-    private lateinit var service: JobService
+    private lateinit var service: JobServiceImpl
 
     @BeforeTest
     fun beforeTest(): Unit = runBlocking {
-        configureLogging(Level.DEBUG)
-        service = JobService(appEnv, pingService, gitService)
+        KotlinLogging.configureLogging(Level.DEBUG)
+        service = JobServiceImpl(appEnv, pingService, gitService)
     }
 
     @AfterTest

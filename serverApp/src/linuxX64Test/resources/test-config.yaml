@@ -1,0 +1,21 @@
+logging-level: info
+
+app:
+  job-period-ms: 3000
+  static-ui-path: /tmp/ui
+
+git:
+  main-repo-remote: origin
+  main-repo-branch: master
+  main-repo-path: /tmp/repo
+  git-ask-pass: /tmp/GIT_ASKPASS
+  #main-repo-url:
+
+ktor:
+  port: 8080
+  reuse-address: true
+  grace-period-millis: 5000
+  grace-timeout-millis: 10000
+
+rsocket:
+  max-fragment-size: 1024

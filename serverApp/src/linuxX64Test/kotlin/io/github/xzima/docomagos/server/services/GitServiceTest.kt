@@ -25,7 +25,7 @@ import dev.mokkery.resetCalls
 import dev.mokkery.verify.VerifyMode
 import dev.mokkery.verifyNoMoreCalls
 import dev.mokkery.verifySuspend
-import io.github.xzima.docomagos.server.env.GitEnv
+import io.github.xzima.docomagos.server.props.GitProps
 import io.github.xzima.docomagos.server.services.impl.GitServiceImpl
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -38,15 +38,15 @@ import kotlin.test.Test
 class GitServiceTest {
 
     private val gitClient = mock<GitClient>(MockMode.autoUnit)
-    private val gitEnv = GitEnv(
-        mainRepoPath = "/tmp/repo",
-        mainRepoUrl = "https://github.com/xzima/home-composes.git",
-        mainRepoRemote = "origin",
-        mainRepoBranch = "master",
-        gitAskPass = "/tmp/GIT_ASKPASS",
-        gitToken = "any-token",
-        gitTokenFile = "/tmp/.git-token",
-    )
+    private val gitEnv = object : GitProps {
+        override val mainRepoPath: String = "/tmp/repo"
+        override val mainRepoUrl: String = "https://github.com/xzima/home-composes.git"
+        override val mainRepoRemote: String = "origin"
+        override val mainRepoBranch: String = "master"
+        override val gitAskPass: String = "/tmp/GIT_ASKPASS"
+        override val gitToken: String? = "any-token"
+        override val gitTokenFile: String? = "/tmp/.git-token"
+    }
     private lateinit var gitService: GitService
 
     @BeforeTest

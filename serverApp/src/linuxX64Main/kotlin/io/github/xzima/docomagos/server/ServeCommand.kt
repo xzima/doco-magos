@@ -15,13 +15,29 @@
  */
 package io.github.xzima.docomagos.server
 
+import io.github.xzima.docomagos.koin.inject
+import io.github.xzima.docomagos.koin.injectAll
 import io.github.xzima.docomagos.server.App.stopServer
-import io.github.xzima.docomagos.server.cli.AbstractServeCommand
+import io.github.xzima.docomagos.server.cli.commands.AbstractServeCommand
+import io.github.xzima.docomagos.server.props.KtorProps
+import io.github.xzima.docomagos.server.props.RsocketProps
+import io.github.xzima.docomagos.server.routes.RouteInjector
+import io.github.xzima.docomagos.server.services.JobService
 
 class ServeCommand : AbstractServeCommand() {
+    private val rsocketProps by lazy { inject<RsocketProps>() }
+    private val jobService by lazy { inject<JobService>() }
+    private val staticUiService by lazy { injectAll<RouteInjector>() }
+    private val ktorProps by lazy { inject<KtorProps>() }
+
     override suspend fun serveServer() {
-        val server = App.createServer().start()
+        val server = App.createServer(
+            rsocketProps = rsocketProps,
+            jobService = jobService,
+            routeInjectors = staticUiService,
+            ktorProps = ktorProps,
+        ).start()
         initGracefulShutdown().join()
-        server.stopServer()
+        server.stopServer(ktorProps = ktorProps)
     }
 }

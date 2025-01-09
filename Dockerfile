@@ -24,24 +24,15 @@ RUN chmod +x /usr/local/bin/docker-compose
 # configure git
 RUN git config --global --add safe.directory '*'
 # default app env variables
-ENV LOGGING_LEVEL=INFO
-ENV RSOCKET_MAX_FRAGMENT_SIZE=1024
-ENV KTOR_PORT=4444
-ENV KTOR_REUSE_ADDRESS=true
-ENV KTOR_GRACE_PERIOD_MILLIS=5000
-ENV KTOR_GRACE_TIMEOUT_MILLIS=10000
-ENV STATIC_UI_PATH=/static-ui
-ENV JOB_PERIOD_MS=3000
-ENV GIT_MAIN_REPO_PATH=/main-repo
-ENV GIT_MAIN_REPO_REMOTE=origin
-ENV GIT_MAIN_REPO_BRANCH=master
-ENV GIT_ASK_PASS=/GIT_ASKPASS
-#ENV GIT_MAIN_REPO_URL=
-#ENV GIT_TOKEN=
-#ENV GIT_TOKEN_FILE=
+WORKDIR /app
+ENV STATIC_UI_PATH=/app/ui
+ENV GIT_MAIN_REPO_PATH=/app/repo
+ENV GIT_ASK_PASS=/app/GIT_ASKPASS
 # copy app binaries
 COPY ./GIT_ASKPASS $GIT_ASK_PASS
+COPY ./config.yaml config.yaml
 COPY ./uiApp/build/dist/js/productionExecutable $STATIC_UI_PATH
-COPY ./serverApp/build/bin/linuxX64/releaseExecutable/serverApp.kexe /app.kexe
+COPY ./serverApp/build/bin/linuxX64/releaseExecutable/serverApp.kexe app.kexe
 
-ENTRYPOINT ["/app.kexe"]
+ENTRYPOINT app.kexe
+CMD serve
