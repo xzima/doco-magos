@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Alex Zima(xzima@ro.ru)
+ * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.server.services
+package io.github.xzima.docomagos.server.props
 
-import io.github.xzima.docomagos.server.env.AppEnv
-import io.github.xzima.docomagos.server.ext.staticrouter.StaticRouter
-import io.ktor.server.routing.*
-import okio.Path.Companion.toPath
+import com.github.ajalt.clikt.parameters.groups.OptionGroup
+import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.types.int
 
-class StaticUiService(
-    env: AppEnv,
-) : StaticRouter(env.staticUiPath.toPath()) {
+interface RsocketProps {
+    val maxFragmentSize: Int
+}
 
-    fun configureStaticUi(route: Route) = route.apply {
-        default("index.html")
-        files(".")
-    }
+class RsocketOptionGroup :
+    OptionGroup(),
+    RsocketProps {
+    override val maxFragmentSize: Int by option(valueSourceKey = "rsocket.max-fragment-size").int().required()
 }

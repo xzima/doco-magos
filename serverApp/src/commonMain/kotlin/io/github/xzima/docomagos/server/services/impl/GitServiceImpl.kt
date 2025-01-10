@@ -15,12 +15,12 @@
  */
 package io.github.xzima.docomagos.server.services.impl
 
-import io.github.xzima.docomagos.server.env.GitEnv
+import io.github.xzima.docomagos.server.props.GitProps
 import io.github.xzima.docomagos.server.services.GitClient
 import io.github.xzima.docomagos.server.services.GitService
 
 class GitServiceImpl(
-    private val gitEnv: GitEnv,
+    private val gitEnv: GitProps,
     private val gitClient: GitClient,
 ) : GitService {
 

@@ -13,22 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.server.env
+package io.github.xzima.docomagos.server.routes
 
-data class GitEnv(
-    val mainRepoPath: String,
-    val mainRepoUrl: String,
-    val mainRepoRemote: String,
-    val mainRepoBranch: String,
-    /**
-     * example:
-     *
-     * ```
-     * #!/bin/bash
-     * [[ -v GIT_TOKEN ]] && echo $GIT_TOKEN || ([[ -v GIT_TOKEN_FILE ]] && cat $GIT_TOKEN_FILE)
-     * ```
-     */
-    val gitAskPass: String,
-    val gitToken: String?,
-    val gitTokenFile: String?,
-)
+import io.ktor.server.routing.*
+
+interface RouteInjector {
+    fun injectRoutes(routing: Routing)
+}

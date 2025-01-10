@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Alex Zima(xzima@ro.ru)
+ * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,26 +15,27 @@
  */
 package io.github.xzima.docomagos.server
 
+import com.github.ajalt.clikt.core.CliktError
+import com.github.ajalt.clikt.core.parse
+import com.github.ajalt.clikt.core.subcommands
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.github.xzima.docomagos.koin.inject
-import io.github.xzima.docomagos.logging.configureLogging
 import io.github.xzima.docomagos.logging.from
-import io.github.xzima.docomagos.logging.toLevel
-import io.github.xzima.docomagos.server.App.stopServer
-import io.github.xzima.docomagos.server.env.EnvUtils
-import io.github.xzima.docomagos.server.services.DockerComposeService
-import kotlinx.coroutines.*
+import io.github.xzima.docomagos.server.cli.commands.AppCommand
+import io.github.xzima.docomagos.server.cli.commands.SyncCommand
+import kotlin.system.exitProcess
 
 private val logger = KotlinLogging.from(::main)
+private const val CONFIG_PATH = "./config.yaml"
 
-fun main(): Unit = runBlocking {
-    configureLogging(EnvUtils.getEnvVar("LOGGING_LEVEL") { it.toLevel() })
-    initKoinModule()
-    // TODO create check external services task
-    inject<DockerComposeService>().listProjects().also {
-        logger.debug { "DC: ${it.size}" }
+fun main(args: Array<String>) {
+    val cli = AppCommand(CONFIG_PATH).subcommands(ServeCommand(), SyncCommand())
+    try {
+        cli.parse(args)
+    } catch (e: CliktError) {
+        cli.echoFormattedHelp(e)
+        exitProcess(e.statusCode)
+    } catch (e: Exception) {
+        logger.error(e) { e.message }
+        exitProcess(1)
     }
-    val server = App.createServer().start()
-    initGracefulShutdown().join()
-    server.stopServer()
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Alex Zima(xzima@ro.ru)
+ * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,16 +21,11 @@ import io.github.oshai.kotlinlogging.KLoggingEvent
 import io.github.oshai.kotlinlogging.Level
 import kotlinx.cinterop.*
 import kotlinx.datetime.*
-import platform.posix.*
 
 @OptIn(ExperimentalForeignApi::class)
 actual fun loggingAppender(): Appender = object : FormattingAppender() {
     override fun logFormattedMessage(loggingEvent: KLoggingEvent, formattedMessage: Any?) {
-        when (loggingEvent.level) {
-            Level.OFF -> Unit
-            Level.ERROR -> fprintf(stderr, "%s\n", formatMessage(loggingEvent))
-            else -> println(formatMessage(loggingEvent))
-        }
+        println(formatMessage(loggingEvent))
     }
 
     fun formatMessage(loggingEvent: KLoggingEvent): String {

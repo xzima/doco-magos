@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Alex Zima(xzima@ro.ru)
+ * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,19 @@
  */
 package io.github.xzima.docomagos.server.ext.ktor
 
-import io.github.xzima.docomagos.koin.inject
-import io.github.xzima.docomagos.server.env.KtorEnv
+import io.github.xzima.docomagos.server.props.KtorProps
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
 
-fun customEmbeddedServer(module: Application.() -> Unit): CIOApplicationEngine {
-    val ktorEnv = inject<KtorEnv>()
-
+fun customEmbeddedServer(ktorProps: KtorProps, module: Application.() -> Unit): CIOApplicationEngine {
     val configure: CIOApplicationEngine.Configuration.() -> Unit = {
-        reuseAddress = ktorEnv.reuseAddress
+        reuseAddress = ktorProps.reuseAddress
     }
     val environment = applicationEngineEnvironment {
         log = ktorLogger("ktor.application")
         connector {
-            port = ktorEnv.port
+            port = ktorProps.port
         }
         this.module(module)
     }

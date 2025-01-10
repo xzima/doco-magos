@@ -1,5 +1,5 @@
 /**
- * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
+ * Copyright 2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.koin
+package io.github.xzima.docomagos.server.routes
 
-import org.koin.core.context.startKoin
-import org.koin.core.module.Module
-import org.koin.dsl.module
-import org.koin.mp.KoinPlatform
+import io.github.xzima.docomagos.server.ext.staticrouter.StaticRouter
+import io.github.xzima.docomagos.server.props.AppProps
+import io.ktor.server.routing.*
+import okio.Path.Companion.toPath
 
-inline fun <reified T : Any> inject() = KoinPlatform.getKoin().get<T>()
+class StaticUiRouteInjector(
+    env: AppProps,
+) : StaticRouter(env.staticUiPath.toPath()),
+    RouteInjector {
 
-inline fun <reified T : Any> injectAll() = KoinPlatform.getKoin().getAll<T>()
-
-fun configureKoin(moduleDeclaration: Module.() -> Unit) = startKoin {
-    logger(KoinLogger())
-    modules(
-        module(moduleDeclaration = moduleDeclaration),
-    )
+    override fun injectRoutes(routing: Routing): Unit = routing.run {
+        route("/") {
+            default("index.html")
+            files(".")
+        }
+    }
 }

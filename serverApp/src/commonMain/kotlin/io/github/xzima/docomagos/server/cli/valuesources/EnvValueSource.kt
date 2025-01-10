@@ -13,10 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.server.services
+package io.github.xzima.docomagos.server.cli.valuesources
 
-import kotlinx.coroutines.*
+import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.parameters.options.Option
+import com.github.ajalt.clikt.sources.ValueSource
 
-interface JobService {
-    fun createJob(scope: CoroutineScope): Job
+class EnvValueSource : ValueSource {
+    override fun getValues(context: Context, option: Option): List<ValueSource.Invocation> {
+        val key = option.valueSourceKey ?: return emptyList()
+        val envKey = key.replace(Regex("\\W"), "_").uppercase()
+        val value = context.readEnvvar(envKey) ?: return emptyList()
+        return ValueSource.Invocation.just(value)
+    }
 }
