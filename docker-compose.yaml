@@ -5,10 +5,10 @@ services:
     environment:
       KTOR_PORT: 8080
       GIT_MAIN_REPO_URL: https://github.com/xzima/home-composes.git
-      GIT_TOKEN_FILE: /.git-token
+      GIT_GIT_TOKEN_FILE: /.git-token
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - "./serverApp/build/repo:/main-repo"
+      - "./serverApp/build/repo:/app/repo"
       - "./.git-token:/.git-token"
     ports:
       - "8080:8080"

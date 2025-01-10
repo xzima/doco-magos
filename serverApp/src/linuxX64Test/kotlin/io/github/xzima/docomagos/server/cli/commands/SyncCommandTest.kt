@@ -41,6 +41,6 @@ class SyncCommandTest {
         val actual = shouldThrow<RuntimeException> { command.test() }
 
         // THEN
-        actual.message shouldBe "Error from ServeCommand"
+        actual.message shouldBe "Error from SyncCommand"
     }
 }

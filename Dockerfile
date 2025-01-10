@@ -25,14 +25,14 @@ RUN chmod +x /usr/local/bin/docker-compose
 RUN git config --global --add safe.directory '*'
 # default app env variables
 WORKDIR /app
-ENV STATIC_UI_PATH=/app/ui
+ENV APP_STATIC_UI_PATH=/app/ui
 ENV GIT_MAIN_REPO_PATH=/app/repo
-ENV GIT_ASK_PASS=/app/GIT_ASKPASS
+ENV GIT_GIT_ASK_PASS=/app/GIT_ASKPASS
 # copy app binaries
-COPY ./GIT_ASKPASS $GIT_ASK_PASS
+COPY ./GIT_ASKPASS $GIT_GIT_ASK_PASS
 COPY ./config.yaml config.yaml
-COPY ./uiApp/build/dist/js/productionExecutable $STATIC_UI_PATH
+COPY ./uiApp/build/dist/js/productionExecutable $APP_STATIC_UI_PATH
 COPY ./serverApp/build/bin/linuxX64/releaseExecutable/serverApp.kexe app.kexe
 
-ENTRYPOINT app.kexe
-CMD serve
+ENTRYPOINT [ "./app.kexe" ]
+CMD ["serve"]

@@ -33,6 +33,7 @@ class GitClientImpl(
         private const val GIT_ASK_PASS_ENV_NAME = "GIT_ASKPASS"
         private const val GIT_TOKEN_ENV_NAME = "GIT_TOKEN"
         private const val GIT_TOKEN_FILE_ENV_NAME = "GIT_TOKEN_FILE"
+        private const val GIT_TERMINAL_PROMPT_ENV_NAME = "GIT_TERMINAL_PROMPT"
 
         private val VERSION_REGEX = Regex("^git version (?<version>.*)$")
     }
@@ -155,6 +156,7 @@ class GitClientImpl(
     private fun gitCommand(builder: Command.() -> Unit): Output {
         val command = Command("git").stdout(Stdio.Pipe).stderr(Stdio.Pipe)
         command.builder()
+        command.env(GIT_TERMINAL_PROMPT_ENV_NAME, "0") // disable prompting for all commands
         val child = command.spawn()
         val output = child.waitWithOutput()
         return output

@@ -25,6 +25,6 @@ private val logger = KotlinLogging.from(SyncCommand::class)
 class SyncCommand : CliktCommand() {
     override fun run(): Unit = runBlocking {
         logger.info { "Hello from SyncCommand" }
-        throw RuntimeException("Error from ServeCommand")
+        throw RuntimeException("Error from SyncCommand")
     }
 }

@@ -275,7 +275,7 @@ class GitClientTest {
         // THEN
         actual.message shouldBe
             "command failed. status: 128 message: " +
-            "fatal: could not read Username for 'https://github.com': No such device or address\n"
+            "fatal: could not read Username for 'https://github.com': terminal prompts disabled\n"
     }
 
     @Test
