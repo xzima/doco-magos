@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Alex Zima(xzima@ro.ru)
+ * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,6 @@ kotlin {
             api(projects.serverCore)
 
             api(ktor.ktorClientCore)
-            api(ktor.ktorClientEncoding)
-            api(ktor.ktorClientLogging)
 
             api(libs.rsocket.ktor.client)
             api(libs.rsocket.ktor.ws.client)

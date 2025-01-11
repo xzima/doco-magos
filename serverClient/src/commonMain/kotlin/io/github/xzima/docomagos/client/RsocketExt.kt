@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Alex Zima(xzima@ro.ru)
+ * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 package io.github.xzima.docomagos.client
 
 import io.github.xzima.docomagos.RsocketConst
+import io.github.xzima.docomagos.logging.HttpClientLogger
 import io.ktor.client.*
+import io.ktor.client.engine.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.plugins.websocket.*
 import io.rsocket.kotlin.RSocket
@@ -25,9 +27,13 @@ import io.rsocket.kotlin.ktor.client.rSocket
 import io.rsocket.kotlin.payload.buildPayload
 import io.rsocket.kotlin.payload.data
 
-suspend fun createRsocketClient(host: String, reqRespLogLevel: LogLevel): RSocket {
+suspend fun <T : HttpClientEngineConfig> createRsocketClient(
+    engineFactory: HttpClientEngineFactory<T>,
+    host: String,
+    reqRespLogLevel: LogLevel,
+): RSocket {
     // create ktor client
-    val client = HttpClient {
+    val client = HttpClient(engineFactory) {
         install(Logging) {
             level = reqRespLogLevel
             logger = HttpClientLogger()
