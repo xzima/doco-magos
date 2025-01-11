@@ -19,7 +19,7 @@ import io.ktor.client.engine.HttpClientEngineConfig
 
 class SocketCIOEngineConfig : HttpClientEngineConfig() {
     /**
-     * Provides access to [io.github.xzima.docomagos.server.ext.socket.SocketEndpoint] settings.
+     * Provides access to [SocketEndpoint] settings.
      */
     val endpoint: EndpointConfig = EndpointConfig()
 
