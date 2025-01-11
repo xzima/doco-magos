@@ -24,21 +24,23 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(projects.serverCore)
+                api(projects.serverCore)
 
-                implementation(ktor.ktorClientContentNegotiation)
-                implementation(ktor.ktorSerializationKotlinxJson)
-                implementation(kotlinxSerialization.kotlinxSerializationJson)
-//                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
-//                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version")
-//
-//                api("io.ktor:ktor-client-core:$ktor_version")
-//                api("io.ktor:ktor-client-serialization:$ktor_version")
-//                api("io.ktor:ktor-client-content-negotiation:$ktor_version")
-//                api("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
-//
-//                api("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
+                api(ktor.ktorClientCore)
+                api(ktor.ktorNetwork)
+                api(ktor.ktorHttpCio)
+                api(ktor.ktorClientContentNegotiation)
+                api(ktor.ktorSerializationKotlinxJson)
+                api(kotlinxSerialization.kotlinxSerializationJson)
             }
+        }
+
+        linuxX64Main.dependencies { }
+
+        linuxX64Test.dependencies {
+            implementation(kotest.kotestAssertionsCore)
+            implementation(kotest.kotestAssertionsJson)
+            implementation(libs.kotest.assertions.ktor)
         }
     }
 }

@@ -22,7 +22,7 @@ open class HttpResponse<T : Any>(
     val response: io.ktor.client.statement.HttpResponse,
     val provider: BodyProvider<T>,
 ) {
-    val status: Int = response.status.value
+    val status: HttpStatusCode = response.status
     val success: Boolean = response.status.isSuccess()
     val headers: Map<String, List<String>> = response.headers.mapEntries()
 

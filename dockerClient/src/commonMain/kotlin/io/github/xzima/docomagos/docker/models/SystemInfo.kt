@@ -251,6 +251,9 @@ data class SystemInfo(
     enum class Isolation(
         val value: String,
     ) {
+        @SerialName(value = "")
+        UNKNOWN(""),
+
         @SerialName(value = "default")
         DEFAULT("default"),
 
