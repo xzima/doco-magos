@@ -34,6 +34,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.ktor.client.*
+import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
@@ -99,12 +100,12 @@ class RouteIntegrationTest {
             ktorProps = ktorProps,
         ).start(wait = false)
 
-        httpClient = HttpClient {
+        httpClient = HttpClient(CIO) {
             defaultRequest {
                 url("http://$TEST_HOST")
             }
         }
-        rSocketClient = createRsocketClient(TEST_HOST, LogLevel.ALL)
+        rSocketClient = createRsocketClient(CIO, TEST_HOST, LogLevel.ALL)
     }
 
     @AfterTest

@@ -32,12 +32,12 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.serverCore)
+            implementation(projects.dockerClient)
 
             implementation(ktor.ktorServerCore)
             implementation(ktor.ktorServerCio)
             implementation(ktor.ktorServerContentNegotiation)
             implementation(ktor.ktorServerCallId)
-            implementation(ktor.ktorNetwork)
 
             implementation(libs.okio)
 
