@@ -1,0 +1,32 @@
+/**
+ * Copyright 2025 Alex Zima(xzima@ro.ru)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.github.xzima.docomagos.docker.models
+
+import kotlinx.serialization.*
+
+/**
+ * Commit holds the Git-commit (SHA1) that a binary was built from, as reported in the version-string of external tools, such as `containerd`, or `runC`.
+ *
+ * @param id Actual commit ID of external tool.
+ * @param expected Commit ID of external tool expected by dockerd as set at build time.
+ */
+@Serializable
+data class Commit(
+    // Actual commit ID of external tool.
+    @SerialName(value = "ID") val id: String? = null,
+    // Commit ID of external tool expected by dockerd as set at build time.
+    @SerialName(value = "Expected") val expected: String? = null,
+)
