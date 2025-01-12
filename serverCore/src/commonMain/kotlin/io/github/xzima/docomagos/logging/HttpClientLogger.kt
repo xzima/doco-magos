@@ -21,5 +21,5 @@ import io.ktor.client.plugins.logging.*
 private val logger = KotlinLogging.from(HttpClientLogger::class)
 
 class HttpClientLogger : Logger {
-    override fun log(message: String) = logger.debug { message }
+    override fun log(message: String) = logger.trace { message }
 }

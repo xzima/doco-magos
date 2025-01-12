@@ -13,6 +13,10 @@ git:
   #git-token:
   #git-token-file:
 
+docker:
+  logging-level: ALL
+  unix-socket-file: /var/run/docker.sock
+
 ktor:
   port: 8080
   reuse-address: true

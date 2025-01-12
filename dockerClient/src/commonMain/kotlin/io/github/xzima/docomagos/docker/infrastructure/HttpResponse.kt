@@ -22,13 +22,13 @@ open class HttpResponse<T : Any>(
     val response: io.ktor.client.statement.HttpResponse,
     val provider: BodyProvider<T>,
 ) {
+    val from = response.call.request.url
     val status: HttpStatusCode = response.status
-    val success: Boolean = response.status.isSuccess()
     val headers: Map<String, List<String>> = response.headers.mapEntries()
 
     suspend fun body(): T = provider.body(response)
 
-    suspend fun <V : Any> typedBody(type: TypeInfo): V = provider.typedBody(response, type)
+    suspend inline fun <reified V : Any> typedBody(): V = provider.typedBody(response, typeInfo<V>())
 
     companion object {
         private fun Headers.mapEntries(): Map<String, List<String>> {

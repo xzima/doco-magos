@@ -21,7 +21,7 @@ package io.github.xzima.docomagos.docker.infrastructure
  *       allows for caching of the constructed object
  *       for many request definitions.
  * NOTE: Headers is a Map<String,String> because rfc2616 defines
- *       multi-valued headers as csv-only.
+ *       multivalued headers as csv-only.
  */
 data class RequestConfig<T>(
     val method: RequestMethod,

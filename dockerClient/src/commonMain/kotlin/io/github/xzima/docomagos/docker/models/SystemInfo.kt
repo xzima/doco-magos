@@ -20,7 +20,7 @@ import kotlinx.serialization.*
 /**
  *
  *
- * @param ID Unique identifier of the daemon.  <p><br /></p>  > **Note**: The format of the ID itself is not part of the API, and > should not be considered stable.
+ * @param id Unique identifier of the daemon.  <p><br /></p>  > **Note**: The format of the ID itself is not part of the API, and > should not be considered stable.
  * @param containers Total number of containers on the host.
  * @param containersRunning Number of containers with status `\"running\"`.
  * @param containersPaused Number of containers with status `\"paused\"`.
@@ -86,7 +86,7 @@ import kotlinx.serialization.*
 @Serializable
 data class SystemInfo(
     // Unique identifier of the daemon.  <p><br /></p>  > **Note**: The format of the ID itself is not part of the API, and > should not be considered stable.
-    @SerialName(value = "ID") val ID: String? = null,
+    @SerialName(value = "ID") val id: String? = null,
     // Total number of containers on the host.
     @SerialName(value = "Containers") val containers: Int? = null,
     // Number of containers with status `\"running\"`.
@@ -162,9 +162,7 @@ data class SystemInfo(
     @SerialName(value = "IndexServerAddress") val indexServerAddress: String? = "https://index.docker.io/v1/",
     @SerialName(value = "RegistryConfig") val registryConfig: RegistryServiceConfig? = null,
     // User-defined resources can be either Integer resources (e.g, `SSD=3`) or String resources (e.g, `GPU=UUID1`).
-    @SerialName(
-        value = "GenericResources",
-    ) val genericResources: List<GenericResourcesInner>? = null,
+    @SerialName(value = "GenericResources") val genericResources: List<GenericResourcesInner>? = null,
     // HTTP-proxy configured for the daemon. This value is obtained from the [`HTTP_PROXY`](https://www.gnu.org/software/wget/manual/html_node/Proxies.html) environment variable. Credentials ([user info component](https://tools.ietf.org/html/rfc3986#section-3.2.1)) in the proxy URL are masked in the API response.  Containers do not automatically inherit this configuration.
     @SerialName(value = "HttpProxy") val httpProxy: String? = null,
     // HTTPS-proxy configured for the daemon. This value is obtained from the [`HTTPS_PROXY`](https://www.gnu.org/software/wget/manual/html_node/Proxies.html) environment variable. Credentials ([user info component](https://tools.ietf.org/html/rfc3986#section-3.2.1)) in the proxy URL are masked in the API response.  Containers do not automatically inherit this configuration.

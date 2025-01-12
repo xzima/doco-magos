@@ -32,6 +32,8 @@ import io.github.xzima.docomagos.server.cli.valuesources.YamlValueSource
 import io.github.xzima.docomagos.server.handlers.ListProjectsHandler
 import io.github.xzima.docomagos.server.props.AppOptionGroup
 import io.github.xzima.docomagos.server.props.AppProps
+import io.github.xzima.docomagos.server.props.DockerOptionGroup
+import io.github.xzima.docomagos.server.props.DockerProps
 import io.github.xzima.docomagos.server.props.GitOptionGroup
 import io.github.xzima.docomagos.server.props.GitProps
 import io.github.xzima.docomagos.server.props.KtorOptionGroup
@@ -41,11 +43,13 @@ import io.github.xzima.docomagos.server.props.RsocketProps
 import io.github.xzima.docomagos.server.routes.RouteInjector
 import io.github.xzima.docomagos.server.routes.RsocketRouteInjector
 import io.github.xzima.docomagos.server.routes.StaticUiRouteInjector
+import io.github.xzima.docomagos.server.services.DockerClient
 import io.github.xzima.docomagos.server.services.DockerComposeService
 import io.github.xzima.docomagos.server.services.GitClient
 import io.github.xzima.docomagos.server.services.GitService
 import io.github.xzima.docomagos.server.services.JobService
 import io.github.xzima.docomagos.server.services.PingService
+import io.github.xzima.docomagos.server.services.impl.DockerClientImpl
 import io.github.xzima.docomagos.server.services.impl.GitClientImpl
 import io.github.xzima.docomagos.server.services.impl.GitServiceImpl
 import io.github.xzima.docomagos.server.services.impl.JobServiceImpl
@@ -73,6 +77,7 @@ class AppCommand(
     private val ktorProps: KtorProps by KtorOptionGroup()
     private val appProps: AppProps by AppOptionGroup()
     private val gitProps: GitProps by GitOptionGroup()
+    private val dockerProps: DockerProps by DockerOptionGroup()
 
     override fun run(): Unit = runBlocking {
         KotlinLogging.configureLogging(loggingLevel)
@@ -88,7 +93,9 @@ class AppCommand(
         single { ktorProps }
         single { appProps }
         single { gitProps }
+        single { dockerProps }
         single { DockerComposeService() }
+        single<DockerClient> { DockerClientImpl(get<DockerProps>()) }
         single<GitClient> { GitClientImpl(get<GitProps>().gitAskPass) }
         single<GitService> { GitServiceImpl(get<GitProps>(), get<GitClient>()) }
         single<PingService> { PingServiceImpl() }

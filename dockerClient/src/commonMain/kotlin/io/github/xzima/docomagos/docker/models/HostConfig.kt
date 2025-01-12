@@ -110,9 +110,7 @@ data class HostConfig(
     // Limit read rate (IO per second) from a device, in the form:  ``` [{\"Path\": \"device_path\", \"Rate\": rate}] ```
     @SerialName(value = "BlkioDeviceReadIOps") val blkioDeviceReadIOps: List<ThrottleDevice>? = null,
     // Limit write rate (IO per second) to a device, in the form:  ``` [{\"Path\": \"device_path\", \"Rate\": rate}] ```
-    @SerialName(
-        value = "BlkioDeviceWriteIOps",
-    ) val blkioDeviceWriteIOps: List<ThrottleDevice>? = null,
+    @SerialName(value = "BlkioDeviceWriteIOps") val blkioDeviceWriteIOps: List<ThrottleDevice>? = null,
     // The length of a CPU period in microseconds.
     @SerialName(value = "CpuPeriod") val cpuPeriod: Long? = null,
     // Microseconds of CPU time that the container can get in a CPU period.
@@ -260,6 +258,9 @@ data class HostConfig(
     enum class Isolation(
         val value: String,
     ) {
+        @SerialName(value = "")
+        UNKNOWN(""),
+
         @SerialName(value = "default")
         DEFAULT("default"),
 

@@ -11,6 +11,10 @@ git:
   git-ask-pass: /tmp/GIT_ASKPASS
   #main-repo-url:
 
+docker:
+  logging-level: ALL
+  unix-socket-file: /var/run/docker.sock
+
 ktor:
   port: 8080
   reuse-address: true

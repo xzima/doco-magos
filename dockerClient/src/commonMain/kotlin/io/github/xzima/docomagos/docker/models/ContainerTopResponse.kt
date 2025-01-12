@@ -28,7 +28,5 @@ data class ContainerTopResponse(
     // The ps column titles
     @SerialName(value = "Titles") val titles: List<String>? = null,
     // Each process running in the container, where each is process is an array of values corresponding to the titles.
-    @SerialName(
-        value = "Processes",
-    ) val processes: List<List<String>>? = null,
+    @SerialName(value = "Processes") val processes: List<List<String>>? = null,
 )

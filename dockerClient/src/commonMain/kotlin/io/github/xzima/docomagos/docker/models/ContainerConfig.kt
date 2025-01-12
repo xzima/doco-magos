@@ -61,7 +61,7 @@ data class ContainerConfig(
     // Whether to attach to `stderr`.
     @SerialName(value = "AttachStderr") val attachStderr: Boolean? = true,
     // An object mapping ports to an empty object in the form:  `{\"<port>/<tcp|udp|sctp>\": {}}`
-    @SerialName(value = "ExposedPorts") val exposedPorts: Map<String, String>? = null,
+    @SerialName(value = "ExposedPorts") val exposedPorts: Map<String, EmptyObject?>? = null,
     // Attach standard streams to a TTY, including `stdin` if it is not closed.
     @SerialName(value = "Tty") val tty: Boolean? = false,
     // Open `stdin`
