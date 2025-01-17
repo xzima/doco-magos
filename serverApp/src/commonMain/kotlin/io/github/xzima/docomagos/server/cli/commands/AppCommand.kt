@@ -18,7 +18,6 @@ package io.github.xzima.docomagos.server.cli.commands
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.parameters.groups.provideDelegate
-import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.enum
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -40,16 +39,21 @@ import io.github.xzima.docomagos.server.props.KtorOptionGroup
 import io.github.xzima.docomagos.server.props.KtorProps
 import io.github.xzima.docomagos.server.props.RsocketOptionGroup
 import io.github.xzima.docomagos.server.props.RsocketProps
+import io.github.xzima.docomagos.server.props.SyncJobOptionGroup
+import io.github.xzima.docomagos.server.props.SyncJobProps
+import io.github.xzima.docomagos.server.props.customOption
 import io.github.xzima.docomagos.server.routes.RouteInjector
 import io.github.xzima.docomagos.server.routes.RsocketRouteInjector
 import io.github.xzima.docomagos.server.routes.StaticUiRouteInjector
 import io.github.xzima.docomagos.server.services.DockerClient
 import io.github.xzima.docomagos.server.services.DockerComposeService
+import io.github.xzima.docomagos.server.services.DockerService
 import io.github.xzima.docomagos.server.services.GitClient
 import io.github.xzima.docomagos.server.services.GitService
 import io.github.xzima.docomagos.server.services.JobService
 import io.github.xzima.docomagos.server.services.PingService
 import io.github.xzima.docomagos.server.services.impl.DockerClientImpl
+import io.github.xzima.docomagos.server.services.impl.DockerServiceImpl
 import io.github.xzima.docomagos.server.services.impl.GitClientImpl
 import io.github.xzima.docomagos.server.services.impl.GitServiceImpl
 import io.github.xzima.docomagos.server.services.impl.JobServiceImpl
@@ -72,12 +76,13 @@ class AppCommand(
         }
     }
 
-    private val loggingLevel: Level by option(valueSourceKey = "logging-level").enum<Level>().required()
+    private val loggingLevel: Level by customOption("logging-level").enum<Level>().required()
     private val rsocketProps: RsocketProps by RsocketOptionGroup()
     private val ktorProps: KtorProps by KtorOptionGroup()
     private val appProps: AppProps by AppOptionGroup()
     private val gitProps: GitProps by GitOptionGroup()
     private val dockerProps: DockerProps by DockerOptionGroup()
+    private val syncJobProps: SyncJobProps by SyncJobOptionGroup()
 
     override fun run(): Unit = runBlocking {
         KotlinLogging.configureLogging(loggingLevel)
@@ -94,12 +99,21 @@ class AppCommand(
         single { appProps }
         single { gitProps }
         single { dockerProps }
+        single { syncJobProps }
         single { DockerComposeService() }
         single<DockerClient> { DockerClientImpl(get<DockerProps>()) }
+        single<DockerService> { DockerServiceImpl(get<AppProps>(), get<SyncJobProps>(), get<DockerClient>()) }
         single<GitClient> { GitClientImpl(get<GitProps>().gitAskPass) }
         single<GitService> { GitServiceImpl(get<GitProps>(), get<GitClient>()) }
         single<PingService> { PingServiceImpl() }
-        single<JobService> { JobServiceImpl(get<AppProps>(), get<PingService>(), get<GitService>()) }
+        single<JobService> {
+            JobServiceImpl(
+                appEnv = get<AppProps>(),
+                pingService = get<PingService>(),
+                gitService = get<GitService>(),
+                dockerService = get<DockerService>(),
+            )
+        }
         // routes
         single { StaticUiRouteInjector(get<AppProps>()) } bind RouteInjector::class
         single { RsocketRouteInjector(get<ListProjectsHandler>()) } bind RouteInjector::class

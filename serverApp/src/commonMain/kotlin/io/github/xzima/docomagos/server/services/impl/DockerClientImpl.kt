@@ -1,3 +1,18 @@
+/**
+ * Copyright 2025 Alex Zima(xzima@ro.ru)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.github.xzima.docomagos.server.services.impl
 
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -87,7 +102,7 @@ class DockerClientImpl(
         cmd: String,
         source: DockerContainerInfo,
         autoRemove: Boolean,
-    ): Pair<Boolean, String> = withContext(Dispatchers.IO) {
+    ): String? = withContext(Dispatchers.IO) {
         val response = containerApi.containerCreate(
             name = name,
             body = ContainerCreateRequest(
@@ -106,7 +121,7 @@ class DockerClientImpl(
             HttpStatusCode.Conflict -> {
                 val error = response.typedBody<ErrorResponse>()
                 logger.warn { "Conflict on creation container($name): ${error.message}" }
-                return@withContext false to ""
+                return@withContext null
             }
 
             else -> throw DockerApiException.from(response)
@@ -115,7 +130,7 @@ class DockerClientImpl(
             logger.warn { "On creation container($name): $message" }
         }
 
-        return@withContext true to body.id
+        return@withContext body.id
     }
 
     override suspend fun deleteContainer(idOrName: String): Boolean = withContext(Dispatchers.IO) {

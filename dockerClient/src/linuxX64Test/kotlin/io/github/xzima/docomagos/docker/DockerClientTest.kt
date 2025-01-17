@@ -19,6 +19,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.Level
 import io.github.xzima.docomagos.docker.apis.ContainerApi
 import io.github.xzima.docomagos.docker.apis.SystemApi
+import io.github.xzima.docomagos.docker.infrastructure.ApiClient
 import io.github.xzima.docomagos.docker.ktor.engine.socket.SocketCIO
 import io.github.xzima.docomagos.logging.HttpClientLogger
 import io.github.xzima.docomagos.logging.configureLogging
@@ -50,8 +51,8 @@ class DockerClientTest {
             json(Json { ignoreUnknownKeys = true })
         }
     }
-    private val containerApi = ContainerApi("http://1.47", client)
-    private val systemApi = SystemApi("http://1.47", client)
+    private val containerApi = ContainerApi(ApiClient.BASE_URL, client)
+    private val systemApi = SystemApi(ApiClient.BASE_URL, client)
 
     @Test
     fun testContainersList(): Unit = runBlocking {

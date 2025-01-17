@@ -41,25 +41,27 @@ import kotlin.time.Duration.Companion.seconds
 class JobServiceTest {
 
     private val appEnv = object : AppProps {
+        override val hostname: String = "any"
         override val staticUiPath: String = "any"
         override val jobPeriodMs: Int = 100
     }
 
     private val pingService = mock<PingService>(MockMode.autoUnit)
     private val gitService = mock<GitService>(MockMode.autoUnit)
+    private val dockerService = mock<DockerService>(MockMode.autoUnit)
     private lateinit var service: JobServiceImpl
 
     @BeforeTest
     fun beforeTest(): Unit = runBlocking {
         KotlinLogging.configureLogging(Level.DEBUG)
-        service = JobServiceImpl(appEnv, pingService, gitService)
+        service = JobServiceImpl(appEnv, pingService, gitService, dockerService)
     }
 
     @AfterTest
     fun afterTest(): Unit = runBlocking {
-        verifyNoMoreCalls(pingService, gitService)
-        resetCalls(pingService, gitService)
-        resetAnswers(pingService, gitService)
+        verifyNoMoreCalls(pingService, gitService, dockerService)
+        resetCalls(pingService, gitService, dockerService)
+        resetAnswers(pingService, gitService, dockerService)
     }
 
     @Test

@@ -1,5 +1,5 @@
 /**
- * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
+ * Copyright 2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.server.props
+package io.github.xzima.docomagos.server.services
 
-import com.github.ajalt.clikt.parameters.groups.OptionGroup
-import com.github.ajalt.clikt.parameters.options.required
-import com.github.ajalt.clikt.parameters.types.int
-
-interface RsocketProps {
-    val maxFragmentSize: Int
-}
-
-class RsocketOptionGroup :
-    OptionGroup(),
-    RsocketProps {
-    override val maxFragmentSize: Int by customOption("rsocket.max-fragment-size").int().required()
+interface DockerService {
+    suspend fun tryStartSyncJobService()
 }

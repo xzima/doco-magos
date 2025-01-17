@@ -16,7 +16,6 @@
 package io.github.xzima.docomagos.server.props
 
 import com.github.ajalt.clikt.parameters.groups.OptionGroup
-import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.boolean
 import com.github.ajalt.clikt.parameters.types.int
@@ -32,8 +31,8 @@ interface KtorProps {
 class KtorOptionGroup :
     OptionGroup(),
     KtorProps {
-    override val port: Int by option(valueSourceKey = "ktor.port").int().required()
-    override val reuseAddress: Boolean by option(valueSourceKey = "ktor.reuse-address").boolean().required()
-    override val gracePeriodMillis: Long by option(valueSourceKey = "ktor.grace-period-millis").long().required()
-    override val graceTimeoutMillis: Long by option(valueSourceKey = "ktor.grace-timeout-millis").long().required()
+    override val port: Int by customOption("ktor.port").int().required()
+    override val reuseAddress: Boolean by customOption("ktor.reuse-address").boolean().required()
+    override val gracePeriodMillis: Long by customOption("ktor.grace-period-millis").long().required()
+    override val graceTimeoutMillis: Long by customOption("ktor.grace-timeout-millis").long().required()
 }

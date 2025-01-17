@@ -17,17 +17,15 @@ package io.github.xzima.docomagos.server.props
 
 import com.github.ajalt.clikt.parameters.groups.OptionGroup
 import com.github.ajalt.clikt.parameters.options.required
-import com.github.ajalt.clikt.parameters.types.enum
-import io.ktor.client.plugins.logging.*
 
-interface DockerProps {
-    val loggingLevel: LogLevel
-    val unixSocketFile: String
+interface SyncJobProps {
+    val containerName: String
+    val containerCmd: String
 }
 
-class DockerOptionGroup :
+class SyncJobOptionGroup :
     OptionGroup(),
-    DockerProps {
-    override val loggingLevel: LogLevel by customOption("docker.logging-level").enum<LogLevel>().required()
-    override val unixSocketFile: String by customOption("docker.unix-socket-file").required()
+    SyncJobProps {
+    override val containerName: String by customOption("sync-job.container-name").required()
+    override val containerCmd: String by customOption("sync-job.container-cmd").required()
 }

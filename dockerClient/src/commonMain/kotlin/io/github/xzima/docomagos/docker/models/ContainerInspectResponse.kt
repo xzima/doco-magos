@@ -49,7 +49,7 @@ import kotlinx.serialization.*
 @Serializable
 data class ContainerInspectResponse(
     // The ID of the container
-    @SerialName(value = "Id") val id: String? = null,
+    @SerialName(value = "Id") @Required val id: String,
     // The time the container was created
     @SerialName(value = "Created") val created: String? = null,
     // The path to the command being run

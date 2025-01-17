@@ -16,7 +16,6 @@
 package io.github.xzima.docomagos.server.props
 
 import com.github.ajalt.clikt.parameters.groups.OptionGroup
-import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 
 interface GitProps {
@@ -41,11 +40,11 @@ interface GitProps {
 class GitOptionGroup :
     OptionGroup(),
     GitProps {
-    override val mainRepoPath: String by option(valueSourceKey = "git.main-repo-path").required()
-    override val mainRepoUrl: String by option(valueSourceKey = "git.main-repo-url").required()
-    override val mainRepoRemote: String by option(valueSourceKey = "git.main-repo-remote").required()
-    override val mainRepoBranch: String by option(valueSourceKey = "git.main-repo-branch").required()
-    override val gitAskPass: String by option(valueSourceKey = "git.git-ask-pass").required()
-    override val gitToken: String? by option(valueSourceKey = "git.git-token")
-    override val gitTokenFile: String? by option(valueSourceKey = "git.git-token-file")
+    override val mainRepoPath: String by customOption("git.main-repo-path").required()
+    override val mainRepoUrl: String by customOption("git.main-repo-url").required()
+    override val mainRepoRemote: String by customOption("git.main-repo-remote").required()
+    override val mainRepoBranch: String by customOption("git.main-repo-branch").required()
+    override val gitAskPass: String by customOption("git.git-ask-pass").required()
+    override val gitToken: String? by customOption("git.git-token")
+    override val gitTokenFile: String? by customOption("git.git-token-file")
 }
