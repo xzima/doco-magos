@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Alex Zima(xzima@ro.ru)
+ * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,26 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
     // applied for all subprojects
     alias(libs.plugins.spotless)
+    // alias(libs.plugins.openapi)
 }
+
+/*openApiGenerate {
+    generatorName.set("kotlin")
+    remoteInputSpec.set("https://docs.docker.com/reference/api/engine/version/v1.47.yaml")
+    library.set("multiplatform")
+    additionalProperties.set(
+        mapOf(
+            "dateLibrary" to "kotlinx-datetime",
+        ),
+    )
+
+    outputDir.set("${project.projectDir}/dockerClient")
+}
+
+tasks.withType(GenerateTask::class) {
+    outputs.upToDateWhen { false }
+    outputs.cacheIf { false }
+}*/
 
 rootProject.plugins.withType(YarnPlugin::class.java) {
     rootProject.configure<YarnRootExtension> {

@@ -16,11 +16,11 @@
 package io.github.xzima.docomagos.server.props
 
 import com.github.ajalt.clikt.parameters.groups.OptionGroup
-import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.int
 
 interface AppProps {
+    val hostname: String
     val staticUiPath: String
     val jobPeriodMs: Int
 }
@@ -28,6 +28,7 @@ interface AppProps {
 class AppOptionGroup :
     OptionGroup(),
     AppProps {
-    override val staticUiPath: String by option(valueSourceKey = "app.static-ui-path").required()
-    override val jobPeriodMs: Int by option(valueSourceKey = "app.job-period-ms").int().required()
+    override val hostname: String by customOption("HOSTNAME").required()
+    override val staticUiPath: String by customOption("app.static-ui-path").required()
+    override val jobPeriodMs: Int by customOption("app.job-period-ms").int().required()
 }

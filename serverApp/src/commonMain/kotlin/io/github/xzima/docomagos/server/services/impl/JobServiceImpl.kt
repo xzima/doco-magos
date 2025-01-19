@@ -18,6 +18,7 @@ package io.github.xzima.docomagos.server.services.impl
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.xzima.docomagos.logging.from
 import io.github.xzima.docomagos.server.props.AppProps
+import io.github.xzima.docomagos.server.services.DockerService
 import io.github.xzima.docomagos.server.services.GitService
 import io.github.xzima.docomagos.server.services.JobService
 import io.github.xzima.docomagos.server.services.PingService
@@ -31,6 +32,7 @@ class JobServiceImpl(
     private val appEnv: AppProps,
     private val pingService: PingService,
     private val gitService: GitService,
+    private val dockerService: DockerService,
 ) : JobService {
 
     override fun createJob(scope: CoroutineScope): Job = scope.launch(start = CoroutineStart.LAZY) {
@@ -53,15 +55,25 @@ class JobServiceImpl(
         logger.debug { "on start phase: finished" }
     }
 
-    private suspend fun onEach() = try {
-        logger.debug { "on each phase: started" }
-        pingService.ping()
-        val isActualRepoHead = gitService.isActualRepoHead()
-        logger.info { "isActualRepoHead: $isActualRepoHead" }
-    } catch (e: Exception) {
-        logger.error(e) { "on each phase: failed" }
-    } finally {
-        logger.debug { "on each phase: finished" }
+    private suspend fun onEach() {
+        try {
+            logger.debug { "on each phase: started" }
+            pingService.ping()
+
+            val isActualRepoHead = gitService.isActualRepoHead()
+            logger.info { "isActualRepoHead: $isActualRepoHead" }
+
+            val isActualAndTargetStacksEqual = true
+            logger.info { "TODO: isActualAndTargetStacksEqual: $isActualAndTargetStacksEqual" }
+
+            if (!isActualRepoHead || !isActualAndTargetStacksEqual) {
+                dockerService.tryStartSyncJobService()
+            }
+        } catch (e: Exception) {
+            logger.error(e) { "on each phase: failed" }
+        } finally {
+            logger.debug { "on each phase: finished" }
+        }
     }
 
     private suspend fun onStop() = try {

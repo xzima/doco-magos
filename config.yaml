@@ -13,6 +13,14 @@ git:
   #git-token:
   #git-token-file:
 
+docker:
+  logging-level: ALL
+  unix-socket-file: /var/run/docker.sock
+
+sync-job:
+  container-name: doco-magos-sync-job
+  container-cmd: sync
+
 ktor:
   port: 8080
   reuse-address: true

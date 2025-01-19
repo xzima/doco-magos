@@ -11,6 +11,14 @@ git:
   git-ask-pass: /tmp/GIT_ASKPASS
   #main-repo-url:
 
+docker:
+  logging-level: ALL
+  unix-socket-file: /var/run/docker.sock
+
+sync-job:
+  container-name: doco-magos-sync-job
+  container-cmd: sync
+
 ktor:
   port: 8080
   reuse-address: true

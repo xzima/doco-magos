@@ -21,6 +21,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.Level
 import io.github.xzima.docomagos.client.createRsocketClient
 import io.github.xzima.docomagos.logging.configureLogging
+import io.ktor.client.engine.js.*
 import io.ktor.client.plugins.logging.*
 import kotlinx.browser.*
 import org.jetbrains.skiko.wasm.onWasmReady
@@ -32,7 +33,7 @@ suspend fun main() {
 
     KotlinLogging.configureLogging(loggingLevel)
 
-    val client = createRsocketClient(window.location.host, reqRespLogLevel)
+    val client = createRsocketClient(Js, window.location.host, reqRespLogLevel)
     initKoinModule(client)
     onWasmReady {
         CanvasBasedWindow(title = UiConstants.APP_NAME) {

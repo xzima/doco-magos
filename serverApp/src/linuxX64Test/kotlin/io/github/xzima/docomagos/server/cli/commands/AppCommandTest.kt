@@ -19,11 +19,15 @@ import TestUtils
 import com.github.ajalt.clikt.testing.test
 import io.github.xzima.docomagos.server.handlers.ListProjectsHandler
 import io.github.xzima.docomagos.server.props.AppProps
+import io.github.xzima.docomagos.server.props.DockerProps
 import io.github.xzima.docomagos.server.props.GitProps
 import io.github.xzima.docomagos.server.props.KtorProps
 import io.github.xzima.docomagos.server.props.RsocketProps
+import io.github.xzima.docomagos.server.props.SyncJobProps
 import io.github.xzima.docomagos.server.routes.RouteInjector
+import io.github.xzima.docomagos.server.services.DockerClient
 import io.github.xzima.docomagos.server.services.DockerComposeService
+import io.github.xzima.docomagos.server.services.DockerService
 import io.github.xzima.docomagos.server.services.GitClient
 import io.github.xzima.docomagos.server.services.GitService
 import io.github.xzima.docomagos.server.services.JobService
@@ -63,7 +67,11 @@ class AppCommandTest {
         KtorProps::class,
         AppProps::class,
         GitProps::class,
+        DockerProps::class,
+        SyncJobProps::class,
         DockerComposeService::class,
+        DockerClient::class,
+        DockerService::class,
         GitClient::class,
         GitService::class,
         PingService::class,
@@ -76,6 +84,7 @@ class AppCommandTest {
     fun testPositive(): Unit = runBlocking {
         // GIVEN
         val envs = mapOf(
+            "HOSTNAME" to "localhost",
             "LOGGING_LEVEL" to "WARN",
             "KTOR_PORT" to "14444",
             "KTOR_REUSE_ADDRESS" to "true",
@@ -107,6 +116,6 @@ class AppCommandTest {
 
         // THEN
         actual.statusCode shouldBe 1
-        actual.output shouldContain "missing option --main-repo-url"
+        actual.output shouldContain "missing option --git-main-repo-url"
     }
 }
