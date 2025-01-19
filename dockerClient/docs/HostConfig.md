@@ -87,9 +87,6 @@
 
 ## Enum: Isolation
 
-| Name      | Value                    |
-|-----------|--------------------------|
-| isolation | default, process, hyperv |
-
-
-
+| Name      | Value                        |
+|-----------|------------------------------|
+| isolation | "", default, process, hyperv |

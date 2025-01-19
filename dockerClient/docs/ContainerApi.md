@@ -48,8 +48,8 @@ Get a tar archive of a resource in the filesystem of container id.
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
-val path : kotlin.String = path_example // kotlin.String | Resource in the container’s filesystem to archive.
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
+val path: kotlin.String = path_example // kotlin.String | Resource in the container’s filesystem to archive.
 try {
     apiInstance.containerArchive(id, path)
 } catch (e: ClientException) {
@@ -100,8 +100,8 @@ some filesystem header information about the path.
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
-val path : kotlin.String = path_example // kotlin.String | Resource in the container’s filesystem to archive.
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
+val path: kotlin.String = path_example // kotlin.String | Resource in the container’s filesystem to archive.
 try {
     apiInstance.containerArchiveInfo(id, path)
 } catch (e: ClientException) {
@@ -167,7 +167,9 @@ SIZE3, SIZE4&#x60; are the four bytes of the &#x60;uint32&#x60; size encoded as 
 payload, which is the specified number of bytes of &#x60;STREAM_TYPE&#x60;. The simplest way to implement this protocol
 is the following:  1. Read 8 bytes. 2. Choose &#x60;stdout&#x60; or &#x60;stderr&#x60; depending on the first byte. 3.
 Extract the frame size from the last four bytes. 4. Read the extracted size and output it on the correct output. 5. Goto
+
 1. ### Stream format when using a TTY When the TTY setting is enabled
+
 in [&#x60;POST /containers/create&#x60;](#operation/ContainerCreate), the stream is not multiplexed. The data exchanged
 over the hijacked connection is simply the raw data from the process PTY and client&#39;s &#x60;stdin&#x60;.
 
@@ -179,13 +181,16 @@ over the hijacked connection is simply the raw data from the process PTY and cli
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
-val detachKeys : kotlin.String = detachKeys_example // kotlin.String | Override the key sequence for detaching a container.Format is a single character `[a-Z]` or `ctrl-<value>` where `<value>` is one of: `a-z`, `@`, `^`, `[`, `,` or `_`. 
-val logs : kotlin.Boolean = true // kotlin.Boolean | Replay previous logs from the container.  This is useful for attaching to a container that has started and you want to output everything since the container started.  If `stream` is also enabled, once all the previous output has been returned, it will seamlessly transition into streaming current output. 
-val stream : kotlin.Boolean = true // kotlin.Boolean | Stream attached streams from the time the request was made onwards. 
-val stdin : kotlin.Boolean = true // kotlin.Boolean | Attach to `stdin`
-val stdout : kotlin.Boolean = true // kotlin.Boolean | Attach to `stdout`
-val stderr : kotlin.Boolean = true // kotlin.Boolean | Attach to `stderr`
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
+val detachKeys: kotlin.String =
+    detachKeys_example // kotlin.String | Override the key sequence for detaching a container.Format is a single character `[a-Z]` or `ctrl-<value>` where `<value>` is one of: `a-z`, `@`, `^`, `[`, `,` or `_`. 
+val logs: kotlin.Boolean =
+    true // kotlin.Boolean | Replay previous logs from the container.  This is useful for attaching to a container that has started and you want to output everything since the container started.  If `stream` is also enabled, once all the previous output has been returned, it will seamlessly transition into streaming current output. 
+val stream: kotlin.Boolean =
+    true // kotlin.Boolean | Stream attached streams from the time the request was made onwards. 
+val stdin: kotlin.Boolean = true // kotlin.Boolean | Attach to `stdin`
+val stdout: kotlin.Boolean = true // kotlin.Boolean | Attach to `stdout`
+val stderr: kotlin.Boolean = true // kotlin.Boolean | Attach to `stderr`
 try {
     apiInstance.containerAttach(id, detachKeys, logs, stream, stdin, stdout, stderr)
 } catch (e: ClientException) {
@@ -244,13 +249,14 @@ Attach to a container via a websocket
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
-val detachKeys : kotlin.String = detachKeys_example // kotlin.String | Override the key sequence for detaching a container.Format is a single character `[a-Z]` or `ctrl-<value>` where `<value>` is one of: `a-z`, `@`, `^`, `[`, `,`, or `_`. 
-val logs : kotlin.Boolean = true // kotlin.Boolean | Return logs
-val stream : kotlin.Boolean = true // kotlin.Boolean | Return stream
-val stdin : kotlin.Boolean = true // kotlin.Boolean | Attach to `stdin`
-val stdout : kotlin.Boolean = true // kotlin.Boolean | Attach to `stdout`
-val stderr : kotlin.Boolean = true // kotlin.Boolean | Attach to `stderr`
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
+val detachKeys: kotlin.String =
+    detachKeys_example // kotlin.String | Override the key sequence for detaching a container.Format is a single character `[a-Z]` or `ctrl-<value>` where `<value>` is one of: `a-z`, `@`, `^`, `[`, `,`, or `_`. 
+val logs: kotlin.Boolean = true // kotlin.Boolean | Return logs
+val stream: kotlin.Boolean = true // kotlin.Boolean | Return stream
+val stdin: kotlin.Boolean = true // kotlin.Boolean | Attach to `stdin`
+val stdout: kotlin.Boolean = true // kotlin.Boolean | Attach to `stdout`
+val stderr: kotlin.Boolean = true // kotlin.Boolean | Attach to `stderr`
 try {
     apiInstance.containerAttachWebsocket(id, detachKeys, logs, stream, stdin, stdout, stderr)
 } catch (e: ClientException) {
@@ -309,9 +315,9 @@ modification can be one of:  - &#x60;0&#x60;: Modified (\&quot;C\&quot;) - &#x60
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
 try {
-    val result : kotlin.collections.List<FilesystemChange> = apiInstance.containerChanges(id)
+    val result: kotlin.collections.List<FilesystemChange> = apiInstance.containerChanges(id)
     println(result)
 } catch (e: ClientException) {
     println("4xx response calling ContainerApi#containerChanges")
@@ -357,11 +363,13 @@ Create a container
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val body : ContainerCreateRequest =  // ContainerCreateRequest | Container to create
-val name : kotlin.String = name_example // kotlin.String | Assign the specified name to the container. Must match `/?[a-zA-Z0-9][a-zA-Z0-9_.-]+`. 
-val platform : kotlin.String = platform_example // kotlin.String | Platform in the format `os[/arch[/variant]]` used for image lookup.  When specified, the daemon checks if the requested image is present in the local image cache with the given OS and Architecture, and otherwise returns a `404` status.  If the option is not set, the host's native OS and Architecture are used to look up the image in the image cache. However, if no platform is passed and the given image does exist in the local image cache, but its OS or architecture does not match, the container is created with the available image, and a warning is added to the `Warnings` field in the response, for example;      WARNING: The requested image's platform (linux/arm64/v8) does not              match the detected host platform (linux/amd64) and no              specific platform was requested 
+val body: ContainerCreateRequest =  // ContainerCreateRequest | Container to create
+val name: kotlin.String =
+    name_example // kotlin.String | Assign the specified name to the container. Must match `/?[a-zA-Z0-9][a-zA-Z0-9_.-]+`. 
+val platform: kotlin.String =
+    platform_example // kotlin.String | Platform in the format `os[/arch[/variant]]` used for image lookup.  When specified, the daemon checks if the requested image is present in the local image cache with the given OS and Architecture, and otherwise returns a `404` status.  If the option is not set, the host's native OS and Architecture are used to look up the image in the image cache. However, if no platform is passed and the given image does exist in the local image cache, but its OS or architecture does not match, the container is created with the available image, and a warning is added to the `Warnings` field in the response, for example;      WARNING: The requested image's platform (linux/arm64/v8) does not              match the detected host platform (linux/amd64) and no              specific platform was requested 
 try {
-    val result : ContainerCreateResponse = apiInstance.containerCreate(body, name, platform)
+    val result: ContainerCreateResponse = apiInstance.containerCreate(body, name, platform)
     println(result)
 } catch (e: ClientException) {
     println("4xx response calling ContainerApi#containerCreate")
@@ -417,10 +425,10 @@ Remove a container
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
-val v : kotlin.Boolean = true // kotlin.Boolean | Remove anonymous volumes associated with the container.
-val force : kotlin.Boolean = true // kotlin.Boolean | If the container is running, kill it before removing it.
-val link : kotlin.Boolean = true // kotlin.Boolean | Remove the specified link associated with the container.
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
+val v: kotlin.Boolean = true // kotlin.Boolean | Remove anonymous volumes associated with the container.
+val force: kotlin.Boolean = true // kotlin.Boolean | If the container is running, kill it before removing it.
+val link: kotlin.Boolean = true // kotlin.Boolean | Remove the specified link associated with the container.
 try {
     apiInstance.containerDelete(id, v, force, link)
 } catch (e: ClientException) {
@@ -474,7 +482,7 @@ Export the contents of a container as a tarball.
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
 try {
     apiInstance.containerExport(id)
 } catch (e: ClientException) {
@@ -523,10 +531,10 @@ Return low-level information about a container.
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
-val size : kotlin.Boolean = true // kotlin.Boolean | Return the size of container as fields `SizeRw` and `SizeRootFs`
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
+val size: kotlin.Boolean = true // kotlin.Boolean | Return the size of container as fields `SizeRw` and `SizeRootFs`
 try {
-    val result : ContainerInspectResponse = apiInstance.containerInspect(id, size)
+    val result: ContainerInspectResponse = apiInstance.containerInspect(id, size)
     println(result)
 } catch (e: ClientException) {
     println("4xx response calling ContainerApi#containerInspect")
@@ -576,8 +584,9 @@ Send a POSIX signal to a container, defaulting to killing to the container.
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
-val signal : kotlin.String = signal_example // kotlin.String | Signal to send to the container as an integer or string (e.g. `SIGINT`). 
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
+val signal: kotlin.String =
+    signal_example // kotlin.String | Signal to send to the container as an integer or string (e.g. `SIGINT`). 
 try {
     apiInstance.containerKill(id, signal)
 } catch (e: ClientException) {
@@ -630,12 +639,15 @@ list of linked containers is not propagated .
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val all : kotlin.Boolean = true // kotlin.Boolean | Return all containers. By default, only running containers are shown. 
-val limit : kotlin.Int = 56 // kotlin.Int | Return this number of most recently created containers, including non-running ones. 
-val size : kotlin.Boolean = true // kotlin.Boolean | Return the size of container as fields `SizeRw` and `SizeRootFs`. 
-val filters : kotlin.String = filters_example // kotlin.String | Filters to process on the container list, encoded as JSON (a `map[string][]string`). For example, `{\"status\": [\"paused\"]}` will only return paused containers.  Available filters:  - `ancestor`=(`<image-name>[:<tag>]`, `<image id>`, or `<image@digest>`) - `before`=(`<container id>` or `<container name>`) - `expose`=(`<port>[/<proto>]`|`<startport-endport>/[<proto>]`) - `exited=<int>` containers with exit code of `<int>` - `health`=(`starting`|`healthy`|`unhealthy`|`none`) - `id=<ID>` a container's ID - `isolation=`(`default`|`process`|`hyperv`) (Windows daemon only) - `is-task=`(`true`|`false`) - `label=key` or `label=\"key=value\"` of a container label - `name=<name>` a container's name - `network`=(`<network id>` or `<network name>`) - `publish`=(`<port>[/<proto>]`|`<startport-endport>/[<proto>]`) - `since`=(`<container id>` or `<container name>`) - `status=`(`created`|`restarting`|`running`|`removing`|`paused`|`exited`|`dead`) - `volume`=(`<volume name>` or `<mount point destination>`) 
+val all: kotlin.Boolean =
+    true // kotlin.Boolean | Return all containers. By default, only running containers are shown. 
+val limit: kotlin.Int =
+    56 // kotlin.Int | Return this number of most recently created containers, including non-running ones. 
+val size: kotlin.Boolean = true // kotlin.Boolean | Return the size of container as fields `SizeRw` and `SizeRootFs`. 
+val filters: kotlin.String =
+    filters_example // kotlin.String | Filters to process on the container list, encoded as JSON (a `map[string][]string`). For example, `{\"status\": [\"paused\"]}` will only return paused containers.  Available filters:  - `ancestor`=(`<image-name>[:<tag>]`, `<image id>`, or `<image@digest>`) - `before`=(`<container id>` or `<container name>`) - `expose`=(`<port>[/<proto>]`|`<startport-endport>/[<proto>]`) - `exited=<int>` containers with exit code of `<int>` - `health`=(`starting`|`healthy`|`unhealthy`|`none`) - `id=<ID>` a container's ID - `isolation=`(`default`|`process`|`hyperv`) (Windows daemon only) - `is-task=`(`true`|`false`) - `label=key` or `label=\"key=value\"` of a container label - `name=<name>` a container's name - `network`=(`<network id>` or `<network name>`) - `publish`=(`<port>[/<proto>]`|`<startport-endport>/[<proto>]`) - `since`=(`<container id>` or `<container name>`) - `status=`(`created`|`restarting`|`running`|`removing`|`paused`|`exited`|`dead`) - `volume`=(`<volume name>` or `<mount point destination>`) 
 try {
-    val result : kotlin.collections.List<ContainerSummary> = apiInstance.containerList(all, limit, size, filters)
+    val result: kotlin.collections.List<ContainerSummary> = apiInstance.containerList(all, limit, size, filters)
     println(result)
 } catch (e: ClientException) {
     println("4xx response calling ContainerApi#containerList")
@@ -707,16 +719,18 @@ the &#x60;json-file&#x60; or &#x60;journald&#x60; logging driver.
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
-val follow : kotlin.Boolean = true // kotlin.Boolean | Keep connection after returning logs.
-val stdout : kotlin.Boolean = true // kotlin.Boolean | Return logs from `stdout`
-val stderr : kotlin.Boolean = true // kotlin.Boolean | Return logs from `stderr`
-val since : kotlin.Int = 56 // kotlin.Int | Only return logs since this time, as a UNIX timestamp
-val until : kotlin.Int = 56 // kotlin.Int | Only return logs before this time, as a UNIX timestamp
-val timestamps : kotlin.Boolean = true // kotlin.Boolean | Add timestamps to every log line
-val tail : kotlin.String = tail_example // kotlin.String | Only return this number of log lines from the end of the logs. Specify as an integer or `all` to output all log lines. 
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
+val follow: kotlin.Boolean = true // kotlin.Boolean | Keep connection after returning logs.
+val stdout: kotlin.Boolean = true // kotlin.Boolean | Return logs from `stdout`
+val stderr: kotlin.Boolean = true // kotlin.Boolean | Return logs from `stderr`
+val since: kotlin.Int = 56 // kotlin.Int | Only return logs since this time, as a UNIX timestamp
+val until: kotlin.Int = 56 // kotlin.Int | Only return logs before this time, as a UNIX timestamp
+val timestamps: kotlin.Boolean = true // kotlin.Boolean | Add timestamps to every log line
+val tail: kotlin.String =
+    tail_example // kotlin.String | Only return this number of log lines from the end of the logs. Specify as an integer or `all` to output all log lines. 
 try {
-    val result : io.github.xzima.docomagos.docker.infrastructure.OctetByteArray = apiInstance.containerLogs(id, follow, stdout, stderr, since, until, timestamps, tail)
+    val result: io.github.xzima.docomagos.docker.infrastructure.OctetByteArray =
+        apiInstance.containerLogs(id, follow, stdout, stderr, since, until, timestamps, tail)
     println(result)
 } catch (e: ClientException) {
     println("4xx response calling ContainerApi#containerLogs")
@@ -775,7 +789,7 @@ process is unaware, and unable to capture, that it is being suspended, and subse
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
 try {
     apiInstance.containerPause(id)
 } catch (e: ClientException) {
@@ -822,9 +836,10 @@ Delete stopped containers
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val filters : kotlin.String = filters_example // kotlin.String | Filters to process on the prune list, encoded as JSON (a `map[string][]string`).  Available filters: - `until=<timestamp>` Prune containers created before this timestamp. The `<timestamp>` can be Unix timestamps, date formatted timestamps, or Go duration strings (e.g. `10m`, `1h30m`) computed relative to the daemon machine’s time. - `label` (`label=<key>`, `label=<key>=<value>`, `label!=<key>`, or `label!=<key>=<value>`) Prune containers with (or without, in case `label!=...` is used) the specified labels. 
+val filters: kotlin.String =
+    filters_example // kotlin.String | Filters to process on the prune list, encoded as JSON (a `map[string][]string`).  Available filters: - `until=<timestamp>` Prune containers created before this timestamp. The `<timestamp>` can be Unix timestamps, date formatted timestamps, or Go duration strings (e.g. `10m`, `1h30m`) computed relative to the daemon machine’s time. - `label` (`label=<key>`, `label=<key>=<value>`, `label!=<key>`, or `label!=<key>=<value>`) Prune containers with (or without, in case `label!=...` is used) the specified labels. 
 try {
-    val result : ContainerPruneResponse = apiInstance.containerPrune(filters)
+    val result: ContainerPruneResponse = apiInstance.containerPrune(filters)
     println(result)
 } catch (e: ClientException) {
     println("4xx response calling ContainerApi#containerPrune")
@@ -870,8 +885,8 @@ Rename a container
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
-val name : kotlin.String = name_example // kotlin.String | New name for the container
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
+val name: kotlin.String = name_example // kotlin.String | New name for the container
 try {
     apiInstance.containerRename(id, name)
 } catch (e: ClientException) {
@@ -921,9 +936,9 @@ Resize the TTY for a container.
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
-val h : kotlin.Int = 56 // kotlin.Int | Height of the TTY session in characters
-val w : kotlin.Int = 56 // kotlin.Int | Width of the TTY session in characters
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
+val h: kotlin.Int = 56 // kotlin.Int | Height of the TTY session in characters
+val w: kotlin.Int = 56 // kotlin.Int | Width of the TTY session in characters
 try {
     apiInstance.containerResize(id, h, w)
 } catch (e: ClientException) {
@@ -972,9 +987,10 @@ Restart a container
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
-val signal : kotlin.String = signal_example // kotlin.String | Signal to send to the container as an integer or string (e.g. `SIGINT`). 
-val t : kotlin.Int = 56 // kotlin.Int | Number of seconds to wait before killing the container
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
+val signal: kotlin.String =
+    signal_example // kotlin.String | Signal to send to the container as an integer or string (e.g. `SIGINT`). 
+val t: kotlin.Int = 56 // kotlin.Int | Number of seconds to wait before killing the container
 try {
     apiInstance.containerRestart(id, signal, t)
 } catch (e: ClientException) {
@@ -1024,8 +1040,9 @@ Start a container
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
-val detachKeys : kotlin.String = detachKeys_example // kotlin.String | Override the key sequence for detaching a container. Format is a single character `[a-Z]` or `ctrl-<value>` where `<value>` is one of: `a-z`, `@`, `^`, `[`, `,` or `_`. 
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
+val detachKeys: kotlin.String =
+    detachKeys_example // kotlin.String | Override the key sequence for detaching a container. Format is a single character `[a-Z]` or `ctrl-<value>` where `<value>` is one of: `a-z`, `@`, `^`, `[`, `,` or `_`. 
 try {
     apiInstance.containerStart(id, detachKeys)
 } catch (e: ClientException) {
@@ -1090,11 +1107,13 @@ cpu_delta / system_cpu_delta) * number_cpus * 100.0&#x60;
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
-val stream : kotlin.Boolean = true // kotlin.Boolean | Stream the output. If false, the stats will be output once and then it will disconnect. 
-val oneShot : kotlin.Boolean = true // kotlin.Boolean | Only get a single stat instead of waiting for 2 cycles. Must be used with `stream=false`. 
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
+val stream: kotlin.Boolean =
+    true // kotlin.Boolean | Stream the output. If false, the stats will be output once and then it will disconnect. 
+val oneShot: kotlin.Boolean =
+    true // kotlin.Boolean | Only get a single stat instead of waiting for 2 cycles. Must be used with `stream=false`. 
 try {
-    val result : kotlin.String = apiInstance.containerStats(id, stream, oneShot)
+    val result: kotlin.String = apiInstance.containerStats(id, stream, oneShot)
     println(result)
 } catch (e: ClientException) {
     println("4xx response calling ContainerApi#containerStats")
@@ -1144,9 +1163,10 @@ Stop a container
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
-val signal : kotlin.String = signal_example // kotlin.String | Signal to send to the container as an integer or string (e.g. `SIGINT`). 
-val t : kotlin.Int = 56 // kotlin.Int | Number of seconds to wait before killing the container
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
+val signal: kotlin.String =
+    signal_example // kotlin.String | Signal to send to the container as an integer or string (e.g. `SIGINT`). 
+val t: kotlin.Int = 56 // kotlin.Int | Number of seconds to wait before killing the container
 try {
     apiInstance.containerStop(id, signal, t)
 } catch (e: ClientException) {
@@ -1198,10 +1218,10 @@ On Unix systems, this is done by running the &#x60;ps&#x60; command. This endpoi
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
-val psArgs : kotlin.String = psArgs_example // kotlin.String | The arguments to pass to `ps`. For example, `aux`
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
+val psArgs: kotlin.String = psArgs_example // kotlin.String | The arguments to pass to `ps`. For example, `aux`
 try {
-    val result : ContainerTopResponse = apiInstance.containerTop(id, psArgs)
+    val result: ContainerTopResponse = apiInstance.containerTop(id, psArgs)
     println(result)
 } catch (e: ClientException) {
     println("4xx response calling ContainerApi#containerTop")
@@ -1251,7 +1271,7 @@ Resume a container which has been paused.
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
 try {
     apiInstance.containerUnpause(id)
 } catch (e: ClientException) {
@@ -1300,18 +1320,18 @@ Change various configuration options of a container without having to recreate i
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
-val update : ContainerUpdateRequest =  // ContainerUpdateRequest | 
-try {
-    val result : ContainerUpdateResponse = apiInstance.containerUpdate(id, update)
-    println(result)
-} catch (e: ClientException) {
-    println("4xx response calling ContainerApi#containerUpdate")
-    e.printStackTrace()
-} catch (e: ServerException) {
-    println("5xx response calling ContainerApi#containerUpdate")
-    e.printStackTrace()
-}
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
+val update: ContainerUpdateRequest =  // ContainerUpdateRequest | 
+    try {
+        val result: ContainerUpdateResponse = apiInstance.containerUpdate(id, update)
+        println(result)
+    } catch (e: ClientException) {
+        println("4xx response calling ContainerApi#containerUpdate")
+        e.printStackTrace()
+    } catch (e: ServerException) {
+        println("5xx response calling ContainerApi#containerUpdate")
+        e.printStackTrace()
+    }
 ```
 
 ### Parameters
@@ -1352,10 +1372,11 @@ Block until a container stops, then returns the exit code.
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
-val condition : kotlin.String = condition_example // kotlin.String | Wait until a container state reaches the given condition.  Defaults to `not-running` if omitted or empty. 
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
+val condition: kotlin.String =
+    condition_example // kotlin.String | Wait until a container state reaches the given condition.  Defaults to `not-running` if omitted or empty. 
 try {
-    val result : ContainerWaitResponse = apiInstance.containerWait(id, condition)
+    val result: ContainerWaitResponse = apiInstance.containerWait(id, condition)
     println(result)
 } catch (e: ClientException) {
     println("4xx response calling ContainerApi#containerWait")
@@ -1407,11 +1428,15 @@ to be a directory. If it exists as a file, 400 error will be returned with messa
 //import io.github.xzima.docomagos.docker.models.*
 
 val apiInstance = ContainerApi()
-val id : kotlin.String = id_example // kotlin.String | ID or name of the container
-val path : kotlin.String = path_example // kotlin.String | Path to a directory in the container to extract the archive’s contents into. 
-val inputStream : io.github.xzima.docomagos.docker.infrastructure.OctetByteArray = BINARY_DATA_HERE // io.github.xzima.docomagos.docker.infrastructure.OctetByteArray | The input stream must be a tar archive compressed with one of the following algorithms: `identity` (no compression), `gzip`, `bzip2`, or `xz`. 
-val noOverwriteDirNonDir : kotlin.String = noOverwriteDirNonDir_example // kotlin.String | If `1`, `true`, or `True` then it will be an error if unpacking the given content would cause an existing directory to be replaced with a non-directory and vice versa. 
-val copyUIDGID : kotlin.String = copyUIDGID_example // kotlin.String | If `1`, `true`, then it will copy UID/GID maps to the dest file or dir 
+val id: kotlin.String = id_example // kotlin.String | ID or name of the container
+val path: kotlin.String =
+    path_example // kotlin.String | Path to a directory in the container to extract the archive’s contents into. 
+val inputStream: io.github.xzima.docomagos.docker.infrastructure.OctetByteArray =
+    BINARY_DATA_HERE // io.github.xzima.docomagos.docker.infrastructure.OctetByteArray | The input stream must be a tar archive compressed with one of the following algorithms: `identity` (no compression), `gzip`, `bzip2`, or `xz`. 
+val noOverwriteDirNonDir: kotlin.String =
+    noOverwriteDirNonDir_example // kotlin.String | If `1`, `true`, or `True` then it will be an error if unpacking the given content would cause an existing directory to be replaced with a non-directory and vice versa. 
+val copyUIDGID: kotlin.String =
+    copyUIDGID_example // kotlin.String | If `1`, `true`, then it will copy UID/GID maps to the dest file or dir 
 try {
     apiInstance.putContainerArchive(id, path, inputStream, noOverwriteDirNonDir, copyUIDGID)
 } catch (e: ClientException) {

@@ -4,7 +4,7 @@
 
 | Name                | Type                                                           | Description                                                            | Notes      |
 |---------------------|----------------------------------------------------------------|------------------------------------------------------------------------|------------|
-| **id**              | **kotlin.String**                                              | The ID of the container                                                | [optional] |
+| **id**              | **kotlin.String**                                              | The ID of the container                                                |            |
 | **created**         | **kotlin.String**                                              | The time the container was created                                     | [optional] |
 | **path**            | **kotlin.String**                                              | The path to the command being run                                      | [optional] |
 | **args**            | **kotlin.collections.List&lt;kotlin.String&gt;**               | The arguments to the command being run                                 | [optional] |
