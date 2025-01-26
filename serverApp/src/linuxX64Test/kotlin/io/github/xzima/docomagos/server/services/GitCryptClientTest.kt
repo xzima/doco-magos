@@ -92,19 +92,19 @@ class GitCryptClientTest {
     @Test
     fun testLockUnlockRepo(): Unit = runBlocking {
         // THEN-0
-        var content = okioFileReader(repoRoot.resolve("./global.secret.env")).joinToString(separator = "\n")
+        var content = okioFileReader(repoRoot.resolve("global.secret.env")).joinToString(separator = "\n")
         content shouldContain "GITCRYPT"
 
         // WHEN-1
         gitCryptClient.unlockRepo(repoRoot.toString(), gitCryptKey.toString())
         // THEN-1
-        content = okioFileReader(repoRoot.resolve("./global.secret.env")).joinToString(separator = "\n")
+        content = okioFileReader(repoRoot.resolve("global.secret.env")).joinToString(separator = "\n")
         content shouldNotContain "GITCRYPT"
 
         // WHEN-2
         gitCryptClient.lockRepo(repoRoot.toString())
         // THEN-2
-        content = okioFileReader(repoRoot.resolve("./global.secret.env")).joinToString(separator = "\n")
+        content = okioFileReader(repoRoot.resolve("global.secret.env")).joinToString(separator = "\n")
         content shouldContain "GITCRYPT"
     }
 }

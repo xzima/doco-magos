@@ -54,7 +54,7 @@ class DotenvParserTest {
     @Test
     fun configureWithIgnoreMalformed() {
         val dotenv = parseDotEnvFromReader(
-            okioFileReader(TestUtils.testResourcesDir.resolve("./dotenv/full-case")),
+            okioFileReader(TestUtils.testResourcesDir.resolve("dotenv/full-case")),
             throwIfMalformed = false,
         )
 
@@ -68,7 +68,7 @@ class DotenvParserTest {
     fun throwIfMalconfigured() {
         val actual = shouldThrow<DotenvException> {
             parseDotEnvFromReader(
-                okioFileReader(TestUtils.testResourcesDir.resolve("./dotenv/full-case")),
+                okioFileReader(TestUtils.testResourcesDir.resolve("dotenv/full-case")),
                 throwIfMalformed = true,
             )
         }
@@ -80,7 +80,7 @@ class DotenvParserTest {
     @Test
     fun malformedWithUncloseQuote() {
         val dotenv = parseDotEnvFromReader(
-            okioFileReader(TestUtils.testResourcesDir.resolve("./dotenv/unclosed-quote-case")),
+            okioFileReader(TestUtils.testResourcesDir.resolve("dotenv/unclosed-quote-case")),
             throwIfMalformed = false,
         )
 
