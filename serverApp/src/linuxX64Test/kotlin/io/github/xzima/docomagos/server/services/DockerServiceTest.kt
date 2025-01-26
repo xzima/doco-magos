@@ -42,6 +42,10 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class DockerServiceTest {
+    companion object {
+        @BeforeClass
+        fun setUp() = KotlinLogging.configureLogging(Level.TRACE)
+    }
 
     private val appProps = object : AppProps {
         override val hostname: String = "server-hostname"
@@ -54,11 +58,6 @@ class DockerServiceTest {
     }
     private val dockerClient: DockerClient = mock()
     private lateinit var dockerService: DockerService
-
-    @BeforeClass
-    fun setUp() {
-        KotlinLogging.configureLogging(Level.DEBUG)
-    }
 
     @BeforeTest
     fun setup() {

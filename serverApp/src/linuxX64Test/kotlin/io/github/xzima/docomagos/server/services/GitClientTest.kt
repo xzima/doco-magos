@@ -15,8 +15,6 @@
  */
 package io.github.xzima.docomagos.server.services
 
-import com.kgit2.kommand.process.Command
-import com.kgit2.kommand.process.Stdio
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.Level
 import io.github.xzima.docomagos.logging.configureLogging
@@ -26,13 +24,19 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldEndWith
 import io.kotest.matchers.string.shouldNotBeBlank
-import kotlinx.coroutines.*
-import okio.*
+import kotlinx.coroutines.runBlocking
+import okio.FileSystem
+import okio.Path
 import okio.Path.Companion.toPath
+import kotlin.test.BeforeClass
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class GitClientTest {
+    companion object {
+        @BeforeClass
+        fun setUp() = KotlinLogging.configureLogging(Level.TRACE)
+    }
 
     private lateinit var repoRoot: Path
     private lateinit var gitTokenFile: Path
@@ -40,12 +44,7 @@ class GitClientTest {
 
     @BeforeTest
     fun setup() {
-        KotlinLogging.configureLogging(Level.TRACE)
-        val pwdPath = Command("pwd")
-            .stdout(Stdio.Pipe).stderr(Stdio.Pipe)
-            .spawn().waitWithOutput()
-            .stdout!!
-            .trim().toPath()
+        val pwdPath = FileSystem.SYSTEM.canonicalize("./".toPath())
 
         gitTokenFile = pwdPath.resolve("../.git-token", normalize = true)
 
