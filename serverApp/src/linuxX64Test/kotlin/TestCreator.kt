@@ -15,6 +15,7 @@
  */
 import io.github.xzima.docomagos.docker.models.RestartPolicy
 import io.github.xzima.docomagos.server.services.models.DockerContainerInfo
+import io.github.xzima.docomagos.server.services.models.ProjectInfo
 import io.github.xzima.docomagos.server.services.models.RepoProjectInfo
 import okio.Path.Companion.toPath
 
@@ -44,5 +45,20 @@ object TestCreator {
         manifestPath = "/tmp/any/compose.yml".toPath(),
         secretEnvPath = null,
         envPath = null,
+    )
+
+    fun actualProjectInfo() = ProjectInfo.Actual(
+        name = "any",
+        manifestPath = "/tmp/any/compose.yml".toPath(),
+        order = Int.MAX_VALUE,
+        statuses = mapOf(),
+    )
+
+    fun expectedProjectInfo() = ProjectInfo.Expected(
+        name = "any",
+        manifestPath = "/tmp/any/compose.yml".toPath(),
+        order = Int.MAX_VALUE,
+        stackPath = "/tmp/any".toPath(),
+        envPaths = listOf(),
     )
 }

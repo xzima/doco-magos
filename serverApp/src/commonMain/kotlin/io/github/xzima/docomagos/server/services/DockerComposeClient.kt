@@ -17,10 +17,15 @@ package io.github.xzima.docomagos.server.services
 
 import io.github.xzima.docomagos.server.services.models.DCProjectInfo
 import io.github.xzima.docomagos.server.services.models.DCVersion
+import okio.*
 
 interface DockerComposeClient {
 
     suspend fun version(): DCVersion
 
     suspend fun listProjects(): List<DCProjectInfo>
+
+    suspend fun down(manifestPath: Path)
+
+    suspend fun up(manifestPath: Path, stackName: String, pwd: Path, envs: Map<String, String>)
 }
