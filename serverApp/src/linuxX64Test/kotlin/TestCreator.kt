@@ -15,6 +15,8 @@
  */
 import io.github.xzima.docomagos.docker.models.RestartPolicy
 import io.github.xzima.docomagos.server.services.models.DockerContainerInfo
+import io.github.xzima.docomagos.server.services.models.RepoProjectInfo
+import okio.Path.Companion.toPath
 
 object TestCreator {
 
@@ -33,5 +35,14 @@ object TestCreator {
         binds = emptyList(),
         autoRemove = false,
         restartPolicy = RestartPolicy.Name.UNKNOWN,
+    )
+
+    fun repoProjectInfo() = RepoProjectInfo(
+        name = "any",
+        path = "/tmp/any".toPath(),
+        order = Int.MAX_VALUE,
+        manifestPath = "/tmp/any/compose.yml".toPath(),
+        secretEnvPath = null,
+        envPath = null,
     )
 }

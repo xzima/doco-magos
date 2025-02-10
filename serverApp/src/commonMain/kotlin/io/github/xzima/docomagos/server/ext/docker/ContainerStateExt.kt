@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.server.services
+package io.github.xzima.docomagos.server.ext.docker
 
-interface GitService {
+import io.github.xzima.docomagos.docker.models.ContainerState
 
-    suspend fun checkMainRepoPath()
-
-    suspend fun checkMainRepoUrl()
-
-    suspend fun checkMainRepoHead()
-
-    suspend fun isActualRepoHead(): Boolean
-
-    suspend fun actualizeMainRepo()
-}
+val ContainerState.Status.Companion.runningStatuses: Set<ContainerState.Status>
+    get() = setOf(
+        ContainerState.Status.RUNNING,
+        ContainerState.Status.RESTARTING,
+        ContainerState.Status.REMOVING,
+    )

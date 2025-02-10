@@ -13,20 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.server.handlers
+package io.github.xzima.docomagos.server.services
 
-import io.github.xzima.docomagos.api.ListProjectsResp
-import io.github.xzima.docomagos.api.Req
-import io.github.xzima.docomagos.server.services.DockerComposeClient
+import io.github.xzima.docomagos.server.services.models.DCProjectInfo
+import io.github.xzima.docomagos.server.services.models.DCVersion
 
-class ListProjectsHandler(
-    private val service: DockerComposeClient,
-) : ReqHandler<Req.ListProjects, ListProjectsResp> {
+interface DockerComposeClient {
 
-    override suspend fun handle(request: Req.ListProjects): ListProjectsResp {
-        val items = service.listProjects().map {
-            ListProjectsResp.ProjectItem(it.name, it.status)
-        }
-        return ListProjectsResp(items)
-    }
+    suspend fun version(): DCVersion
+
+    suspend fun listProjects(): List<DCProjectInfo>
 }

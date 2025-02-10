@@ -49,19 +49,26 @@ class JobServiceTest {
     private val pingService = mock<PingService>(MockMode.autoUnit)
     private val gitService = mock<GitService>(MockMode.autoUnit)
     private val dockerService = mock<DockerService>(MockMode.autoUnit)
+    private val syncService = mock<SyncService>(MockMode.autoUnit)
     private lateinit var service: JobServiceImpl
 
     @BeforeTest
     fun beforeTest(): Unit = runBlocking {
         KotlinLogging.configureLogging(Level.DEBUG)
-        service = JobServiceImpl(appEnv, pingService, gitService, dockerService)
+        service = JobServiceImpl(
+            appEnv = appEnv,
+            pingService = pingService,
+            gitService = gitService,
+            dockerService = dockerService,
+            syncService = syncService,
+        )
     }
 
     @AfterTest
     fun afterTest(): Unit = runBlocking {
-        verifyNoMoreCalls(pingService, gitService, dockerService)
-        resetCalls(pingService, gitService, dockerService)
-        resetAnswers(pingService, gitService, dockerService)
+        verifyNoMoreCalls(pingService, gitService, dockerService, syncService)
+        resetCalls(pingService, gitService, dockerService, syncService)
+        resetAnswers(pingService, gitService, dockerService, syncService)
     }
 
     @Test
@@ -69,6 +76,7 @@ class JobServiceTest {
         coroutineScope {
             // GIVEN
             everySuspend { gitService.isActualRepoHead() } returns true
+            everySuspend { syncService.isMainRepoStacksUpdateRequired() } returns false
             val job = service.createJob(this)
 
             // WHEN
@@ -79,6 +87,47 @@ class JobServiceTest {
             // THEN
             verifySuspend(mode = VerifyMode.atLeast(9)) { pingService.ping() }
             verifySuspend(mode = VerifyMode.atLeast(9)) { gitService.isActualRepoHead() }
+            verifySuspend(mode = VerifyMode.atLeast(9)) { syncService.isMainRepoStacksUpdateRequired() }
+        }
+    }
+
+    @Test
+    fun testRepoNotActual(): Unit = runBlocking {
+        coroutineScope {
+            // GIVEN
+            everySuspend { gitService.isActualRepoHead() } returns false
+            val job = service.createJob(this)
+
+            // WHEN
+            job.start()
+            delay(200.milliseconds)
+            job.cancelAndJoin()
+
+            // THEN
+            verifySuspend(mode = VerifyMode.atLeast(1)) { pingService.ping() }
+            verifySuspend(mode = VerifyMode.atLeast(1)) { gitService.isActualRepoHead() }
+            verifySuspend(mode = VerifyMode.atLeast(1)) { dockerService.tryStartSyncJobService() }
+        }
+    }
+
+    @Test
+    fun testRepoStacksUpdateRequired(): Unit = runBlocking {
+        coroutineScope {
+            // GIVEN
+            everySuspend { gitService.isActualRepoHead() } returns true
+            everySuspend { syncService.isMainRepoStacksUpdateRequired() } returns true
+            val job = service.createJob(this)
+
+            // WHEN
+            job.start()
+            delay(200.milliseconds)
+            job.cancelAndJoin()
+
+            // THEN
+            verifySuspend(mode = VerifyMode.atLeast(1)) { pingService.ping() }
+            verifySuspend(mode = VerifyMode.atLeast(1)) { gitService.isActualRepoHead() }
+            verifySuspend(mode = VerifyMode.atLeast(1)) { syncService.isMainRepoStacksUpdateRequired() }
+            verifySuspend(mode = VerifyMode.atLeast(1)) { dockerService.tryStartSyncJobService() }
         }
     }
 

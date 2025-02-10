@@ -13,17 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.server.services
+package io.github.xzima.docomagos.server.ext.okio
 
-interface GitService {
+import okio.*
 
-    suspend fun checkMainRepoPath()
-
-    suspend fun checkMainRepoUrl()
-
-    suspend fun checkMainRepoHead()
-
-    suspend fun isActualRepoHead(): Boolean
-
-    suspend fun actualizeMainRepo()
+fun Path.isParentOf(other: Path): Boolean {
+    val otherString = other.toString()
+    val thisString = this.toString()
+    return thisString != otherString && otherString.startsWith(thisString)
 }

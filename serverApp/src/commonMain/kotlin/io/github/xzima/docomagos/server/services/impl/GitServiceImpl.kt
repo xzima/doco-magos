@@ -59,4 +59,8 @@ class GitServiceImpl(
         )
         return headLastCommit == remoteLastCommit
     }
+
+    override suspend fun actualizeMainRepo() {
+        TODO("Not yet implemented")
+    }
 }

@@ -18,6 +18,7 @@ package io.github.xzima.docomagos.server.services.impl
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.xzima.docomagos.docker.models.ContainerState
 import io.github.xzima.docomagos.logging.from
+import io.github.xzima.docomagos.server.ext.docker.runningStatuses
 import io.github.xzima.docomagos.server.props.AppProps
 import io.github.xzima.docomagos.server.props.SyncJobProps
 import io.github.xzima.docomagos.server.services.DockerClient
@@ -30,13 +31,6 @@ class DockerServiceImpl(
     private val syncJobProps: SyncJobProps,
     private val dockerClient: DockerClient,
 ) : DockerService {
-    companion object {
-        private val RUNNING_STATUSES = setOf(
-            ContainerState.Status.RUNNING,
-            ContainerState.Status.RESTARTING,
-            ContainerState.Status.REMOVING,
-        )
-    }
 
     override suspend fun tryStartSyncJobService() {
         logger.debug { "try get info about current container by hostname: ${appProps.hostname}" }
@@ -74,7 +68,7 @@ class DockerServiceImpl(
             }
 
             logger.info { "container(id=${syncJob.id}) status: ${syncJob.status}" }
-            if (syncJob.status in RUNNING_STATUSES) {
+            if (syncJob.status in ContainerState.Status.runningStatuses) {
                 logger.info { "looks like sync-job container already working" }
                 return
             }

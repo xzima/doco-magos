@@ -26,12 +26,13 @@ import io.github.xzima.docomagos.server.props.RsocketProps
 import io.github.xzima.docomagos.server.props.SyncJobProps
 import io.github.xzima.docomagos.server.routes.RouteInjector
 import io.github.xzima.docomagos.server.services.DockerClient
-import io.github.xzima.docomagos.server.services.DockerComposeService
+import io.github.xzima.docomagos.server.services.DockerComposeClient
 import io.github.xzima.docomagos.server.services.DockerService
 import io.github.xzima.docomagos.server.services.GitClient
 import io.github.xzima.docomagos.server.services.GitService
 import io.github.xzima.docomagos.server.services.JobService
 import io.github.xzima.docomagos.server.services.PingService
+import io.github.xzima.docomagos.server.services.SyncService
 import io.kotest.common.runBlocking
 import io.kotest.inspectors.forAll
 import io.kotest.matchers.collections.shouldHaveSize
@@ -69,12 +70,13 @@ class AppCommandTest {
         GitProps::class,
         DockerProps::class,
         SyncJobProps::class,
-        DockerComposeService::class,
+        DockerComposeClient::class,
         DockerClient::class,
         DockerService::class,
         GitClient::class,
         GitService::class,
         PingService::class,
+        SyncService::class,
         JobService::class,
         ListProjectsHandler::class,
     )

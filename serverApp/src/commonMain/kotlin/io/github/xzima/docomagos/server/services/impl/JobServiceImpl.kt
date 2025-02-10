@@ -22,6 +22,7 @@ import io.github.xzima.docomagos.server.services.DockerService
 import io.github.xzima.docomagos.server.services.GitService
 import io.github.xzima.docomagos.server.services.JobService
 import io.github.xzima.docomagos.server.services.PingService
+import io.github.xzima.docomagos.server.services.SyncService
 import kotlinx.coroutines.*
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -33,6 +34,7 @@ class JobServiceImpl(
     private val pingService: PingService,
     private val gitService: GitService,
     private val dockerService: DockerService,
+    private val syncService: SyncService,
 ) : JobService {
 
     override fun createJob(scope: CoroutineScope): Job = scope.launch(start = CoroutineStart.LAZY) {
@@ -62,12 +64,16 @@ class JobServiceImpl(
 
             val isActualRepoHead = gitService.isActualRepoHead()
             logger.info { "isActualRepoHead: $isActualRepoHead" }
-
-            val isActualAndTargetStacksEqual = true
-            logger.info { "TODO: isActualAndTargetStacksEqual: $isActualAndTargetStacksEqual" }
-
-            if (!isActualRepoHead || !isActualAndTargetStacksEqual) {
+            if (!isActualRepoHead) {
                 dockerService.tryStartSyncJobService()
+                return
+            }
+
+            val isMainRepoStacksUpdateRequired = syncService.isMainRepoStacksUpdateRequired()
+            logger.info { "isMainRepoStacksUpdateRequired: $isMainRepoStacksUpdateRequired" }
+            if (isMainRepoStacksUpdateRequired) {
+                dockerService.tryStartSyncJobService()
+                return
             }
         } catch (e: Exception) {
             logger.error(e) { "on each phase: failed" }

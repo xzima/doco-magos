@@ -15,6 +15,7 @@
  */
 package io.github.xzima.docomagos.server.services
 
+import io.github.xzima.docomagos.server.services.impl.DockerComposeClientImpl
 import io.kotest.common.runBlocking
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
@@ -23,9 +24,9 @@ import io.kotest.matchers.string.shouldNotBeEmpty
 import io.kotest.matchers.string.shouldStartWith
 import kotlin.test.Test
 
-class DockerComposeServiceTest {
+class DockerComposeClientTest {
 
-    private val service = DockerComposeService()
+    private val service = DockerComposeClientImpl()
 
     @Test
     fun versionTest(): Unit = runBlocking {
@@ -33,7 +34,7 @@ class DockerComposeServiceTest {
         val result = service.version()
 
         // THEN
-        result.version shouldBe "2.31.0"
+        result.version shouldBe "2.32.4"
     }
 
     @Test
@@ -46,7 +47,7 @@ class DockerComposeServiceTest {
         result.first() should {
             it.name shouldBe "docker"
             it.status shouldStartWith "running"
-            it.configFiles.shouldNotBeEmpty()
+            it.manifestPath.shouldNotBeEmpty()
         }
     }
 }

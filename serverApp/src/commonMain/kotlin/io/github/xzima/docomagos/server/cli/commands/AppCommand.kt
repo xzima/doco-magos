@@ -46,18 +46,21 @@ import io.github.xzima.docomagos.server.routes.RouteInjector
 import io.github.xzima.docomagos.server.routes.RsocketRouteInjector
 import io.github.xzima.docomagos.server.routes.StaticUiRouteInjector
 import io.github.xzima.docomagos.server.services.DockerClient
-import io.github.xzima.docomagos.server.services.DockerComposeService
+import io.github.xzima.docomagos.server.services.DockerComposeClient
 import io.github.xzima.docomagos.server.services.DockerService
 import io.github.xzima.docomagos.server.services.GitClient
 import io.github.xzima.docomagos.server.services.GitService
 import io.github.xzima.docomagos.server.services.JobService
 import io.github.xzima.docomagos.server.services.PingService
+import io.github.xzima.docomagos.server.services.SyncService
 import io.github.xzima.docomagos.server.services.impl.DockerClientImpl
+import io.github.xzima.docomagos.server.services.impl.DockerComposeClientImpl
 import io.github.xzima.docomagos.server.services.impl.DockerServiceImpl
 import io.github.xzima.docomagos.server.services.impl.GitClientImpl
 import io.github.xzima.docomagos.server.services.impl.GitServiceImpl
 import io.github.xzima.docomagos.server.services.impl.JobServiceImpl
 import io.github.xzima.docomagos.server.services.impl.PingServiceImpl
+import io.github.xzima.docomagos.server.services.impl.SyncServiceImpl
 import kotlinx.coroutines.*
 import org.koin.dsl.bind
 
@@ -88,7 +91,7 @@ class AppCommand(
         KotlinLogging.configureLogging(loggingLevel)
         initKoinModule()
         // TODO create check external services task
-        inject<DockerComposeService>().listProjects().also {
+        inject<DockerComposeClient>().listProjects().also {
             logger.debug { "DC: ${it.size}" }
         }
     }
@@ -100,24 +103,26 @@ class AppCommand(
         single { gitProps }
         single { dockerProps }
         single { syncJobProps }
-        single { DockerComposeService() }
+        single<PingService> { PingServiceImpl() }
+        single<DockerComposeClient> { DockerComposeClientImpl() }
         single<DockerClient> { DockerClientImpl(get<DockerProps>()) }
         single<DockerService> { DockerServiceImpl(get<AppProps>(), get<SyncJobProps>(), get<DockerClient>()) }
         single<GitClient> { GitClientImpl(get<GitProps>().gitAskPass) }
         single<GitService> { GitServiceImpl(get<GitProps>(), get<GitClient>()) }
-        single<PingService> { PingServiceImpl() }
+        single<SyncService> { SyncServiceImpl() }
         single<JobService> {
             JobServiceImpl(
                 appEnv = get<AppProps>(),
                 pingService = get<PingService>(),
                 gitService = get<GitService>(),
                 dockerService = get<DockerService>(),
+                syncService = get<SyncService>(),
             )
         }
         // routes
         single { StaticUiRouteInjector(get<AppProps>()) } bind RouteInjector::class
         single { RsocketRouteInjector(get<ListProjectsHandler>()) } bind RouteInjector::class
         // handlers
-        single { ListProjectsHandler(get<DockerComposeService>()) }
+        single { ListProjectsHandler(get<DockerComposeClient>()) }
     }
 }
