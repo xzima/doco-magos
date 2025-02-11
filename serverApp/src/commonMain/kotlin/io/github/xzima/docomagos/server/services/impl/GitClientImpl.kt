@@ -17,7 +17,6 @@ package io.github.xzima.docomagos.server.services.impl
 
 import com.kgit2.kommand.io.Output
 import com.kgit2.kommand.process.Command
-import com.kgit2.kommand.process.Stdio
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.xzima.docomagos.logging.from
 import io.github.xzima.docomagos.server.services.GitClient
@@ -28,7 +27,8 @@ private val logger = KotlinLogging.from(GitClientImpl::class)
 
 class GitClientImpl(
     private val gitAskPass: String,
-) : GitClient {
+) : KommandClient("git"),
+    GitClient {
     companion object {
         private const val GIT_ASK_PASS_ENV_NAME = "GIT_ASKPASS"
         private const val GIT_TOKEN_ENV_NAME = "GIT_TOKEN"
@@ -39,7 +39,7 @@ class GitClientImpl(
     }
 
     override suspend fun version(): GitVersion? = withContext(Dispatchers.IO) {
-        val output = gitCommand {
+        val output = cmd {
             args("--version")
         }
         logger.debug { "version result: $output" }
@@ -63,7 +63,7 @@ class GitClientImpl(
         gitToken: String?,
         gitTokenFile: String?,
     ): Boolean = withContext(Dispatchers.IO) {
-        val output = gitCommand {
+        val output = cmd {
             args("clone", repoUrl, repoPath)
             configureCredentials(gitToken = gitToken, gitTokenFile = gitTokenFile)
         }
@@ -76,7 +76,7 @@ class GitClientImpl(
      * @return repo root path
      */
     override suspend fun getRepoPathBy(repoPath: String): String? = withContext(Dispatchers.IO) {
-        val output = gitCommand {
+        val output = cmd {
             cwd(repoPath)
             args("rev-parse", "--show-toplevel")
         }
@@ -90,7 +90,7 @@ class GitClientImpl(
      * @return repo origin url
      */
     override suspend fun getRepoUrlBy(repoPath: String, remote: String): String? = withContext(Dispatchers.IO) {
-        val output = gitCommand {
+        val output = cmd {
             cwd(repoPath)
             args("remote", "get-url", remote)
         }
@@ -106,7 +106,7 @@ class GitClientImpl(
         gitToken: String?,
         gitTokenFile: String?,
     ): Unit = withContext(Dispatchers.IO) {
-        val output = gitCommand {
+        val output = cmd {
             cwd(repoPath)
             args("fetch", remote)
             configureCredentials(gitToken = gitToken, gitTokenFile = gitTokenFile)
@@ -118,7 +118,7 @@ class GitClientImpl(
     }
 
     override suspend fun hardResetHeadToRef(repoPath: String, ref: String): Boolean = withContext(Dispatchers.IO) {
-        val output = gitCommand {
+        val output = cmd {
             cwd(repoPath)
             args("reset", "--hard", ref)
         }
@@ -129,7 +129,7 @@ class GitClientImpl(
     }
 
     override suspend fun getLastCommitByRef(repoPath: String, ref: String): String? = withContext(Dispatchers.IO) {
-        val output = gitCommand {
+        val output = cmd {
             cwd(repoPath)
             args("rev-parse", ref)
         }
@@ -153,18 +153,8 @@ class GitClientImpl(
         }
     }
 
-    private fun gitCommand(builder: Command.() -> Unit): Output {
-        val command = Command("git").stdout(Stdio.Pipe).stderr(Stdio.Pipe)
-        command.builder()
-        command.env(GIT_TERMINAL_PROMPT_ENV_NAME, "0") // disable prompting for all commands
-        val child = command.spawn()
-        val output = child.waitWithOutput()
-        return output
-    }
-
-    private fun Output.resultOrNull(): String? = if (0 == status) {
-        stdout?.trim().takeUnless { it.isNullOrBlank() }
-    } else {
-        throw RuntimeException("command failed. status: $status message: $stderr")
+    override fun cmd(builder: Command.() -> Unit): Output = super.cmd {
+        builder()
+        env(GIT_TERMINAL_PROMPT_ENV_NAME, "0") // disable prompting for all commands
     }
 }

@@ -15,32 +15,61 @@
  */
 package io.github.xzima.docomagos.server.services
 
+import TestUtils
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.Level
+import io.github.xzima.docomagos.logging.configureLogging
 import io.github.xzima.docomagos.server.services.impl.DockerComposeClientImpl
 import io.kotest.common.runBlocking
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldNotBeEmpty
 import io.kotest.matchers.string.shouldStartWith
+import okio.*
+import kotlin.test.BeforeClass
 import kotlin.test.Test
 
 class DockerComposeClientTest {
+    companion object {
+        @BeforeClass
+        fun setUp() = KotlinLogging.configureLogging(Level.TRACE)
+    }
 
-    private val service = DockerComposeClientImpl()
+    private lateinit var dockerComposeClient: DockerComposeClient
 
     @Test
-    fun versionTest(): Unit = runBlocking {
+    fun testVersion(): Unit = runBlocking {
+        // GIVEN
+        dockerComposeClient = DockerComposeClientImpl(false)
+
         // WHEN
-        val result = service.version()
+        val result = dockerComposeClient.version()
 
         // THEN
         result.version shouldBe "2.32.4"
     }
 
     @Test
-    fun listProjectsTest(): Unit = runBlocking {
+    fun testVersionDryRun(): Unit = runBlocking {
+        // GIVEN
+        dockerComposeClient = DockerComposeClientImpl(true)
+
         // WHEN
-        val result = service.listProjects()
+        val result = dockerComposeClient.version()
+
+        // THEN
+        result.version shouldBe "2.32.4"
+    }
+
+    @Test
+    fun testListProjects(): Unit = runBlocking {
+        // GIVEN
+        dockerComposeClient = DockerComposeClientImpl(false)
+
+        // WHEN
+        val result = dockerComposeClient.listProjects()
 
         // THEN
         result.shouldHaveSize(1)
@@ -48,6 +77,133 @@ class DockerComposeClientTest {
             it.name shouldBe "docker"
             it.status shouldStartWith "running"
             it.manifestPath.shouldNotBeEmpty()
+        }
+    }
+
+    @Test
+    fun testListProjectsDryRun(): Unit = runBlocking {
+        // GIVEN
+        dockerComposeClient = DockerComposeClientImpl(true)
+
+        // WHEN
+        val result = dockerComposeClient.listProjects()
+
+        // THEN
+        result.shouldHaveSize(1)
+        result.first() should {
+            it.name shouldBe "docker"
+            it.status shouldStartWith "running"
+            it.manifestPath.shouldNotBeEmpty()
+        }
+    }
+
+    @Test
+    fun testUpDown(): Unit = runBlocking {
+        // GIVEN
+        dockerComposeClient = DockerComposeClientImpl(false)
+        val stackName = "test_up_down"
+
+        // THEN BEFORE
+        dockerComposeClient.listProjects() should { result ->
+            result.shouldHaveSize(1)
+            val projects = result.associateBy { it.name }
+            projects["docker"].shouldNotBeNull() should {
+                it.status shouldStartWith "running"
+                it.manifestPath.shouldNotBeEmpty()
+            }
+        }
+
+        // WHEN UP
+        val stackPath = FileSystem.SYSTEM.canonicalize(TestUtils.testResourcesDir.resolve("compose-project"))
+        val manifestPath = stackPath.resolve("docker-compose.yml")
+        dockerComposeClient.up(
+            manifestPath = manifestPath,
+            stackName = stackName,
+            stackPath = stackPath,
+            envs = mapOf(
+                "SUPER_ENV" to "Hello from testUpDown",
+                "VERSION" to "SNAPSHOT",
+            ),
+        )
+
+        // THEN UP
+        dockerComposeClient.listProjects() should { result ->
+            result.shouldHaveSize(2)
+            val projects = result.associateBy { it.name }
+            projects["docker"].shouldNotBeNull() should {
+                it.status shouldStartWith "running"
+                it.manifestPath.shouldNotBeEmpty()
+            }
+            projects[stackName].shouldNotBeNull() should {
+                it.status shouldBe "running(2)"
+                it.manifestPath shouldBe manifestPath.toString()
+            }
+        }
+
+        // WHEN DOWN
+        dockerComposeClient.down(stackName)
+
+        // THEN DOWN
+        dockerComposeClient.listProjects() should { result ->
+            result.shouldHaveSize(1)
+            val projects = result.associateBy { it.name }
+            projects["docker"].shouldNotBeNull() should {
+                it.status shouldStartWith "running"
+                it.manifestPath.shouldNotBeEmpty()
+            }
+        }
+    }
+
+    @Test
+    fun testUpDownDryRun(): Unit = runBlocking {
+        // GIVEN
+        dockerComposeClient = DockerComposeClientImpl(true)
+        val stackName = "test_up_down_dry_run"
+
+        // THEN BEFORE
+        dockerComposeClient.listProjects() should { result ->
+            result.shouldHaveSize(1)
+            val projects = result.associateBy { it.name }
+            projects["docker"].shouldNotBeNull() should {
+                it.status shouldStartWith "running"
+                it.manifestPath.shouldNotBeEmpty()
+            }
+        }
+
+        // WHEN UP
+        val stackPath = FileSystem.SYSTEM.canonicalize(TestUtils.testResourcesDir.resolve("compose-project"))
+        val manifestPath = stackPath.resolve("docker-compose.yml")
+        dockerComposeClient.up(
+            manifestPath = manifestPath,
+            stackName = stackName,
+            stackPath = stackPath,
+            envs = mapOf(
+                "SUPER_ENV" to "Hello from testUpDown",
+                "VERSION" to "SNAPSHOT",
+            ),
+        )
+
+        // THEN UP
+        dockerComposeClient.listProjects() should { result ->
+            result.shouldHaveSize(1)
+            val projects = result.associateBy { it.name }
+            projects["docker"].shouldNotBeNull() should {
+                it.status shouldStartWith "running"
+                it.manifestPath.shouldNotBeEmpty()
+            }
+        }
+
+        // WHEN DOWN
+        dockerComposeClient.down("AAA")
+
+        // THEN DOWN
+        dockerComposeClient.listProjects() should { result ->
+            result.shouldHaveSize(1)
+            val projects = result.associateBy { it.name }
+            projects["docker"].shouldNotBeNull() should {
+                it.status shouldStartWith "running"
+                it.manifestPath.shouldNotBeEmpty()
+            }
         }
     }
 }

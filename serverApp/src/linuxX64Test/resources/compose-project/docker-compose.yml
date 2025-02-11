@@ -1,0 +1,29 @@
+name: main_SANDBOX
+services:
+  main_sandbox:
+    image: nginx:1-alpine
+    environment:
+      TEST_ENV: TEST_ENV_VAL1
+      ENV_FROM_CODE: ${SUPER_ENV}
+    labels:
+      test-label: test-label-val
+    secrets:
+      - source: test-secret
+        target: /secrets/test-secret
+    volumes:
+      - ./mount-volume:/mount-volume
+      - test-volume:/test-volume
+  second_sandbox:
+    image: nginx:1-alpine
+
+volumes:
+  test-volume:
+
+secrets:
+  test-secret:
+    name: test-secret-${VERSION}
+    file: ./secret.txt
+
+networks:
+  default:
+    name: sandbox

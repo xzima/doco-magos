@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Alex Zima(xzima@ro.ru)
+ * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,11 @@ package io.github.xzima.docomagos.server.services.models
 import kotlinx.serialization.*
 
 @Serializable
-data class DCListProjects(
+data class DCProjectInfo(
     @SerialName("Name")
     val name: String,
     @SerialName("Status")
     val status: String,
     @SerialName("ConfigFiles")
-    val configFiles: String,
+    val manifestPath: String,
 )

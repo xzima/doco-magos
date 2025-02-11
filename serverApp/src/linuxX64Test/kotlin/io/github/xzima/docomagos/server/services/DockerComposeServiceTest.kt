@@ -1,10 +1,24 @@
+/**
+ * Copyright 2025 Alex Zima(xzima@ro.ru)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.github.xzima.docomagos.server.services
 
 import TestCreator
 import dev.mokkery.answering.calls
 import dev.mokkery.everySuspend
 import dev.mokkery.matcher.any
-import dev.mokkery.matcher.matching
 import dev.mokkery.mock
 import dev.mokkery.resetAnswers
 import dev.mokkery.resetCalls
@@ -15,6 +29,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.Level
 import io.github.xzima.docomagos.logging.configureLogging
 import io.github.xzima.docomagos.server.services.impl.DockerComposeServiceImpl
+import io.github.xzima.docomagos.server.services.models.ProjectInfo
 import io.github.xzima.docomagos.server.services.models.SyncStackPlan
 import kotlinx.coroutines.*
 import okio.*
@@ -72,69 +87,32 @@ class DockerComposeServiceTest {
             envsPath.associate { it.name to it.segments.size.toString() }
         }
 
+        val da1 = actualProjectInfo(name = "da1")
+        val de1 = expectedProjectInfo(name = "de1", isEnvErr = true)
+        val da2 = actualProjectInfo(name = "da2", order = 1)
+        val de2 = expectedProjectInfo(name = "de2", isManifestErr = true, order = 1)
+        val da3 = actualProjectInfo(name = "da3", order = 10)
+        val de3 = expectedProjectInfo(name = "de3", order = 10)
+        val da4 = actualProjectInfo(name = "da4", isErr = true, order = 3)
+        val de4 = expectedProjectInfo(name = "de4", order = 3)
+        val ue1 = expectedProjectInfo(name = "ue1")
+        val ue2 = expectedProjectInfo(name = "ue2", order = 1)
+        val ue3 = expectedProjectInfo(name = "ue3", isManifestErr = true, order = 10)
+        val ue4 = expectedProjectInfo(name = "ue4", isManifestErr = true, isEnvErr = true, order = 300)
+        val ue5 = expectedProjectInfo(name = "ue5", order = 3)
+        val ue6 = expectedProjectInfo(name = "ue6", isEnvErr = true, order = 110)
+
+        @Suppress("ktlint:standard:argument-list-wrapping")
         val syncPlan = SyncStackPlan(
             toDown = mutableListOf(
-                TestCreator.actualProjectInfo().copy(manifestPath = manifestPathGen("da1", false)),
-                TestCreator.expectedProjectInfo().copy(
-                    manifestPath = manifestPathGen("de1", false),
-                    envPaths = listOf(envPathGen("de1", true)),
-                ),
-                TestCreator.actualProjectInfo().copy(order = 1, manifestPath = manifestPathGen("da2", false)),
-                TestCreator.expectedProjectInfo().copy(
-                    order = 1,
-                    manifestPath = manifestPathGen("de2", true),
-                    envPaths = listOf(envPathGen("de2", false)),
-                ),
-                TestCreator.actualProjectInfo().copy(order = 10, manifestPath = manifestPathGen("da3", false)),
-                TestCreator.expectedProjectInfo().copy(
-                    order = 10,
-                    manifestPath = manifestPathGen("de3", false),
-                    envPaths = listOf(envPathGen("de3", false)),
-                ),
-                TestCreator.actualProjectInfo().copy(order = 3, manifestPath = manifestPathGen("da4", true)),
-                TestCreator.expectedProjectInfo().copy(
-                    order = 3,
-                    manifestPath = manifestPathGen("de4", false),
-                    envPaths = listOf(envPathGen("de4", false)),
-                ),
+                da1, de1, da2, de2, da3, de3, da4, de4,
             ),
             toUp = mutableListOf(
-                TestCreator.expectedProjectInfo().copy(
-                    manifestPath = manifestPathGen("ue1", false),
-                    envPaths = listOf(envPathGen("ue1", false)),
-                ),
-                TestCreator.expectedProjectInfo().copy(
-                    order = 1,
-                    manifestPath = manifestPathGen("ue2", false),
-                    envPaths = listOf(envPathGen("ue2", false)),
-                ),
-                TestCreator.expectedProjectInfo().copy(
-                    order = 10,
-                    manifestPath = manifestPathGen("ue3", true),
-                    envPaths = listOf(envPathGen("ue3", false)),
-                ),
-                TestCreator.expectedProjectInfo().copy(
-                    order = 300,
-                    manifestPath = manifestPathGen("ue4", true),
-                    envPaths = listOf(envPathGen("ue4", true)),
-                ),
-                TestCreator.expectedProjectInfo().copy(
-                    order = 3,
-                    manifestPath = manifestPathGen("ue5", false),
-                    envPaths = listOf(envPathGen("ue5", false)),
-                ),
-                TestCreator.expectedProjectInfo().copy(
-                    order = 110,
-                    manifestPath = manifestPathGen("ue6", false),
-                    envPaths = listOf(envPathGen("ue6", true)),
-                ),
+                ue1, ue2, ue3, ue4, ue5, ue6,
             ),
             ignored = mutableListOf(
-                TestCreator.actualProjectInfo().copy(order = 404, manifestPath = manifestPathGen("ia1", true)),
-                TestCreator.expectedProjectInfo().copy(
-                    manifestPath = manifestPathGen("ie2", false),
-                    envPaths = listOf(envPathGen("ie2", false)),
-                ),
+                actualProjectInfo(name = "ia1", isErr = true, order = 404),
+                expectedProjectInfo(name = "ie2"),
             ),
         )
 
@@ -143,36 +121,60 @@ class DockerComposeServiceTest {
 
         // THEN
         verifySuspend(mode = VerifyMode.exhaustiveOrder) {
-            dockerComposeClient.down(matching { manifestPathGen("da1", false) == it })
-            dockerComposeClient.down(matching { manifestPathGen("de1", false) == it })
-            dockerComposeClient.down(matching { manifestPathGen("da3", false) == it })
-            dockerComposeClient.down(matching { manifestPathGen("de3", false) == it })
-            dockerComposeClient.down(matching { manifestPathGen("da4", true) == it })
-            dockerComposeClient.down(matching { manifestPathGen("de4", false) == it })
-            dockerComposeClient.down(matching { manifestPathGen("da2", false) == it })
-            dockerComposeClient.down(matching { manifestPathGen("de2", true) == it })
-            repoService.getEnvs(matching { it.any { envPathGen("ue2", false) == it } }, true)
-            dockerComposeClient.up(matching { manifestPathGen("ue2", false) == it }, any(), any(), any())
-            repoService.getEnvs(matching { it.any { envPathGen("ue5", false) == it } }, true)
-            dockerComposeClient.up(matching { manifestPathGen("ue5", false) == it }, any(), any(), any())
-            repoService.getEnvs(matching { it.any { envPathGen("ue3", false) == it } }, true)
-            dockerComposeClient.up(matching { manifestPathGen("ue3", true) == it }, any(), any(), any())
-            repoService.getEnvs(matching { it.any { envPathGen("ue6", true) == it } }, true)
-            repoService.getEnvs(matching { it.any { envPathGen("ue4", true) == it } }, true)
-            repoService.getEnvs(matching { it.any { envPathGen("ue1", false) == it } }, true)
-            dockerComposeClient.up(matching { manifestPathGen("ue1", false) == it }, any(), any(), any())
+            dockerComposeClient.down(da1.name)
+            dockerComposeClient.down(de1.name)
+            dockerComposeClient.down(da3.name)
+            dockerComposeClient.down(de3.name)
+            dockerComposeClient.down(da4.name)
+            dockerComposeClient.down(de4.name)
+            dockerComposeClient.down(da2.name)
+            dockerComposeClient.down(de2.name)
+            repoService.getEnvs(ue2.envPaths, true)
+            dockerComposeClient.up(ue2.manifestPath, ue2.name, any(), any())
+            repoService.getEnvs(ue5.envPaths, true)
+            dockerComposeClient.up(ue5.manifestPath, ue5.name, any(), any())
+            repoService.getEnvs(ue3.envPaths, true)
+            dockerComposeClient.up(ue3.manifestPath, ue3.name, any(), any())
+            repoService.getEnvs(ue6.envPaths, true)
+            repoService.getEnvs(ue4.envPaths, true)
+            repoService.getEnvs(ue1.envPaths, true)
+            dockerComposeClient.up(ue1.manifestPath, ue1.name, any(), any())
         }
     }
 
-    fun manifestPathGen(name: String, isErr: Boolean): Path = if (isErr) {
-        "/tmp/$name-err/compose.yml".toPath()
-    } else {
-        "/tmp/$name/compose.yml".toPath()
+    fun actualProjectInfo(name: String, isErr: Boolean = false, order: Int = Int.MAX_VALUE): ProjectInfo.Actual {
+        val projectName = if (isErr) {
+            "$name-err"
+        } else {
+            name
+        }
+        return TestCreator.actualProjectInfo().copy(
+            name = projectName,
+            order = order,
+        )
     }
 
-    fun envPathGen(name: String, isErr: Boolean): Path = if (isErr) {
-        "/tmp/$name-err/.env".toPath()
-    } else {
-        "/tmp/$name/.env".toPath()
+    fun expectedProjectInfo(
+        name: String,
+        isManifestErr: Boolean = false,
+        isEnvErr: Boolean = false,
+        order: Int = Int.MAX_VALUE,
+    ): ProjectInfo.Expected {
+        val manifestDir = if (isManifestErr) {
+            "$name-err"
+        } else {
+            name
+        }
+        val envDir = if (isEnvErr) {
+            "$name-err"
+        } else {
+            name
+        }
+        return TestCreator.expectedProjectInfo().copy(
+            name = name,
+            order = order,
+            manifestPath = "/tmp/$manifestDir/compose.yml".toPath(),
+            envPaths = listOf("/tmp/$envDir/.env".toPath()),
+        )
     }
 }

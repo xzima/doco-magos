@@ -35,7 +35,7 @@ class DockerComposeServiceImpl(
         logger.debug { "Down stacks: $toDown" }
         for (item in toDown) {
             try {
-                dockerComposeClient.down(item.manifestPath)
+                dockerComposeClient.down(item.name)
             } catch (e: Exception) {
                 logger.warn(e) { "Stack $item down failed" }
             }
@@ -54,7 +54,7 @@ class DockerComposeServiceImpl(
                 dockerComposeClient.up(
                     manifestPath = item.manifestPath,
                     stackName = item.name,
-                    pwd = item.stackPath,
+                    stackPath = item.stackPath,
                     envs = envs,
                 )
             } catch (e: Exception) {

@@ -15,38 +15,76 @@
  */
 package io.github.xzima.docomagos.server.services.impl
 
+import com.kgit2.kommand.io.Output
 import com.kgit2.kommand.process.Command
-import com.kgit2.kommand.process.Stdio
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.xzima.docomagos.logging.from
 import io.github.xzima.docomagos.server.services.DockerComposeClient
 import io.github.xzima.docomagos.server.services.models.DCProjectInfo
 import io.github.xzima.docomagos.server.services.models.DCVersion
 import kotlinx.coroutines.*
-import kotlinx.serialization.json.*
+import okio.*
 
 private val logger = KotlinLogging.from(DockerComposeClientImpl::class)
 
-class DockerComposeClientImpl : DockerComposeClient {
+class DockerComposeClientImpl(
+    private val dryRun: Boolean,
+) : KommandClient("docker-compose"),
+    DockerComposeClient {
 
     override suspend fun version(): DCVersion = withContext(Dispatchers.IO) {
-        val command = Command("docker-compose")
-            .args("version", "--format=json")
-            .stdout(Stdio.Pipe)
-        val child = command.spawn()
-        val output = child.waitWithOutput()
-        logger.info { "version result: $output" }
-        Json.Default.decodeFromString<DCVersion>(output.stdout!!)
+        val output = cmd {
+            args("version", "--format=json")
+        }
+        logger.debug { "version result: $output" }
+
+        return@withContext output.decode<DCVersion>()
     }
 
     override suspend fun listProjects(): List<DCProjectInfo> = withContext(Dispatchers.IO) {
-        val command = Command("docker-compose")
-            .args("ls", "--format=json")
-            .stdout(Stdio.Pipe)
-        val child = command.spawn()
-        val output = child.waitWithOutput()
-        // output.status == 0 //isOk
-        logger.info { "ls result: $output" }
-        Json.Default.decodeFromString<List<DCProjectInfo>>(output.stdout!!)
+        val output = cmd {
+            args("ls", "--format=json")
+        }
+        logger.debug { "ls result: $output" }
+
+        return@withContext output.decode<List<DCProjectInfo>>()
+    }
+
+    override suspend fun down(stackName: String) {
+        val output = cmd {
+            args("-p=$stackName", "down", "--remove-orphans", "--rmi=all", "-v")
+        }
+        logger.debug { "down result: $output" }
+
+        output.resultOrNull()
+        output.propagateWarn()
+    }
+
+    override suspend fun up(manifestPath: Path, stackName: String, stackPath: Path, envs: Map<String, String>) {
+        val output = cmd {
+            args("-p=$stackName", "--project-directory=$stackPath", "-f=$manifestPath", "up", "-d", "--remove-orphans")
+            envs(envs)
+        }
+        logger.debug { "up result: $output" }
+
+        output.resultOrNull()
+        output.propagateWarn()
+    }
+
+    override fun cmd(builder: Command.() -> Unit): Output = super.cmd {
+        builder()
+        if (dryRun) {
+            arg("--dry-run")
+        }
+    }
+
+    private fun Output.propagateWarn() = logger.warn {
+        val lines = sequenceOf(stdout, stderr)
+            .flatMap { it?.split("\n") ?: emptyList() }
+            .filter { it.contains("warning", ignoreCase = true) }
+            .toList()
+        if (lines.isNotEmpty()) {
+            return@warn lines.joinToString(prefix = "executions warnings:\n", separator = "\n")
+        }
     }
 }

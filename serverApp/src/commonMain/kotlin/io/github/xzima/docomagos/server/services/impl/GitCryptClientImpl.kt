@@ -15,9 +15,6 @@
  */
 package io.github.xzima.docomagos.server.services.impl
 
-import com.kgit2.kommand.io.Output
-import com.kgit2.kommand.process.Command
-import com.kgit2.kommand.process.Stdio
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.xzima.docomagos.logging.from
 import io.github.xzima.docomagos.server.services.GitCryptClient
@@ -25,14 +22,16 @@ import kotlinx.coroutines.*
 
 private val logger = KotlinLogging.from(GitCryptClientImpl::class)
 
-class GitCryptClientImpl : GitCryptClient {
+class GitCryptClientImpl :
+    KommandClient("git-crypt"),
+    GitCryptClient {
     companion object {
 
         private val VERSION_REGEX = Regex("^git-crypt (?<version>.*)$")
     }
 
     override suspend fun version(): String? = withContext(Dispatchers.IO) {
-        val output = gitCryptCommand {
+        val output = cmd {
             args("version")
         }
         logger.debug { "version result: $output" }
@@ -48,7 +47,7 @@ class GitCryptClientImpl : GitCryptClient {
     }
 
     override suspend fun getEncryptedFiles(repoRoot: String): Set<String> = withContext(Dispatchers.IO) {
-        val output = gitCryptCommand {
+        val output = cmd {
             cwd(repoRoot)
             args("status", "-e")
         }
@@ -65,7 +64,7 @@ class GitCryptClientImpl : GitCryptClient {
     }
 
     override suspend fun unlockRepo(repoRoot: String, keyFile: String): Unit = withContext(Dispatchers.IO) {
-        val output = gitCryptCommand {
+        val output = cmd {
             cwd(repoRoot)
             args("unlock", keyFile)
         }
@@ -75,26 +74,12 @@ class GitCryptClientImpl : GitCryptClient {
     }
 
     override suspend fun lockRepo(repoRoot: String): Unit = withContext(Dispatchers.IO) {
-        val output = gitCryptCommand {
+        val output = cmd {
             cwd(repoRoot)
             args("lock")
         }
         logger.debug { "lock result: $output" }
 
         output.resultOrNull()
-    }
-
-    private fun gitCryptCommand(builder: Command.() -> Unit): Output {
-        val command = Command("git-crypt").stdout(Stdio.Pipe).stderr(Stdio.Pipe)
-        command.builder()
-        val child = command.spawn()
-        val output = child.waitWithOutput()
-        return output
-    }
-
-    private fun Output.resultOrNull(): String? = if (0 == status) {
-        stdout?.trim().takeUnless { it.isNullOrBlank() }
-    } else {
-        throw RuntimeException("command failed. status: $status message: $stderr")
     }
 }

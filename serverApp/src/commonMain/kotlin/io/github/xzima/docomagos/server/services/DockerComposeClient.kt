@@ -25,7 +25,7 @@ interface DockerComposeClient {
 
     suspend fun listProjects(): List<DCProjectInfo>
 
-    suspend fun down(manifestPath: Path)
+    suspend fun down(stackName: String)
 
-    suspend fun up(manifestPath: Path, stackName: String, pwd: Path, envs: Map<String, String>)
+    suspend fun up(manifestPath: Path, stackName: String, stackPath: Path, envs: Map<String, String>)
 }
