@@ -2,6 +2,7 @@ logging-level: info
 
 app:
   job-period-ms: 3000
+  ignore-repo-external-stacks-sync: true
   static-ui-path: /tmp/ui
 
 git:
@@ -10,6 +11,8 @@ git:
   main-repo-path: /tmp/repo
   git-ask-pass: /tmp/GIT_ASKPASS
   #main-repo-url:
+  #git-token:
+  #git-token-file:
 
 docker:
   logging-level: ALL
@@ -27,3 +30,10 @@ ktor:
 
 rsocket:
   max-fragment-size: 1024
+
+repo-structure:
+  env-pattern: "\.env$"
+  secret-env-pattern: "\.secret\.env$"
+  global-env-pattern: "^global(\.secret)?\.env$"
+  project-name-pattern: "^((?<order>\d*)_)?(?<name>[-_\w]*)$"
+  compose-name-pattern: "^(docker-)?compose.ya?ml$"

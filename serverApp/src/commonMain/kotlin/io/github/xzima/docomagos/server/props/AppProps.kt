@@ -16,7 +16,6 @@
 package io.github.xzima.docomagos.server.props
 
 import com.github.ajalt.clikt.parameters.groups.OptionGroup
-import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.boolean
 import com.github.ajalt.clikt.parameters.types.int
@@ -35,5 +34,5 @@ class AppOptionGroup :
     override val staticUiPath: String by customOption("app.static-ui-path").required()
     override val jobPeriodMs: Int by customOption("app.job-period-ms").int().required()
     override val ignoreRepoExternalStacksSync: Boolean by customOption("app.ignore-repo-external-stacks-sync")
-        .boolean().default(true)
+        .boolean().required()
 }
