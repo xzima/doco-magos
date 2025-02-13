@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 Alex Zima(xzima@ro.ru)
+ * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.server.services
+package io.github.xzima.docomagos.server.services.models
 
-import io.github.xzima.docomagos.server.services.models.ComposeProjectInfo
-import io.github.xzima.docomagos.server.services.models.SyncStackPlan
+import io.github.xzima.docomagos.docker.models.ContainerState
+import okio.*
 
-interface DockerComposeService {
-    suspend fun executeSyncPlan(syncPlan: SyncStackPlan)
-
-    suspend fun listProjects(): List<ComposeProjectInfo>
-}
+data class ComposeProjectInfo(
+    val name: String,
+    val statuses: Map<ContainerState.Status, Int>,
+    val manifestPath: Path,
+)

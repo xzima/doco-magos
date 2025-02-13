@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import io.github.xzima.docomagos.docker.models.ContainerState
 import io.github.xzima.docomagos.docker.models.RestartPolicy
+import io.github.xzima.docomagos.server.services.models.ComposeProjectInfo
 import io.github.xzima.docomagos.server.services.models.DockerContainerInfo
 import io.github.xzima.docomagos.server.services.models.ProjectInfo
+import io.github.xzima.docomagos.server.services.models.RepoInfo
 import io.github.xzima.docomagos.server.services.models.RepoProjectInfo
 import okio.Path.Companion.toPath
 
@@ -36,6 +39,21 @@ object TestCreator {
         binds = emptyList(),
         autoRemove = false,
         restartPolicy = RestartPolicy.Name.UNKNOWN,
+    )
+
+    fun composeProjectInfo() = ComposeProjectInfo(
+        name = "any",
+        statuses = mapOf(ContainerState.Status.RUNNING to 3),
+        manifestPath = "/tmp/any/compose.yml".toPath(),
+    )
+
+    fun repoInfo() = RepoInfo(
+        path = "/tmp/any".toPath(),
+        secretEnvPath = null,
+        envPath = null,
+        projects = listOf(
+            repoProjectInfo(),
+        ),
     )
 
     fun repoProjectInfo() = RepoProjectInfo(

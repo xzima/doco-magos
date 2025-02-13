@@ -15,11 +15,11 @@
  */
 package io.github.xzima.docomagos.server.services
 
-import io.github.xzima.docomagos.server.services.models.ComposeProjectInfo
 import io.github.xzima.docomagos.server.services.models.SyncStackPlan
 
-interface DockerComposeService {
-    suspend fun executeSyncPlan(syncPlan: SyncStackPlan)
+interface SyncService {
 
-    suspend fun listProjects(): List<ComposeProjectInfo>
+    suspend fun isMainRepoStacksUpdateRequired(): Boolean
+
+    suspend fun createSyncPlanForMainRepo(): SyncStackPlan
 }

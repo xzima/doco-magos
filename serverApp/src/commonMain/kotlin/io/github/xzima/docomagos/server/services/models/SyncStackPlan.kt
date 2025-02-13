@@ -13,13 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.server.services
+package io.github.xzima.docomagos.server.services.models
 
-import io.github.xzima.docomagos.server.services.models.ComposeProjectInfo
-import io.github.xzima.docomagos.server.services.models.SyncStackPlan
-
-interface DockerComposeService {
-    suspend fun executeSyncPlan(syncPlan: SyncStackPlan)
-
-    suspend fun listProjects(): List<ComposeProjectInfo>
-}
+data class SyncStackPlan(
+    val toDown: MutableList<ProjectInfo> = mutableListOf(),
+    val toUp: MutableList<ProjectInfo.Expected> = mutableListOf(),
+    val ignored: MutableList<ProjectInfo> = mutableListOf(),
+)

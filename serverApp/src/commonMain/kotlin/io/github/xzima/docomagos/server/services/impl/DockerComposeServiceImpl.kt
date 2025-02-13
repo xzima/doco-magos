@@ -20,6 +20,7 @@ import io.github.xzima.docomagos.logging.from
 import io.github.xzima.docomagos.server.services.DockerComposeClient
 import io.github.xzima.docomagos.server.services.DockerComposeService
 import io.github.xzima.docomagos.server.services.RepoService
+import io.github.xzima.docomagos.server.services.models.ComposeProjectInfo
 import io.github.xzima.docomagos.server.services.models.SyncStackPlan
 
 private val logger = KotlinLogging.from(DockerComposeServiceImpl::class)
@@ -61,5 +62,9 @@ class DockerComposeServiceImpl(
                 logger.warn(e) { "Stack $item up failed" }
             }
         }
+    }
+
+    override suspend fun listProjects(): List<ComposeProjectInfo> {
+        TODO("Not yet implemented")
     }
 }

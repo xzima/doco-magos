@@ -19,13 +19,11 @@ import com.github.ajalt.clikt.testing.test
 import dev.mokkery.MockMode
 import dev.mokkery.answering.returns
 import dev.mokkery.answering.throws
-import dev.mokkery.every
 import dev.mokkery.everySuspend
 import dev.mokkery.matcher.any
 import dev.mokkery.mock
 import dev.mokkery.resetAnswers
 import dev.mokkery.resetCalls
-import dev.mokkery.verify
 import dev.mokkery.verify.VerifyMode
 import dev.mokkery.verifyNoMoreCalls
 import dev.mokkery.verifySuspend
@@ -82,7 +80,7 @@ class SyncCommandTest {
         // GIVEN
         everySuspend { gitService.actualizeMainRepo() } returns Unit
         val stackPlanMock = SyncStackPlan()
-        every { syncService.createSyncPlanForMainRepo() } returns stackPlanMock
+        everySuspend { syncService.createSyncPlanForMainRepo() } returns stackPlanMock
         everySuspend { dockerComposeService.executeSyncPlan(stackPlanMock) } returns Unit
 
         // WHEN
@@ -92,7 +90,7 @@ class SyncCommandTest {
         actual.statusCode shouldBe 0
 
         verifySuspend(mode = VerifyMode.exactly(1)) { gitService.actualizeMainRepo() }
-        verify(mode = VerifyMode.exactly(1)) { syncService.createSyncPlanForMainRepo() }
+        verifySuspend(mode = VerifyMode.exactly(1)) { syncService.createSyncPlanForMainRepo() }
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerComposeService.executeSyncPlan(any()) }
     }
 
@@ -114,7 +112,7 @@ class SyncCommandTest {
     fun testCreateSyncPlanFailed(): Unit = runBlocking {
         // GIVEN
         everySuspend { gitService.actualizeMainRepo() } returns Unit
-        every { syncService.createSyncPlanForMainRepo() } throws RuntimeException("any exception")
+        everySuspend { syncService.createSyncPlanForMainRepo() } throws RuntimeException("any exception")
 
         // WHEN
         val actual = shouldThrow<RuntimeException> { command.test() }
@@ -123,7 +121,7 @@ class SyncCommandTest {
         actual.message shouldBe "any exception"
 
         verifySuspend(mode = VerifyMode.exactly(1)) { gitService.actualizeMainRepo() }
-        verify(mode = VerifyMode.exactly(1)) { syncService.createSyncPlanForMainRepo() }
+        verifySuspend(mode = VerifyMode.exactly(1)) { syncService.createSyncPlanForMainRepo() }
     }
 
     @Test
@@ -131,7 +129,7 @@ class SyncCommandTest {
         // GIVEN
         everySuspend { gitService.actualizeMainRepo() } returns Unit
         val stackPlanMock = SyncStackPlan()
-        every { syncService.createSyncPlanForMainRepo() } returns stackPlanMock
+        everySuspend { syncService.createSyncPlanForMainRepo() } returns stackPlanMock
         everySuspend { dockerComposeService.executeSyncPlan(stackPlanMock) } throws RuntimeException("any exception")
 
         // WHEN
@@ -141,7 +139,7 @@ class SyncCommandTest {
         actual.message shouldBe "any exception"
 
         verifySuspend(mode = VerifyMode.exactly(1)) { gitService.actualizeMainRepo() }
-        verify(mode = VerifyMode.exactly(1)) { syncService.createSyncPlanForMainRepo() }
+        verifySuspend(mode = VerifyMode.exactly(1)) { syncService.createSyncPlanForMainRepo() }
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerComposeService.executeSyncPlan(any()) }
     }
 }

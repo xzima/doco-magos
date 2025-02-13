@@ -44,6 +44,7 @@ class JobServiceTest {
         override val hostname: String = "any"
         override val staticUiPath: String = "any"
         override val jobPeriodMs: Int = 100
+        override val ignoreRepoExternalStacksSync: Boolean = true
     }
 
     private val pingService = mock<PingService>(MockMode.autoUnit)

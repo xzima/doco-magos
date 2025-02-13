@@ -51,6 +51,7 @@ class DockerServiceTest {
         override val hostname: String = "server-hostname"
         override val staticUiPath: String = "any"
         override val jobPeriodMs: Int = 0
+        override val ignoreRepoExternalStacksSync: Boolean = true
     }
     private val syncJobProps = object : SyncJobProps {
         override val containerName: String = "job-container-name"

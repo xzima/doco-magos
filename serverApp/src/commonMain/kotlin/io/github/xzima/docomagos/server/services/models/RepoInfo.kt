@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.server.services
+package io.github.xzima.docomagos.server.services.models
 
-import io.github.xzima.docomagos.server.services.models.ComposeProjectInfo
-import io.github.xzima.docomagos.server.services.models.SyncStackPlan
+import okio.Path
 
-interface DockerComposeService {
-    suspend fun executeSyncPlan(syncPlan: SyncStackPlan)
-
-    suspend fun listProjects(): List<ComposeProjectInfo>
-}
+data class RepoInfo(
+    val path: Path,
+    val secretEnvPath: Path?,
+    val envPath: Path?,
+    val projects: List<RepoProjectInfo>,
+)

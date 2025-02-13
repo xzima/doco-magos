@@ -39,6 +39,7 @@ class DockerServiceSmoke {
         override val hostname: String = ""
         override val staticUiPath: String = "ignore"
         override val jobPeriodMs: Int = 0
+        override val ignoreRepoExternalStacksSync: Boolean = true
     }
     private val syncJobProps = object : SyncJobProps {
         override val containerName: String = "doco-magos-sync-job"
