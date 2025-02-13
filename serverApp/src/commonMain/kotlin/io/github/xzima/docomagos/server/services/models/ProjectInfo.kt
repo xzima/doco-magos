@@ -42,19 +42,24 @@ sealed interface ProjectInfo {
         override val manifestPath: Path,
         override val order: Int,
         val stackPath: Path,
-        val envPaths: List<Path>,
+        val repoPath: Path,
+        val repoEncryptionKeyFilePath: Path?,
+        val repoEnvPath: Path?,
+        val repoSecretEnvPath: Path?,
+        val projectEnvPath: Path?,
+        val projectSecretEnvPath: Path?,
     ) : ProjectInfo {
-        constructor(projectInfo: RepoProjectInfo, repoInfo: RepoInfo) : this(
+        constructor(projectInfo: RepoInfo.FullRepoInfo.RepoProjectInfo, repoInfo: RepoInfo) : this(
             name = projectInfo.name,
             manifestPath = projectInfo.manifestPath,
             order = projectInfo.order,
             stackPath = projectInfo.path,
-            envPaths = listOfNotNull(
-                repoInfo.envPath,
-                repoInfo.secretEnvPath,
-                projectInfo.envPath,
-                projectInfo.secretEnvPath,
-            ),
+            repoPath = repoInfo.path,
+            repoEncryptionKeyFilePath = repoInfo.encryptionKeyFilePath,
+            repoEnvPath = repoInfo.envPath,
+            repoSecretEnvPath = repoInfo.secretEnvPath,
+            projectEnvPath = projectInfo.envPath,
+            projectSecretEnvPath = projectInfo.secretEnvPath,
         )
     }
 }

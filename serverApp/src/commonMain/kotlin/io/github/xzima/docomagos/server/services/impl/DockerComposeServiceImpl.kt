@@ -19,7 +19,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.xzima.docomagos.logging.from
 import io.github.xzima.docomagos.server.services.DockerComposeClient
 import io.github.xzima.docomagos.server.services.DockerComposeService
-import io.github.xzima.docomagos.server.services.RepoService
+import io.github.xzima.docomagos.server.services.FileReadService
 import io.github.xzima.docomagos.server.services.models.ComposeProjectInfo
 import io.github.xzima.docomagos.server.services.models.SyncStackPlan
 
@@ -27,7 +27,7 @@ private val logger = KotlinLogging.from(DockerComposeServiceImpl::class)
 
 class DockerComposeServiceImpl(
     private val dockerComposeClient: DockerComposeClient,
-    private val repoService: RepoService,
+    private val fileReadService: FileReadService,
 ) : DockerComposeService {
     override suspend fun executeSyncPlan(syncPlan: SyncStackPlan) {
         logger.debug { "Ignored stacks: ${syncPlan.ignored}" }
@@ -46,7 +46,7 @@ class DockerComposeServiceImpl(
         logger.debug { "Up stacks: $toUp" }
         for (item in toUp) {
             try {
-                val envs = repoService.getEnvs(item.envPaths, decodeSecrets = true)
+                val envs = fileReadService.readAndMergeEnvs(item, decodeSecrets = true)
                 when {
                     logger.isDebugEnabled() -> logger.debug { "Stack ${item.name} envs: ${envs.mapValues { "***" }}" }
                     logger.isTraceEnabled() -> logger.trace { "Stack ${item.name} envs: $envs" }

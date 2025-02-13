@@ -20,23 +20,26 @@ import io.github.xzima.docomagos.logging.from
 import io.github.xzima.docomagos.server.props.AppProps
 import io.github.xzima.docomagos.server.props.GitProps
 import io.github.xzima.docomagos.server.services.DockerComposeService
-import io.github.xzima.docomagos.server.services.RepoService
+import io.github.xzima.docomagos.server.services.RepoStructureService
 import io.github.xzima.docomagos.server.services.SyncProjectService
 import io.github.xzima.docomagos.server.services.SyncService
 import io.github.xzima.docomagos.server.services.models.ComposeProjectInfo
 import io.github.xzima.docomagos.server.services.models.ProjectInfo
 import io.github.xzima.docomagos.server.services.models.RepoInfo
-import io.github.xzima.docomagos.server.services.models.RepoProjectInfo
 import io.github.xzima.docomagos.server.services.models.SyncStackPlan
 import kotlinx.coroutines.*
 import okio.Path.Companion.toPath
+
+@Suppress("ktlint:standard:max-line-length")
+private typealias MutableProjectInfoAggregation = Pair<MutableList<ComposeProjectInfo>, MutableList<RepoInfo.FullRepoInfo.RepoProjectInfo>>
+private typealias ProjectInfoAggregation = Pair<List<ComposeProjectInfo>, List<RepoInfo.FullRepoInfo.RepoProjectInfo>>
 
 private val logger = KotlinLogging.from(SyncServiceImpl::class)
 
 class SyncServiceImpl(
     private val gitProps: GitProps,
     private val appProps: AppProps,
-    private val repoService: RepoService,
+    private val repoStructureService: RepoStructureService,
     private val syncProjectService: SyncProjectService,
     private val dockerComposeService: DockerComposeService,
 ) : SyncService {
@@ -108,27 +111,23 @@ class SyncServiceImpl(
 
     private fun groupProjectsByName(
         allComposeProjects: List<ComposeProjectInfo>,
-        repoInfo: RepoInfo,
-    ): Map<String, Pair<List<ComposeProjectInfo>, List<RepoProjectInfo>>> {
-        val nameToProjects = mutableMapOf<String, Pair<MutableList<ComposeProjectInfo>, MutableList<RepoProjectInfo>>>()
+        repoInfo: RepoInfo.FullRepoInfo,
+    ): Map<String, ProjectInfoAggregation> {
+        val nameToProjects = mutableMapOf<String, MutableProjectInfoAggregation>()
         for (info in allComposeProjects) {
-            val (item, _) = nameToProjects.getOrPut(info.name) {
-                mutableListOf<ComposeProjectInfo>() to mutableListOf<RepoProjectInfo>()
-            }
+            val (item, _) = nameToProjects.getOrPut(info.name) { Pair(mutableListOf(), mutableListOf()) }
             item.add(info)
         }
         for (info in repoInfo.projects) {
-            val (_, item) = nameToProjects.getOrPut(info.name) {
-                mutableListOf<ComposeProjectInfo>() to mutableListOf<RepoProjectInfo>()
-            }
+            val (_, item) = nameToProjects.getOrPut(info.name) { Pair(mutableListOf(), mutableListOf()) }
             item.add(info)
         }
         return nameToProjects
     }
 
-    private suspend fun asyncGetProjectInfos(): Pair<List<ComposeProjectInfo>, RepoInfo> = coroutineScope {
+    private suspend fun asyncGetProjectInfos(): Pair<List<ComposeProjectInfo>, RepoInfo.FullRepoInfo> = coroutineScope {
         val composeProjectsDeferred = async { dockerComposeService.listProjects() }
-        val repoInfoDeferred = async { repoService.getInfo(gitProps.mainRepoPath.toPath()) }
+        val repoInfoDeferred = async { repoStructureService.getFullInfo(gitProps.mainRepoPath.toPath()) }
         composeProjectsDeferred.await() to repoInfoDeferred.await()
     }
 }

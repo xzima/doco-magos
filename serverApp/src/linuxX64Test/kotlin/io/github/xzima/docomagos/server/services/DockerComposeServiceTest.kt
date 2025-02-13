@@ -46,22 +46,22 @@ class DockerComposeServiceTest {
     }
 
     private val dockerComposeClient = mock<DockerComposeClient>()
-    private val repoService = mock<RepoService>()
+    private val fileReadService = mock<FileReadService>()
     private lateinit var dockerComposeService: DockerComposeService
 
     @BeforeTest
     fun setup() {
         dockerComposeService = DockerComposeServiceImpl(
             dockerComposeClient = dockerComposeClient,
-            repoService = repoService,
+            fileReadService = fileReadService,
         )
     }
 
     @AfterTest
     fun tearDown() {
-        verifyNoMoreCalls(dockerComposeClient, repoService)
-        resetCalls(dockerComposeClient, repoService)
-        resetAnswers(dockerComposeClient, repoService)
+        verifyNoMoreCalls(dockerComposeClient, fileReadService)
+        resetCalls(dockerComposeClient, fileReadService)
+        resetAnswers(dockerComposeClient, fileReadService)
     }
 
     @Test
@@ -79,8 +79,9 @@ class DockerComposeServiceTest {
                 throw RuntimeException("exception with $manifestPath")
             }
         }
-        everySuspend { repoService.getEnvs(any(), true) } calls {
-            val envsPath = it.arg<List<Path>>(0)
+        everySuspend { fileReadService.readAndMergeEnvs(any<ProjectInfo.Expected>(), true) } calls {
+            val projectInfo = it.arg<ProjectInfo.Expected>(0)
+            val envsPath = listOfNotNull(projectInfo.projectEnvPath, projectInfo.projectSecretEnvPath)
             if (envsPath.any { "err" in it.toString() }) {
                 throw RuntimeException("exception with envs")
             }
@@ -129,15 +130,15 @@ class DockerComposeServiceTest {
             dockerComposeClient.down(de4.name)
             dockerComposeClient.down(da2.name)
             dockerComposeClient.down(de2.name)
-            repoService.getEnvs(ue2.envPaths, true)
+            fileReadService.readAndMergeEnvs(ue2, true)
             dockerComposeClient.up(ue2.manifestPath, ue2.name, any(), any())
-            repoService.getEnvs(ue5.envPaths, true)
+            fileReadService.readAndMergeEnvs(ue5, true)
             dockerComposeClient.up(ue5.manifestPath, ue5.name, any(), any())
-            repoService.getEnvs(ue3.envPaths, true)
+            fileReadService.readAndMergeEnvs(ue3, true)
             dockerComposeClient.up(ue3.manifestPath, ue3.name, any(), any())
-            repoService.getEnvs(ue6.envPaths, true)
-            repoService.getEnvs(ue4.envPaths, true)
-            repoService.getEnvs(ue1.envPaths, true)
+            fileReadService.readAndMergeEnvs(ue6, true)
+            fileReadService.readAndMergeEnvs(ue4, true)
+            fileReadService.readAndMergeEnvs(ue1, true)
             dockerComposeClient.up(ue1.manifestPath, ue1.name, any(), any())
         }
     }
@@ -174,7 +175,8 @@ class DockerComposeServiceTest {
             name = name,
             order = order,
             manifestPath = "/tmp/$manifestDir/compose.yml".toPath(),
-            envPaths = listOf("/tmp/$envDir/.env".toPath()),
+            projectEnvPath = "/tmp/$envDir/.env".toPath(),
+            projectSecretEnvPath = "/tmp/$envDir/secret.env".toPath(),
         )
     }
 }

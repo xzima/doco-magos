@@ -19,7 +19,6 @@ import io.github.xzima.docomagos.server.services.models.ComposeProjectInfo
 import io.github.xzima.docomagos.server.services.models.DockerContainerInfo
 import io.github.xzima.docomagos.server.services.models.ProjectInfo
 import io.github.xzima.docomagos.server.services.models.RepoInfo
-import io.github.xzima.docomagos.server.services.models.RepoProjectInfo
 import okio.Path.Companion.toPath
 
 object TestCreator {
@@ -47,8 +46,9 @@ object TestCreator {
         manifestPath = "/tmp/any/compose.yml".toPath(),
     )
 
-    fun repoInfo() = RepoInfo(
+    fun fullRepoInfo() = RepoInfo.FullRepoInfo(
         path = "/tmp/any".toPath(),
+        encryptionKeyFilePath = null,
         secretEnvPath = null,
         envPath = null,
         projects = listOf(
@@ -56,7 +56,7 @@ object TestCreator {
         ),
     )
 
-    fun repoProjectInfo() = RepoProjectInfo(
+    fun repoProjectInfo() = RepoInfo.FullRepoInfo.RepoProjectInfo(
         name = "any",
         path = "/tmp/any".toPath(),
         order = Int.MAX_VALUE,
@@ -74,9 +74,14 @@ object TestCreator {
 
     fun expectedProjectInfo() = ProjectInfo.Expected(
         name = "any",
-        manifestPath = "/tmp/any/compose.yml".toPath(),
+        manifestPath = "/tmp/any-repo/any/compose.yml".toPath(),
         order = Int.MAX_VALUE,
-        stackPath = "/tmp/any".toPath(),
-        envPaths = listOf(),
+        stackPath = "/tmp/any-repo/any".toPath(),
+        repoPath = "/tmp/any-repo".toPath(),
+        repoEncryptionKeyFilePath = null,
+        repoEnvPath = null,
+        repoSecretEnvPath = null,
+        projectEnvPath = null,
+        projectSecretEnvPath = null,
     )
 }
