@@ -36,6 +36,7 @@ object TestCreator {
         envs = emptyList(),
         labels = emptyMap(),
         binds = emptyList(),
+        mounts = emptyList(),
         autoRemove = false,
         restartPolicy = RestartPolicy.Name.UNKNOWN,
     )

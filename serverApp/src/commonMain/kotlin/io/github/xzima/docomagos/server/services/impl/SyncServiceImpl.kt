@@ -69,16 +69,16 @@ class SyncServiceImpl(
     private suspend fun buildProjectInfoSequence(): Sequence<Pair<ProjectInfo.Actual?, ProjectInfo.Expected?>> {
         val (allComposeProjects, repoInfo) = asyncGetProjectInfos()
         when {
-            logger.isDebugEnabled() -> logger.debug { "Project info aggregation complete" }
             logger.isTraceEnabled() -> logger.trace {
                 "Project info aggregation complete:\ncompose: $allComposeProjects\nrepo: $repoInfo"
             }
+            logger.isDebugEnabled() -> logger.debug { "Project info aggregation complete" }
         }
 
         val nameToProjects = groupProjectsByName(allComposeProjects, repoInfo)
         when {
-            logger.isDebugEnabled() -> logger.debug { "Project info groping by name complete" }
             logger.isTraceEnabled() -> logger.trace { "Project info groping by name complete:\n$nameToProjects" }
+            logger.isDebugEnabled() -> logger.debug { "Project info groping by name complete" }
         }
 
         return sequence {

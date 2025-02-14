@@ -48,6 +48,7 @@ class DockerServiceImpl(
             name = syncJobProps.containerName,
             cmd = syncJobProps.containerCmd,
             source = current,
+            autoRemove = syncJobProps.containerAutoRemove,
         ) ?: run {
             logger.debug { "check container(name=${syncJobProps.containerName}) image and status" }
             val syncJob = dockerClient.containerInfoOrNull(syncJobProps.containerName) ?: run {
@@ -88,6 +89,7 @@ class DockerServiceImpl(
                 name = syncJobProps.containerName,
                 cmd = syncJobProps.containerCmd,
                 source = current,
+                autoRemove = syncJobProps.containerAutoRemove,
             ) ?: run {
                 logger.error { "container(name=${syncJobProps.containerName}) still exist" }
                 return

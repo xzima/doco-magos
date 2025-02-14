@@ -3,12 +3,25 @@ services:
     build:
       dockerfile: ./Dockerfile
     environment:
+      LOGGING_LEVEL: TRACE
       KTOR_PORT: 8080
+      DOCKER_COMPOSE_DRY_RUN: true
+      SYNC_JOB_CONTAINER_AUTO_REMOVE: false
       GIT_MAIN_REPO_URL: https://github.com/xzima/home-composes.git
-      GIT_GIT_TOKEN_FILE: /.git-token
+      GIT_GIT_TOKEN_FILE: /run/secrets/git-token
+      GIT_GIT_CRYPT_KEY_FILE: /run/secrets/git-crypt-key
+      #APP_JOB_PERIOD_MS: 10000
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./serverApp/build/repo:/app/repo"
-      - "./.git-token:/.git-token"
     ports:
       - "8080:8080"
+    secrets:
+      - git-token
+      - git-crypt-key
+
+secrets:
+  git-token:
+    file: ./.git-token
+  git-crypt-key:
+    file: ./.git-crypt-key

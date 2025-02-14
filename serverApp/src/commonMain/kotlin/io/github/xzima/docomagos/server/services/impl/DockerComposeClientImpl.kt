@@ -78,13 +78,15 @@ class DockerComposeClientImpl(
         }
     }
 
-    private fun Output.propagateWarn() = logger.warn {
-        val lines = sequenceOf(stdout, stderr)
-            .flatMap { it?.split("\n") ?: emptyList() }
-            .filter { it.contains("warning", ignoreCase = true) }
-            .toList()
-        if (lines.isNotEmpty()) {
-            return@warn lines.joinToString(prefix = "executions warnings:\n", separator = "\n")
+    private fun Output.propagateWarn() {
+        if (logger.isWarnEnabled()) {
+            val lines = sequenceOf(stdout, stderr)
+                .flatMap { it?.split("\n") ?: emptyList() }
+                .filter { it.contains("warning", ignoreCase = true) }
+                .toList()
+            if (lines.isNotEmpty()) {
+                logger.warn { lines.joinToString(prefix = "executions warnings:\n", separator = "\n") }
+            }
         }
     }
 }

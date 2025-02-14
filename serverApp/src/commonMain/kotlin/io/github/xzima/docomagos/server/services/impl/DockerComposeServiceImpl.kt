@@ -38,10 +38,10 @@ class DockerComposeServiceImpl(
     }
 
     override suspend fun executeSyncPlan(syncPlan: SyncStackPlan) {
-        logger.debug { "Ignored stacks: ${syncPlan.ignored}" }
+        logger.trace { "Ignored stacks: ${syncPlan.ignored}" }
 
         val toDown = syncPlan.toDown.sortedByDescending { it.order }
-        logger.debug { "Down stacks: $toDown" }
+        logger.trace { "Down stacks: $toDown" }
         for (item in toDown) {
             try {
                 dockerComposeClient.down(item.name)
@@ -51,13 +51,13 @@ class DockerComposeServiceImpl(
         }
 
         val toUp = syncPlan.toUp.sortedBy { it.order }
-        logger.debug { "Up stacks: $toUp" }
+        logger.trace { "Up stacks: $toUp" }
         for (item in toUp) {
             try {
                 val envs = fileReadService.readAndMergeEnvs(item, maskSecrets = false)
                 when {
-                    logger.isDebugEnabled() -> logger.debug { "Stack ${item.name} envs: ${envs.mapValues { "***" }}" }
                     logger.isTraceEnabled() -> logger.trace { "Stack ${item.name} envs: $envs" }
+                    logger.isDebugEnabled() -> logger.debug { "Stack ${item.name} envs: ${envs.mapValues { "***" }}" }
                 }
 
                 dockerComposeClient.up(

@@ -31,7 +31,7 @@ import kotlin.test.Test
 /**
  * - start docker-compose.yaml
  * - lookup hostname of doco-magos service container
- * - set hostname in [appProps.hostname]
+ * - set hostname in [AppProps.hostname]
  */
 class DockerServiceSmoke {
 
@@ -44,6 +44,7 @@ class DockerServiceSmoke {
     private val syncJobProps = object : SyncJobProps {
         override val containerName: String = "doco-magos-sync-job"
         override val containerCmd: String = "sync"
+        override val containerAutoRemove: Boolean = true
     }
     private val dockerProps = object : DockerProps {
         override val loggingLevel: LogLevel = LogLevel.ALL

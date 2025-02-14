@@ -19,7 +19,9 @@ import TestCreator
 import dev.mokkery.answering.returns
 import dev.mokkery.answering.sequentially
 import dev.mokkery.answering.throws
+import dev.mokkery.every
 import dev.mokkery.everySuspend
+import dev.mokkery.matcher.any
 import dev.mokkery.mock
 import dev.mokkery.resetAnswers
 import dev.mokkery.resetCalls
@@ -45,6 +47,9 @@ class DockerServiceTest {
     companion object {
         @BeforeClass
         fun setUp() = KotlinLogging.configureLogging(Level.TRACE)
+
+        private const val CONTAINER_NAME = "job-container-name"
+        private const val CONTAINER_CMD = "sync"
     }
 
     private val appProps = object : AppProps {
@@ -53,15 +58,14 @@ class DockerServiceTest {
         override val jobPeriodMs: Int = 0
         override val ignoreRepoExternalStacksSync: Boolean = true
     }
-    private val syncJobProps = object : SyncJobProps {
-        override val containerName: String = "job-container-name"
-        override val containerCmd: String = "sync"
-    }
-    private val dockerClient: DockerClient = mock()
+    private val syncJobProps = mock<SyncJobProps>()
+    private val dockerClient = mock<DockerClient>()
     private lateinit var dockerService: DockerService
 
     @BeforeTest
     fun setup() {
+        every { syncJobProps.containerName } returns CONTAINER_NAME
+        every { syncJobProps.containerCmd } returns CONTAINER_CMD
         dockerService = DockerServiceImpl(
             appProps = appProps,
             syncJobProps = syncJobProps,
@@ -104,17 +108,12 @@ class DockerServiceTest {
     @Test
     fun testJobContainerCreationThrow(): Unit = runBlocking {
         // GIVEN
+        every { syncJobProps.containerAutoRemove } returns true
         val currentContainer = TestCreator.dockerContainerInfo().copy(
             imageName = "targetImage",
         )
         everySuspend { dockerClient.containerInfoOrNull(appProps.hostname) } returns currentContainer
-        everySuspend {
-            dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
-                source = currentContainer,
-            )
-        } throws RuntimeException("any exception")
+        everySuspend { dockerClient.copyContainer(any(), any(), any(), any()) } throws RuntimeException("any exception")
 
         // WHEN
         val exception = shouldThrow<RuntimeException> { dockerService.tryStartSyncJobService() }
@@ -124,9 +123,10 @@ class DockerServiceTest {
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(appProps.hostname) }
         verifySuspend(mode = VerifyMode.exactly(1)) {
             dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
+                name = CONTAINER_NAME,
+                cmd = CONTAINER_CMD,
                 source = currentContainer,
+                autoRemove = true,
             )
         }
     }
@@ -134,19 +134,14 @@ class DockerServiceTest {
     @Test
     fun testSearchJobContainerThrow(): Unit = runBlocking {
         // GIVEN
+        every { syncJobProps.containerAutoRemove } returns false
         val currentContainer = TestCreator.dockerContainerInfo().copy(
             imageName = "targetImage",
         )
         everySuspend { dockerClient.containerInfoOrNull(appProps.hostname) } returns currentContainer
+        everySuspend { dockerClient.copyContainer(any(), any(), any(), any()) } returns null
         everySuspend {
-            dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
-                source = currentContainer,
-            )
-        } returns null
-        everySuspend {
-            dockerClient.containerInfoOrNull(syncJobProps.containerName)
+            dockerClient.containerInfoOrNull(CONTAINER_NAME)
         } throws RuntimeException("any exception")
 
         // WHEN
@@ -157,29 +152,25 @@ class DockerServiceTest {
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(appProps.hostname) }
         verifySuspend(mode = VerifyMode.exactly(1)) {
             dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
+                name = CONTAINER_NAME,
+                cmd = CONTAINER_CMD,
                 source = currentContainer,
+                autoRemove = false,
             )
         }
-        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(syncJobProps.containerName) }
+        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(CONTAINER_NAME) }
     }
 
     @Test
     fun testJobContainerNotFound(): Unit = runBlocking {
         // GIVEN
+        every { syncJobProps.containerAutoRemove } returns true
         val currentContainer = TestCreator.dockerContainerInfo().copy(
             imageName = "targetImage",
         )
         everySuspend { dockerClient.containerInfoOrNull(appProps.hostname) } returns currentContainer
-        everySuspend {
-            dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
-                source = currentContainer,
-            )
-        } returns null
-        everySuspend { dockerClient.containerInfoOrNull(syncJobProps.containerName) } returns null
+        everySuspend { dockerClient.copyContainer(any(), any(), any(), any()) } returns null
+        everySuspend { dockerClient.containerInfoOrNull(CONTAINER_NAME) } returns null
 
         // WHEN
         dockerService.tryStartSyncJobService()
@@ -188,30 +179,26 @@ class DockerServiceTest {
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(appProps.hostname) }
         verifySuspend(mode = VerifyMode.exactly(1)) {
             dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
+                name = CONTAINER_NAME,
+                cmd = CONTAINER_CMD,
                 source = currentContainer,
+                autoRemove = true,
             )
         }
-        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(syncJobProps.containerName) }
+        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(CONTAINER_NAME) }
     }
 
     @Test
     fun testJobContainerExistWithDifferentImageName(): Unit = runBlocking {
         // GIVEN
+        every { syncJobProps.containerAutoRemove } returns false
         val currentContainer = TestCreator.dockerContainerInfo().copy(
             imageName = "targetImage",
         )
         everySuspend { dockerClient.containerInfoOrNull(appProps.hostname) } returns currentContainer
-        everySuspend {
-            dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
-                source = currentContainer,
-            )
-        } returns null
+        everySuspend { dockerClient.copyContainer(any(), any(), any(), any()) } returns null
         val jobContainer = TestCreator.dockerContainerInfo().copy(imageName = "anotherImage")
-        everySuspend { dockerClient.containerInfoOrNull(syncJobProps.containerName) } returns jobContainer
+        everySuspend { dockerClient.containerInfoOrNull(CONTAINER_NAME) } returns jobContainer
 
         // WHEN
         dockerService.tryStartSyncJobService()
@@ -220,33 +207,29 @@ class DockerServiceTest {
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(appProps.hostname) }
         verifySuspend(mode = VerifyMode.exactly(1)) {
             dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
+                name = CONTAINER_NAME,
+                cmd = CONTAINER_CMD,
                 source = currentContainer,
+                autoRemove = false,
             )
         }
-        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(syncJobProps.containerName) }
+        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(CONTAINER_NAME) }
     }
 
     @Test
     fun testJobContainerExistWithRunningStatus(): Unit = runBlocking {
         // GIVEN
+        every { syncJobProps.containerAutoRemove } returns true
         val currentContainer = TestCreator.dockerContainerInfo().copy(
             imageName = "targetImage",
         )
         everySuspend { dockerClient.containerInfoOrNull(appProps.hostname) } returns currentContainer
-        everySuspend {
-            dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
-                source = currentContainer,
-            )
-        } returns null
+        everySuspend { dockerClient.copyContainer(any(), any(), any(), any()) } returns null
         val jobContainer = TestCreator.dockerContainerInfo().copy(
             imageName = "targetImage",
             status = ContainerState.Status.RUNNING,
         )
-        everySuspend { dockerClient.containerInfoOrNull(syncJobProps.containerName) } returns jobContainer
+        everySuspend { dockerClient.containerInfoOrNull(CONTAINER_NAME) } returns jobContainer
 
         // WHEN
         dockerService.tryStartSyncJobService()
@@ -255,34 +238,30 @@ class DockerServiceTest {
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(appProps.hostname) }
         verifySuspend(mode = VerifyMode.exactly(1)) {
             dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
+                name = CONTAINER_NAME,
+                cmd = CONTAINER_CMD,
                 source = currentContainer,
+                autoRemove = true,
             )
         }
-        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(syncJobProps.containerName) }
+        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(CONTAINER_NAME) }
     }
 
     @Test
     fun testJobContainerDeleteThrow(): Unit = runBlocking {
         // GIVEN
+        every { syncJobProps.containerAutoRemove } returns false
         val currentContainer = TestCreator.dockerContainerInfo().copy(
             imageName = "targetImage",
         )
         everySuspend { dockerClient.containerInfoOrNull(appProps.hostname) } returns currentContainer
-        everySuspend {
-            dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
-                source = currentContainer,
-            )
-        } returns null
+        everySuspend { dockerClient.copyContainer(any(), any(), any(), any()) } returns null
         val jobContainer = TestCreator.dockerContainerInfo().copy(
             id = "jobContainerId",
             imageName = "targetImage",
             status = ContainerState.Status.DEAD,
         )
-        everySuspend { dockerClient.containerInfoOrNull(syncJobProps.containerName) } returns jobContainer
+        everySuspend { dockerClient.containerInfoOrNull(CONTAINER_NAME) } returns jobContainer
         everySuspend { dockerClient.deleteContainer("jobContainerId") } throws RuntimeException("any exception")
 
         // WHEN
@@ -293,35 +272,31 @@ class DockerServiceTest {
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(appProps.hostname) }
         verifySuspend(mode = VerifyMode.exactly(1)) {
             dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
+                name = CONTAINER_NAME,
+                cmd = CONTAINER_CMD,
                 source = currentContainer,
+                autoRemove = false,
             )
         }
-        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(syncJobProps.containerName) }
+        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(CONTAINER_NAME) }
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.deleteContainer("jobContainerId") }
     }
 
     @Test
     fun testJobContainerDeleteNotFound(): Unit = runBlocking {
         // GIVEN
+        every { syncJobProps.containerAutoRemove } returns true
         val currentContainer = TestCreator.dockerContainerInfo().copy(
             imageName = "targetImage",
         )
         everySuspend { dockerClient.containerInfoOrNull(appProps.hostname) } returns currentContainer
-        everySuspend {
-            dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
-                source = currentContainer,
-            )
-        } returns null
+        everySuspend { dockerClient.copyContainer(any(), any(), any(), any()) } returns null
         val jobContainer = TestCreator.dockerContainerInfo().copy(
             id = "jobContainerId",
             imageName = "targetImage",
             status = ContainerState.Status.DEAD,
         )
-        everySuspend { dockerClient.containerInfoOrNull(syncJobProps.containerName) } returns jobContainer
+        everySuspend { dockerClient.containerInfoOrNull(CONTAINER_NAME) } returns jobContainer
         everySuspend { dockerClient.deleteContainer("jobContainerId") } returns false
 
         // WHEN
@@ -331,29 +306,25 @@ class DockerServiceTest {
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(appProps.hostname) }
         verifySuspend(mode = VerifyMode.exactly(1)) {
             dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
+                name = CONTAINER_NAME,
+                cmd = CONTAINER_CMD,
                 source = currentContainer,
+                autoRemove = true,
             )
         }
-        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(syncJobProps.containerName) }
+        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(CONTAINER_NAME) }
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.deleteContainer("jobContainerId") }
     }
 
     @Test
     fun testJobContainerRecreateThrow(): Unit = runBlocking {
         // GIVEN
+        every { syncJobProps.containerAutoRemove } returns false
         val currentContainer = TestCreator.dockerContainerInfo().copy(
             imageName = "targetImage",
         )
         everySuspend { dockerClient.containerInfoOrNull(appProps.hostname) } returns currentContainer
-        everySuspend {
-            dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
-                source = currentContainer,
-            )
-        } sequentially {
+        everySuspend { dockerClient.copyContainer(any(), any(), any(), any()) } sequentially {
             returns(null)
             throws(RuntimeException("any exception"))
         }
@@ -362,7 +333,7 @@ class DockerServiceTest {
             imageName = "targetImage",
             status = ContainerState.Status.DEAD,
         )
-        everySuspend { dockerClient.containerInfoOrNull(syncJobProps.containerName) } returns jobContainer
+        everySuspend { dockerClient.containerInfoOrNull(CONTAINER_NAME) } returns jobContainer
         everySuspend { dockerClient.deleteContainer("jobContainerId") } returns true
 
         // WHEN
@@ -373,29 +344,25 @@ class DockerServiceTest {
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(appProps.hostname) }
         verifySuspend(mode = VerifyMode.exactly(2)) {
             dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
+                name = CONTAINER_NAME,
+                cmd = CONTAINER_CMD,
                 source = currentContainer,
+                autoRemove = false,
             )
         }
-        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(syncJobProps.containerName) }
+        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(CONTAINER_NAME) }
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.deleteContainer("jobContainerId") }
     }
 
     @Test
     fun testJobContainerRecreateStillNull(): Unit = runBlocking {
         // GIVEN
+        every { syncJobProps.containerAutoRemove } returns true
         val currentContainer = TestCreator.dockerContainerInfo().copy(
             imageName = "targetImage",
         )
         everySuspend { dockerClient.containerInfoOrNull(appProps.hostname) } returns currentContainer
-        everySuspend {
-            dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
-                source = currentContainer,
-            )
-        } sequentially {
+        everySuspend { dockerClient.copyContainer(any(), any(), any(), any()) } sequentially {
             returns(null)
             returns(null)
         }
@@ -404,7 +371,7 @@ class DockerServiceTest {
             imageName = "targetImage",
             status = ContainerState.Status.DEAD,
         )
-        everySuspend { dockerClient.containerInfoOrNull(syncJobProps.containerName) } returns jobContainer
+        everySuspend { dockerClient.containerInfoOrNull(CONTAINER_NAME) } returns jobContainer
         everySuspend { dockerClient.deleteContainer("jobContainerId") } returns true
 
         // WHEN
@@ -414,29 +381,25 @@ class DockerServiceTest {
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(appProps.hostname) }
         verifySuspend(mode = VerifyMode.exactly(2)) {
             dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
+                name = CONTAINER_NAME,
+                cmd = CONTAINER_CMD,
                 source = currentContainer,
+                autoRemove = true,
             )
         }
-        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(syncJobProps.containerName) }
+        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(CONTAINER_NAME) }
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.deleteContainer("jobContainerId") }
     }
 
     @Test
     fun testJobContainerRecreateAndStartThrow(): Unit = runBlocking {
         // GIVEN
+        every { syncJobProps.containerAutoRemove } returns false
         val currentContainer = TestCreator.dockerContainerInfo().copy(
             imageName = "targetImage",
         )
         everySuspend { dockerClient.containerInfoOrNull(appProps.hostname) } returns currentContainer
-        everySuspend {
-            dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
-                source = currentContainer,
-            )
-        } sequentially {
+        everySuspend { dockerClient.copyContainer(any(), any(), any(), any()) } sequentially {
             returns(null)
             returns("newJobContainerId")
         }
@@ -445,7 +408,7 @@ class DockerServiceTest {
             imageName = "targetImage",
             status = ContainerState.Status.DEAD,
         )
-        everySuspend { dockerClient.containerInfoOrNull(syncJobProps.containerName) } returns jobContainer
+        everySuspend { dockerClient.containerInfoOrNull(CONTAINER_NAME) } returns jobContainer
         everySuspend { dockerClient.deleteContainer("jobContainerId") } returns true
         everySuspend { dockerClient.startContainer("newJobContainerId") } throws RuntimeException("any exception")
 
@@ -457,12 +420,13 @@ class DockerServiceTest {
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(appProps.hostname) }
         verifySuspend(mode = VerifyMode.exactly(2)) {
             dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
+                name = CONTAINER_NAME,
+                cmd = CONTAINER_CMD,
                 source = currentContainer,
+                autoRemove = false,
             )
         }
-        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(syncJobProps.containerName) }
+        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(CONTAINER_NAME) }
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.deleteContainer("jobContainerId") }
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.startContainer("newJobContainerId") }
     }
@@ -470,17 +434,12 @@ class DockerServiceTest {
     @Test
     fun testJobContainerRecreateAndStartNotFound(): Unit = runBlocking {
         // GIVEN
+        every { syncJobProps.containerAutoRemove } returns true
         val currentContainer = TestCreator.dockerContainerInfo().copy(
             imageName = "targetImage",
         )
         everySuspend { dockerClient.containerInfoOrNull(appProps.hostname) } returns currentContainer
-        everySuspend {
-            dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
-                source = currentContainer,
-            )
-        } sequentially {
+        everySuspend { dockerClient.copyContainer(any(), any(), any(), any()) } sequentially {
             returns(null)
             returns("newJobContainerId")
         }
@@ -489,7 +448,7 @@ class DockerServiceTest {
             imageName = "targetImage",
             status = ContainerState.Status.DEAD,
         )
-        everySuspend { dockerClient.containerInfoOrNull(syncJobProps.containerName) } returns jobContainer
+        everySuspend { dockerClient.containerInfoOrNull(CONTAINER_NAME) } returns jobContainer
         everySuspend { dockerClient.deleteContainer("jobContainerId") } returns true
         everySuspend { dockerClient.startContainer("newJobContainerId") } returns false
 
@@ -500,12 +459,13 @@ class DockerServiceTest {
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(appProps.hostname) }
         verifySuspend(mode = VerifyMode.exactly(2)) {
             dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
+                name = CONTAINER_NAME,
+                cmd = CONTAINER_CMD,
                 source = currentContainer,
+                autoRemove = true,
             )
         }
-        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(syncJobProps.containerName) }
+        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(CONTAINER_NAME) }
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.deleteContainer("jobContainerId") }
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.startContainer("newJobContainerId") }
     }
@@ -513,17 +473,12 @@ class DockerServiceTest {
     @Test
     fun testJobContainerRecreateAndStartSuccess(): Unit = runBlocking {
         // GIVEN
+        every { syncJobProps.containerAutoRemove } returns false
         val currentContainer = TestCreator.dockerContainerInfo().copy(
             imageName = "targetImage",
         )
         everySuspend { dockerClient.containerInfoOrNull(appProps.hostname) } returns currentContainer
-        everySuspend {
-            dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
-                source = currentContainer,
-            )
-        } sequentially {
+        everySuspend { dockerClient.copyContainer(any(), any(), any(), any()) } sequentially {
             returns(null)
             returns("newJobContainerId")
         }
@@ -532,7 +487,7 @@ class DockerServiceTest {
             imageName = "targetImage",
             status = ContainerState.Status.DEAD,
         )
-        everySuspend { dockerClient.containerInfoOrNull(syncJobProps.containerName) } returns jobContainer
+        everySuspend { dockerClient.containerInfoOrNull(CONTAINER_NAME) } returns jobContainer
         everySuspend { dockerClient.deleteContainer("jobContainerId") } returns true
         everySuspend { dockerClient.startContainer("newJobContainerId") } returns true
 
@@ -543,12 +498,13 @@ class DockerServiceTest {
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(appProps.hostname) }
         verifySuspend(mode = VerifyMode.exactly(2)) {
             dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
+                name = CONTAINER_NAME,
+                cmd = CONTAINER_CMD,
                 source = currentContainer,
+                autoRemove = false,
             )
         }
-        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(syncJobProps.containerName) }
+        verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(CONTAINER_NAME) }
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.deleteContainer("jobContainerId") }
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.startContainer("newJobContainerId") }
     }
@@ -556,17 +512,12 @@ class DockerServiceTest {
     @Test
     fun testJobContainerCreatedAndStartThrow(): Unit = runBlocking {
         // GIVEN
+        every { syncJobProps.containerAutoRemove } returns true
         val currentContainer = TestCreator.dockerContainerInfo().copy(
             imageName = "targetImage",
         )
         everySuspend { dockerClient.containerInfoOrNull(appProps.hostname) } returns currentContainer
-        everySuspend {
-            dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
-                source = currentContainer,
-            )
-        } returns "newJobContainerId"
+        everySuspend { dockerClient.copyContainer(any(), any(), any(), any()) } returns "newJobContainerId"
         everySuspend { dockerClient.startContainer("newJobContainerId") } throws RuntimeException("any exception")
 
         // WHEN
@@ -577,9 +528,10 @@ class DockerServiceTest {
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(appProps.hostname) }
         verifySuspend(mode = VerifyMode.exactly(1)) {
             dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
+                name = CONTAINER_NAME,
+                cmd = CONTAINER_CMD,
                 source = currentContainer,
+                autoRemove = true,
             )
         }
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.startContainer("newJobContainerId") }
@@ -588,17 +540,12 @@ class DockerServiceTest {
     @Test
     fun testJobContainerCreatedAndStartNotFound(): Unit = runBlocking {
         // GIVEN
+        every { syncJobProps.containerAutoRemove } returns false
         val currentContainer = TestCreator.dockerContainerInfo().copy(
             imageName = "targetImage",
         )
         everySuspend { dockerClient.containerInfoOrNull(appProps.hostname) } returns currentContainer
-        everySuspend {
-            dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
-                source = currentContainer,
-            )
-        } returns "newJobContainerId"
+        everySuspend { dockerClient.copyContainer(any(), any(), any(), any()) } returns "newJobContainerId"
         everySuspend { dockerClient.startContainer("newJobContainerId") } returns false
 
         // WHEN
@@ -608,9 +555,10 @@ class DockerServiceTest {
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(appProps.hostname) }
         verifySuspend(mode = VerifyMode.exactly(1)) {
             dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
+                name = CONTAINER_NAME,
+                cmd = CONTAINER_CMD,
                 source = currentContainer,
+                autoRemove = false,
             )
         }
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.startContainer("newJobContainerId") }
@@ -619,17 +567,12 @@ class DockerServiceTest {
     @Test
     fun testJobContainerCreatedAndStartSuccess(): Unit = runBlocking {
         // GIVEN
+        every { syncJobProps.containerAutoRemove } returns true
         val currentContainer = TestCreator.dockerContainerInfo().copy(
             imageName = "targetImage",
         )
         everySuspend { dockerClient.containerInfoOrNull(appProps.hostname) } returns currentContainer
-        everySuspend {
-            dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
-                source = currentContainer,
-            )
-        } returns "newJobContainerId"
+        everySuspend { dockerClient.copyContainer(any(), any(), any(), any()) } returns "newJobContainerId"
         everySuspend { dockerClient.startContainer("newJobContainerId") } returns true
 
         // WHEN
@@ -639,9 +582,10 @@ class DockerServiceTest {
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.containerInfoOrNull(appProps.hostname) }
         verifySuspend(mode = VerifyMode.exactly(1)) {
             dockerClient.copyContainer(
-                name = syncJobProps.containerName,
-                cmd = syncJobProps.containerCmd,
+                name = CONTAINER_NAME,
+                cmd = CONTAINER_CMD,
                 source = currentContainer,
+                autoRemove = true,
             )
         }
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerClient.startContainer("newJobContainerId") }

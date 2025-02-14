@@ -91,7 +91,7 @@ class DockerClientImpl(
             envs = body.config?.env ?: emptyList(),
             labels = body.config?.labels ?: emptyMap(),
             binds = body.hostConfig?.binds ?: emptyList(),
-            // mounts = body.hostConfig?.mounts,
+            mounts = body.hostConfig?.mounts ?: emptyList(),
             autoRemove = true == body.hostConfig?.autoRemove,
             restartPolicy = body.hostConfig?.restartPolicy?.name ?: RestartPolicy.Name.UNKNOWN,
         )
@@ -112,7 +112,7 @@ class DockerClientImpl(
                 hostConfig = HostConfig(
                     binds = source.binds,
                     autoRemove = autoRemove,
-                    // mounts = source.mounts,
+                    mounts = source.mounts,
                 ),
             ),
         )
