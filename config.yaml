@@ -13,6 +13,7 @@ git:
   #main-repo-url:
   #git-token:
   #git-token-file:
+  #git-crypt-key-file:
 
 docker:
   logging-level: ALL

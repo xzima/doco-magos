@@ -127,7 +127,13 @@ class SyncServiceImpl(
 
     private suspend fun asyncGetProjectInfos(): Pair<List<ComposeProjectInfo>, RepoInfo.FullRepoInfo> = coroutineScope {
         val composeProjectsDeferred = async { dockerComposeService.listProjects() }
-        val repoInfoDeferred = async { repoStructureService.getFullInfo(gitProps.mainRepoPath.toPath()) }
+        val repoInfoDeferred = async {
+            repoStructureService.getFullInfo(
+                repoPath = gitProps.mainRepoPath.toPath(),
+                repoEncryptionKeyPath = gitProps.gitCryptKeyFile?.toPath(),
+            )
+        }
+
         composeProjectsDeferred.await() to repoInfoDeferred.await()
     }
 }

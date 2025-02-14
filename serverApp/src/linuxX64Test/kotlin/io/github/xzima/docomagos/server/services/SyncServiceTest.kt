@@ -89,11 +89,12 @@ class SyncServiceTest {
     fun testIsUpdateRequiredDockerComposeRequestFailed(): Unit = runBlocking {
         // GIVEN
         every { gitProps.mainRepoPath } returns "/tmp/main-repo-path"
+        every { gitProps.gitCryptKeyFile } returns "/tmp/main-repo-key"
         everySuspend { dockerComposeService.listProjects() } calls {
             delay(300.milliseconds)
             throw RuntimeException("any exception")
         }
-        everySuspend { repoStructureService.getFullInfo(any()) } returns TestCreator.fullRepoInfo()
+        everySuspend { repoStructureService.getFullInfo(any(), any()) } returns TestCreator.fullRepoInfo()
 
         // WHEN
         val actual = shouldThrow<RuntimeException> { syncService.isMainRepoStacksUpdateRequired() }
@@ -102,15 +103,18 @@ class SyncServiceTest {
         actual.message shouldBe "any exception"
 
         verifySuspend(mode = VerifyMode.atMost(1)) { dockerComposeService.listProjects() }
-        verifySuspend(mode = VerifyMode.atMost(1)) { repoStructureService.getFullInfo("/tmp/main-repo-path".toPath()) }
+        verifySuspend(mode = VerifyMode.atMost(1)) {
+            repoStructureService.getFullInfo("/tmp/main-repo-path".toPath(), "/tmp/main-repo-key".toPath())
+        }
     }
 
     @Test
     fun testIsUpdateRequiredRepoRequestFailed(): Unit = runBlocking {
         // GIVEN
         every { gitProps.mainRepoPath } returns "/tmp/main-repo-path"
+        every { gitProps.gitCryptKeyFile } returns null
         everySuspend { dockerComposeService.listProjects() } returns listOf()
-        everySuspend { repoStructureService.getFullInfo(any()) } throws RuntimeException("any exception")
+        everySuspend { repoStructureService.getFullInfo(any(), any()) } throws RuntimeException("any exception")
 
         // WHEN
         val actual = shouldThrow<RuntimeException> { syncService.isMainRepoStacksUpdateRequired() }
@@ -119,18 +123,21 @@ class SyncServiceTest {
         actual.message shouldBe "any exception"
 
         verifySuspend(mode = VerifyMode.atMost(1)) { dockerComposeService.listProjects() }
-        verifySuspend(mode = VerifyMode.atMost(1)) { repoStructureService.getFullInfo("/tmp/main-repo-path".toPath()) }
+        verifySuspend(mode = VerifyMode.atMost(1)) {
+            repoStructureService.getFullInfo("/tmp/main-repo-path".toPath(), null)
+        }
     }
 
     @Test
     fun testIsCreateSyncPlanDockerComposeRequestFailed(): Unit = runBlocking {
         // GIVEN
         every { gitProps.mainRepoPath } returns "/tmp/main-repo-path"
+        every { gitProps.gitCryptKeyFile } returns "/tmp/main-repo-key"
         everySuspend { dockerComposeService.listProjects() } calls {
             delay(300.milliseconds)
             throw RuntimeException("any exception")
         }
-        everySuspend { repoStructureService.getFullInfo(any()) } returns TestCreator.fullRepoInfo()
+        everySuspend { repoStructureService.getFullInfo(any(), any()) } returns TestCreator.fullRepoInfo()
 
         // WHEN
         val actual = shouldThrow<RuntimeException> { syncService.createSyncPlanForMainRepo() }
@@ -139,15 +146,18 @@ class SyncServiceTest {
         actual.message shouldBe "any exception"
 
         verifySuspend(mode = VerifyMode.atMost(1)) { dockerComposeService.listProjects() }
-        verifySuspend(mode = VerifyMode.atMost(1)) { repoStructureService.getFullInfo("/tmp/main-repo-path".toPath()) }
+        verifySuspend(mode = VerifyMode.atMost(1)) {
+            repoStructureService.getFullInfo("/tmp/main-repo-path".toPath(), "/tmp/main-repo-key".toPath())
+        }
     }
 
     @Test
     fun testIsCreateSyncPlanRepoRequestFailed(): Unit = runBlocking {
         // GIVEN
         every { gitProps.mainRepoPath } returns "/tmp/main-repo-path"
+        every { gitProps.gitCryptKeyFile } returns null
         everySuspend { dockerComposeService.listProjects() } returns listOf()
-        everySuspend { repoStructureService.getFullInfo(any()) } throws RuntimeException("any exception")
+        everySuspend { repoStructureService.getFullInfo(any(), any()) } throws RuntimeException("any exception")
 
         // WHEN
         val actual = shouldThrow<RuntimeException> { syncService.createSyncPlanForMainRepo() }
@@ -156,7 +166,9 @@ class SyncServiceTest {
         actual.message shouldBe "any exception"
 
         verifySuspend(mode = VerifyMode.atMost(1)) { dockerComposeService.listProjects() }
-        verifySuspend(mode = VerifyMode.atMost(1)) { repoStructureService.getFullInfo("/tmp/main-repo-path".toPath()) }
+        verifySuspend(mode = VerifyMode.atMost(1)) {
+            repoStructureService.getFullInfo("/tmp/main-repo-path".toPath(), null)
+        }
     }
 
     @Test
@@ -164,6 +176,7 @@ class SyncServiceTest {
         // GIVEN
         every { appProps.ignoreRepoExternalStacksSync } returns false
         every { gitProps.mainRepoPath } returns "/tmp/main-repo-path"
+        every { gitProps.gitCryptKeyFile } returns "/tmp/main-repo-key"
         mockProjects()
         every { syncProjectService.isUpdateRequiredForProject(any(), any(), any()) } calls {
             "p1" == it.arg<ProjectInfo?>(0)?.name
@@ -176,7 +189,9 @@ class SyncServiceTest {
         actual.shouldBeTrue()
 
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerComposeService.listProjects() }
-        verifySuspend(mode = VerifyMode.exactly(1)) { repoStructureService.getFullInfo("/tmp/main-repo-path".toPath()) }
+        verifySuspend(mode = VerifyMode.atMost(1)) {
+            repoStructureService.getFullInfo("/tmp/main-repo-path".toPath(), "/tmp/main-repo-key".toPath())
+        }
         verify(mode = VerifyMode.exactly(1)) {
             syncProjectService.isUpdateRequiredForProject(
                 and(matching { "cp1" == it?.name }, matching { Int.MAX_VALUE == it?.order }),
@@ -198,6 +213,7 @@ class SyncServiceTest {
         // GIVEN
         every { appProps.ignoreRepoExternalStacksSync } returns true
         every { gitProps.mainRepoPath } returns "/tmp/main-repo-path"
+        every { gitProps.gitCryptKeyFile } returns null
         mockProjects()
         every { syncProjectService.isUpdateRequiredForProject(any(), any(), any()) } returns false
 
@@ -208,7 +224,9 @@ class SyncServiceTest {
         actual.shouldBeFalse()
 
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerComposeService.listProjects() }
-        verifySuspend(mode = VerifyMode.exactly(1)) { repoStructureService.getFullInfo("/tmp/main-repo-path".toPath()) }
+        verifySuspend(mode = VerifyMode.atMost(1)) {
+            repoStructureService.getFullInfo("/tmp/main-repo-path".toPath(), null)
+        }
         verify(mode = VerifyMode.exactly(1)) {
             syncProjectService.isUpdateRequiredForProject(
                 and(matching { "cp1" == it?.name }, matching { Int.MAX_VALUE == it?.order }),
@@ -244,6 +262,7 @@ class SyncServiceTest {
         // GIVEN
         every { appProps.ignoreRepoExternalStacksSync } returns true
         every { gitProps.mainRepoPath } returns "/tmp/main-repo-path"
+        every { gitProps.gitCryptKeyFile } returns "/tmp/main-repo-key"
         mockProjects()
         every { syncProjectService.addSyncPlanForProject(any(), any(), any()) } calls { args ->
             val plan = args.arg<SyncStackPlan>(0)
@@ -313,7 +332,9 @@ class SyncServiceTest {
         )
 
         verifySuspend(mode = VerifyMode.exactly(1)) { dockerComposeService.listProjects() }
-        verifySuspend(mode = VerifyMode.exactly(1)) { repoStructureService.getFullInfo("/tmp/main-repo-path".toPath()) }
+        verifySuspend(mode = VerifyMode.atMost(1)) {
+            repoStructureService.getFullInfo("/tmp/main-repo-path".toPath(), "/tmp/main-repo-key".toPath())
+        }
         verify(mode = VerifyMode.exactly(1)) {
             syncProjectService.addSyncPlanForProject(
                 any(),
@@ -359,7 +380,7 @@ class SyncServiceTest {
             TestCreator.composeProjectInfo().copy(name = "p5", manifestPath = "/tmp/p5/another-compose.yml".toPath()),
             TestCreator.composeProjectInfo().copy(name = "p5", manifestPath = "/tmp/p5/compose.yml".toPath()),
         )
-        everySuspend { repoStructureService.getFullInfo(any()) } returns RepoInfo.FullRepoInfo(
+        everySuspend { repoStructureService.getFullInfo(any(), any()) } returns RepoInfo.FullRepoInfo(
             path = "/tmp/main-repo-path".toPath(),
             encryptionKeyFilePath = "/tmp/secret-key".toPath(),
             secretEnvPath = "/tmp/repo-secret.env".toPath(),

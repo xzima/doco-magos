@@ -35,6 +35,7 @@ interface GitProps {
     val gitAskPass: String
     val gitToken: String?
     val gitTokenFile: String?
+    val gitCryptKeyFile: String?
 }
 
 class GitOptionGroup :
@@ -47,4 +48,5 @@ class GitOptionGroup :
     override val gitAskPass: String by customOption("git.git-ask-pass").required()
     override val gitToken: String? by customOption("git.git-token")
     override val gitTokenFile: String? by customOption("git.git-token-file")
+    override val gitCryptKeyFile: String? by customOption("git.git-crypt-key-file")
 }

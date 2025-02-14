@@ -46,6 +46,7 @@ class GitServiceTest {
         override val gitAskPass: String = "/tmp/GIT_ASKPASS"
         override val gitToken: String? = "any-token"
         override val gitTokenFile: String? = "/tmp/.git-token"
+        override val gitCryptKeyFile: String? = "/tmp/.git-crypt-key"
     }
     private lateinit var gitService: GitService
 

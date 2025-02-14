@@ -62,6 +62,7 @@ class FileReadServiceSmoke {
             override val gitAskPass: String = pwdPath.resolve("../GIT_ASKPASS", normalize = true).toString()
             override val gitToken: String? = null
             override val gitTokenFile: String? = pwdPath.resolve("../.git-token", normalize = true).toString()
+            override val gitCryptKeyFile: String? = pwdPath.resolve("../.git-crypt-key", normalize = true).toString()
         }
 
         val gitCryptClient = GitCryptClientImpl()
