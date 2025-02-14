@@ -55,7 +55,7 @@ class RepoStructureServiceTest {
     @Test
     fun testBaseInfo(): Unit = runBlocking {
         // GIVEN
-        val repoRoot = FileSystem.SYSTEM.canonicalize(TestUtils.testResourcesDir.resolve("test-repo-structure/full"))
+        val repoRoot = TestUtils.testResourcesDir.resolve("test-repo-structure/full")
         // WHEN
         val actual = repoStructureService.getBaseInfo(repoRoot)
 
@@ -71,7 +71,7 @@ class RepoStructureServiceTest {
     @Test
     fun testBaseInfoWithEncryptionKey(): Unit = runBlocking {
         // GIVEN
-        val repoRoot = FileSystem.SYSTEM.canonicalize(TestUtils.testResourcesDir.resolve("test-repo-structure/empty"))
+        val repoRoot = TestUtils.testResourcesDir.resolve("test-repo-structure/empty")
         // WHEN
         val actual = repoStructureService.getBaseInfo(repoRoot, repoRoot.resolve("secret-key"))
 
@@ -87,7 +87,7 @@ class RepoStructureServiceTest {
     @Test
     fun testFullInfo(): Unit = runBlocking {
         // GIVEN
-        val repoRoot = FileSystem.SYSTEM.canonicalize(TestUtils.testResourcesDir.resolve("test-repo-structure/full"))
+        val repoRoot = TestUtils.testResourcesDir.resolve("test-repo-structure/full")
         // WHEN
         val actual = repoStructureService.getFullInfo(repoRoot)
 
@@ -137,7 +137,7 @@ class RepoStructureServiceTest {
     @Test
     fun testFullInfoWithEncryptionKey(): Unit = runBlocking {
         // GIVEN
-        val repoRoot = FileSystem.SYSTEM.canonicalize(TestUtils.testResourcesDir.resolve("test-repo-structure/empty"))
+        val repoRoot = TestUtils.testResourcesDir.resolve("test-repo-structure/empty")
         // WHEN
         val actual = repoStructureService.getFullInfo(repoRoot, repoRoot.resolve("secret-key"))
 

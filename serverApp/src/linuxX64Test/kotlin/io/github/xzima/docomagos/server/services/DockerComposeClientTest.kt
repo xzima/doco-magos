@@ -114,7 +114,7 @@ class DockerComposeClientTest {
         }
 
         // WHEN UP
-        val stackPath = FileSystem.SYSTEM.canonicalize(TestUtils.testResourcesDir.resolve("compose-project"))
+        val stackPath = TestUtils.testResourcesDir.resolve("compose-project")
         val manifestPath = stackPath.resolve("docker-compose.yml")
         dockerComposeClient.up(
             manifestPath = manifestPath,
@@ -171,7 +171,7 @@ class DockerComposeClientTest {
         }
 
         // WHEN UP
-        val stackPath = FileSystem.SYSTEM.canonicalize(TestUtils.testResourcesDir.resolve("compose-project"))
+        val stackPath = TestUtils.testResourcesDir.resolve("compose-project")
         val manifestPath = stackPath.resolve("docker-compose.yml")
         dockerComposeClient.up(
             manifestPath = manifestPath,

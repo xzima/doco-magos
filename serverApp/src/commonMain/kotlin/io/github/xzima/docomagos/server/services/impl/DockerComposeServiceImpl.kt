@@ -46,7 +46,7 @@ class DockerComposeServiceImpl(
         logger.debug { "Up stacks: $toUp" }
         for (item in toUp) {
             try {
-                val envs = fileReadService.readAndMergeEnvs(item, decodeSecrets = true)
+                val envs = fileReadService.readAndMergeEnvs(item, maskSecrets = false)
                 when {
                     logger.isDebugEnabled() -> logger.debug { "Stack ${item.name} envs: ${envs.mapValues { "***" }}" }
                     logger.isTraceEnabled() -> logger.trace { "Stack ${item.name} envs: $envs" }

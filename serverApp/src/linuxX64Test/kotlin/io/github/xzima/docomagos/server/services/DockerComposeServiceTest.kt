@@ -79,7 +79,7 @@ class DockerComposeServiceTest {
                 throw RuntimeException("exception with $manifestPath")
             }
         }
-        everySuspend { fileReadService.readAndMergeEnvs(any<ProjectInfo.Expected>(), true) } calls {
+        everySuspend { fileReadService.readAndMergeEnvs(any<ProjectInfo.Expected>(), false) } calls {
             val projectInfo = it.arg<ProjectInfo.Expected>(0)
             val envsPath = listOfNotNull(projectInfo.projectEnvPath, projectInfo.projectSecretEnvPath)
             if (envsPath.any { "err" in it.toString() }) {
@@ -130,15 +130,15 @@ class DockerComposeServiceTest {
             dockerComposeClient.down(de4.name)
             dockerComposeClient.down(da2.name)
             dockerComposeClient.down(de2.name)
-            fileReadService.readAndMergeEnvs(ue2, true)
+            fileReadService.readAndMergeEnvs(ue2, false)
             dockerComposeClient.up(ue2.manifestPath, ue2.name, any(), any())
-            fileReadService.readAndMergeEnvs(ue5, true)
+            fileReadService.readAndMergeEnvs(ue5, false)
             dockerComposeClient.up(ue5.manifestPath, ue5.name, any(), any())
-            fileReadService.readAndMergeEnvs(ue3, true)
+            fileReadService.readAndMergeEnvs(ue3, false)
             dockerComposeClient.up(ue3.manifestPath, ue3.name, any(), any())
-            fileReadService.readAndMergeEnvs(ue6, true)
-            fileReadService.readAndMergeEnvs(ue4, true)
-            fileReadService.readAndMergeEnvs(ue1, true)
+            fileReadService.readAndMergeEnvs(ue6, false)
+            fileReadService.readAndMergeEnvs(ue4, false)
+            fileReadService.readAndMergeEnvs(ue1, false)
             dockerComposeClient.up(ue1.manifestPath, ue1.name, any(), any())
         }
     }

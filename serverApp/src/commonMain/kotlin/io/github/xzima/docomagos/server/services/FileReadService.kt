@@ -13,9 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import okio.FileSystem
-import okio.Path.Companion.toPath
+package io.github.xzima.docomagos.server.services
 
-object TestUtils {
-    val testResourcesDir = FileSystem.SYSTEM.canonicalize("./src/linuxX64Test/resources".toPath())
+import io.github.xzima.docomagos.server.services.models.ProjectInfo
+import io.github.xzima.docomagos.server.services.models.RepoInfo
+
+interface FileReadService {
+    suspend fun checkRepoEncryption(repoRoot: String, keyFilePath: String? = null)
+
+    suspend fun readAndMergeEnvs(info: RepoInfo, maskSecrets: Boolean = true): Map<String, String>
+
+    suspend fun readAndMergeEnvs(info: ProjectInfo.Expected, maskSecrets: Boolean = true): Map<String, String>
 }
