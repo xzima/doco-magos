@@ -43,7 +43,7 @@ class DockerComposeClientImpl(
 
     override suspend fun listProjects(): List<DCProjectInfo> = withContext(Dispatchers.IO) {
         val output = cmd {
-            args("ls", "--format=json")
+            args("ls", "--all", "--format=json")
         }
         logger.debug { "ls result: $output" }
 

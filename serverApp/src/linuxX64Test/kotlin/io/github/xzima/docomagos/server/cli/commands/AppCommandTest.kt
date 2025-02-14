@@ -19,19 +19,26 @@ import TestUtils
 import com.github.ajalt.clikt.testing.test
 import io.github.xzima.docomagos.server.handlers.ListProjectsHandler
 import io.github.xzima.docomagos.server.props.AppProps
+import io.github.xzima.docomagos.server.props.DockerComposeProps
 import io.github.xzima.docomagos.server.props.DockerProps
 import io.github.xzima.docomagos.server.props.GitProps
 import io.github.xzima.docomagos.server.props.KtorProps
+import io.github.xzima.docomagos.server.props.RepoStructureProps
 import io.github.xzima.docomagos.server.props.RsocketProps
 import io.github.xzima.docomagos.server.props.SyncJobProps
 import io.github.xzima.docomagos.server.routes.RouteInjector
 import io.github.xzima.docomagos.server.services.DockerClient
 import io.github.xzima.docomagos.server.services.DockerComposeClient
+import io.github.xzima.docomagos.server.services.DockerComposeService
 import io.github.xzima.docomagos.server.services.DockerService
+import io.github.xzima.docomagos.server.services.FileReadService
 import io.github.xzima.docomagos.server.services.GitClient
+import io.github.xzima.docomagos.server.services.GitCryptClient
 import io.github.xzima.docomagos.server.services.GitService
 import io.github.xzima.docomagos.server.services.JobService
 import io.github.xzima.docomagos.server.services.PingService
+import io.github.xzima.docomagos.server.services.RepoStructureService
+import io.github.xzima.docomagos.server.services.SyncProjectService
 import io.github.xzima.docomagos.server.services.SyncService
 import io.kotest.common.runBlocking
 import io.kotest.inspectors.forAll
@@ -70,12 +77,19 @@ class AppCommandTest {
         GitProps::class,
         DockerProps::class,
         SyncJobProps::class,
+        PingService::class,
+        RepoStructureProps::class,
+        DockerComposeProps::class,
         DockerComposeClient::class,
         DockerClient::class,
         DockerService::class,
         GitClient::class,
         GitService::class,
-        PingService::class,
+        RepoStructureService::class,
+        SyncProjectService::class,
+        GitCryptClient::class,
+        FileReadService::class,
+        DockerComposeService::class,
         SyncService::class,
         JobService::class,
         ListProjectsHandler::class,

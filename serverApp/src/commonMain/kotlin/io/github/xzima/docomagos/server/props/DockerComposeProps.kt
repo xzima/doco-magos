@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.server.services.models
+package io.github.xzima.docomagos.server.props
 
-import okio.*
+import com.github.ajalt.clikt.parameters.groups.OptionGroup
+import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.types.boolean
 
-data class RepoProjectInfo(
-    val name: String,
-    val path: Path,
-    val order: Int,
-    val manifestPath: Path,
-    val secretEnvPath: Path?,
-    val envPath: Path?,
-)
+interface DockerComposeProps {
+    val dryRun: Boolean
+}
+
+class DockerComposeOptionGroup :
+    OptionGroup(),
+    DockerComposeProps {
+    override val dryRun: Boolean by customOption("docker-compose.dry-run").boolean().required()
+}

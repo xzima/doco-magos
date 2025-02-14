@@ -18,6 +18,9 @@ docker:
   logging-level: ALL
   unix-socket-file: /var/run/docker.sock
 
+docker-compose:
+  dry-run: false
+
 sync-job:
   container-name: doco-magos-sync-job
   container-cmd: sync
@@ -32,8 +35,8 @@ rsocket:
   max-fragment-size: 1024
 
 repo-structure:
-  env-pattern: "\.env$"
-  secret-env-pattern: "\.secret\.env$"
-  global-env-pattern: "^global(\.secret)?\.env$"
-  project-name-pattern: "^((?<order>\d*)_)?(?<name>[-_\w]*)$"
+  env-pattern: "\\.env$"
+  secret-env-pattern: "\\.secret\\.env$"
+  global-env-pattern: "^global(\\.secret)?\\.env$"
+  project-name-pattern: "^((?<order>\\d*)_)?(?<name>[-_\\w]*)$"
   compose-name-pattern: "^(docker-)?compose.ya?ml$"

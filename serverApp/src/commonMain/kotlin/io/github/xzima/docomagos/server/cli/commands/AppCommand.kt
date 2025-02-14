@@ -31,12 +31,16 @@ import io.github.xzima.docomagos.server.cli.valuesources.YamlValueSource
 import io.github.xzima.docomagos.server.handlers.ListProjectsHandler
 import io.github.xzima.docomagos.server.props.AppOptionGroup
 import io.github.xzima.docomagos.server.props.AppProps
+import io.github.xzima.docomagos.server.props.DockerComposeOptionGroup
+import io.github.xzima.docomagos.server.props.DockerComposeProps
 import io.github.xzima.docomagos.server.props.DockerOptionGroup
 import io.github.xzima.docomagos.server.props.DockerProps
 import io.github.xzima.docomagos.server.props.GitOptionGroup
 import io.github.xzima.docomagos.server.props.GitProps
 import io.github.xzima.docomagos.server.props.KtorOptionGroup
 import io.github.xzima.docomagos.server.props.KtorProps
+import io.github.xzima.docomagos.server.props.RepoStructureOptionGroup
+import io.github.xzima.docomagos.server.props.RepoStructureProps
 import io.github.xzima.docomagos.server.props.RsocketOptionGroup
 import io.github.xzima.docomagos.server.props.RsocketProps
 import io.github.xzima.docomagos.server.props.SyncJobOptionGroup
@@ -47,19 +51,29 @@ import io.github.xzima.docomagos.server.routes.RsocketRouteInjector
 import io.github.xzima.docomagos.server.routes.StaticUiRouteInjector
 import io.github.xzima.docomagos.server.services.DockerClient
 import io.github.xzima.docomagos.server.services.DockerComposeClient
+import io.github.xzima.docomagos.server.services.DockerComposeService
 import io.github.xzima.docomagos.server.services.DockerService
+import io.github.xzima.docomagos.server.services.FileReadService
 import io.github.xzima.docomagos.server.services.GitClient
+import io.github.xzima.docomagos.server.services.GitCryptClient
 import io.github.xzima.docomagos.server.services.GitService
 import io.github.xzima.docomagos.server.services.JobService
 import io.github.xzima.docomagos.server.services.PingService
+import io.github.xzima.docomagos.server.services.RepoStructureService
+import io.github.xzima.docomagos.server.services.SyncProjectService
 import io.github.xzima.docomagos.server.services.SyncService
 import io.github.xzima.docomagos.server.services.impl.DockerClientImpl
 import io.github.xzima.docomagos.server.services.impl.DockerComposeClientImpl
+import io.github.xzima.docomagos.server.services.impl.DockerComposeServiceImpl
 import io.github.xzima.docomagos.server.services.impl.DockerServiceImpl
+import io.github.xzima.docomagos.server.services.impl.FileReadServiceImpl
 import io.github.xzima.docomagos.server.services.impl.GitClientImpl
+import io.github.xzima.docomagos.server.services.impl.GitCryptClientImpl
 import io.github.xzima.docomagos.server.services.impl.GitServiceImpl
 import io.github.xzima.docomagos.server.services.impl.JobServiceImpl
 import io.github.xzima.docomagos.server.services.impl.PingServiceImpl
+import io.github.xzima.docomagos.server.services.impl.RepoStructureServiceImpl
+import io.github.xzima.docomagos.server.services.impl.SyncProjectServiceImpl
 import io.github.xzima.docomagos.server.services.impl.SyncServiceImpl
 import kotlinx.coroutines.*
 import org.koin.dsl.bind
@@ -86,6 +100,8 @@ class AppCommand(
     private val gitProps: GitProps by GitOptionGroup()
     private val dockerProps: DockerProps by DockerOptionGroup()
     private val syncJobProps: SyncJobProps by SyncJobOptionGroup()
+    private val repoStructureProps: RepoStructureProps by RepoStructureOptionGroup()
+    private val dockerComposeProps: DockerComposeProps by DockerComposeOptionGroup()
 
     override fun run(): Unit = runBlocking {
         KotlinLogging.configureLogging(loggingLevel)
@@ -103,13 +119,28 @@ class AppCommand(
         single { gitProps }
         single { dockerProps }
         single { syncJobProps }
+        single { repoStructureProps }
+        single { dockerComposeProps }
         single<PingService> { PingServiceImpl() }
-        single<DockerComposeClient> { DockerComposeClientImpl() }
+        single<DockerComposeClient> { DockerComposeClientImpl(get<DockerComposeProps>().dryRun) }
         single<DockerClient> { DockerClientImpl(get<DockerProps>()) }
         single<DockerService> { DockerServiceImpl(get<AppProps>(), get<SyncJobProps>(), get<DockerClient>()) }
         single<GitClient> { GitClientImpl(get<GitProps>().gitAskPass) }
         single<GitService> { GitServiceImpl(get<GitProps>(), get<GitClient>()) }
-        single<SyncService> { SyncServiceImpl() }
+        single<RepoStructureService> { RepoStructureServiceImpl(get<RepoStructureProps>()) }
+        single<SyncProjectService> { SyncProjectServiceImpl(get<GitProps>()) }
+        single<GitCryptClient> { GitCryptClientImpl() }
+        single<FileReadService> { FileReadServiceImpl(get<GitCryptClient>()) }
+        single<DockerComposeService> { DockerComposeServiceImpl(get<DockerComposeClient>(), get<FileReadService>()) }
+        single<SyncService> {
+            SyncServiceImpl(
+                get<GitProps>(),
+                get<AppProps>(),
+                get<RepoStructureService>(),
+                get<SyncProjectService>(),
+                get<DockerComposeService>(),
+            )
+        }
         single<JobService> {
             JobServiceImpl(
                 appEnv = get<AppProps>(),

@@ -17,6 +17,7 @@ package io.github.xzima.docomagos.server.services
 
 import TestCreator
 import dev.mokkery.answering.calls
+import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend
 import dev.mokkery.matcher.any
 import dev.mokkery.mock
@@ -27,10 +28,14 @@ import dev.mokkery.verifyNoMoreCalls
 import dev.mokkery.verifySuspend
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.Level
+import io.github.xzima.docomagos.docker.models.ContainerState
 import io.github.xzima.docomagos.logging.configureLogging
 import io.github.xzima.docomagos.server.services.impl.DockerComposeServiceImpl
+import io.github.xzima.docomagos.server.services.models.ComposeProjectInfo
+import io.github.xzima.docomagos.server.services.models.DCProjectInfo
 import io.github.xzima.docomagos.server.services.models.ProjectInfo
 import io.github.xzima.docomagos.server.services.models.SyncStackPlan
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlinx.coroutines.*
 import okio.*
 import okio.Path.Companion.toPath
@@ -143,6 +148,60 @@ class DockerComposeServiceTest {
         }
     }
 
+    @Test
+    fun testListProjects(): Unit = runBlocking {
+        // GIVEN
+        everySuspend { dockerComposeClient.listProjects() } returns listOf(
+            dcProjectInfo("p1", ""),
+            dcProjectInfo("p2", "exited(1)"),
+            dcProjectInfo("p3", "exited(1), running(5)"),
+            dcProjectInfo("p4", "created(1), running(2), paused(3), restarting(4), removing(5), exited(6), dead(7)"),
+            dcProjectInfo("p5", "exited(1), invalid(5)"),
+            dcProjectInfo("p6", "exited(1), paused"),
+        )
+        // WHEN
+        val actual = dockerComposeService.listProjects()
+        // THEN
+        actual shouldContainExactlyInAnyOrder listOf(
+            ComposeProjectInfo(name = "p1", statuses = emptyMap(), manifestPath = "/tmp/p1/compose.yml".toPath()),
+            ComposeProjectInfo(
+                name = "p2",
+                statuses = mapOf(ContainerState.Status.EXITED to 1),
+                manifestPath = "/tmp/p2/compose.yml".toPath(),
+            ),
+            ComposeProjectInfo(
+                name = "p3",
+                statuses = mapOf(ContainerState.Status.EXITED to 1, ContainerState.Status.RUNNING to 5),
+                manifestPath = "/tmp/p3/compose.yml".toPath(),
+            ),
+            ComposeProjectInfo(
+                name = "p4",
+                statuses = mapOf(
+                    ContainerState.Status.CREATED to 1,
+                    ContainerState.Status.RUNNING to 2,
+                    ContainerState.Status.PAUSED to 3,
+                    ContainerState.Status.RESTARTING to 4,
+                    ContainerState.Status.REMOVING to 5,
+                    ContainerState.Status.EXITED to 6,
+                    ContainerState.Status.DEAD to 7,
+                ),
+                manifestPath = "/tmp/p4/compose.yml".toPath(),
+            ),
+            ComposeProjectInfo(
+                name = "p5",
+                statuses = mapOf(ContainerState.Status.EXITED to 1),
+                manifestPath = "/tmp/p5/compose.yml".toPath(),
+            ),
+            ComposeProjectInfo(
+                name = "p6",
+                statuses = mapOf(ContainerState.Status.EXITED to 1),
+                manifestPath = "/tmp/p6/compose.yml".toPath(),
+            ),
+        )
+
+        verifySuspend(mode = VerifyMode.exactly(1)) { dockerComposeClient.listProjects() }
+    }
+
     fun actualProjectInfo(name: String, isErr: Boolean = false, order: Int = Int.MAX_VALUE): ProjectInfo.Actual {
         val projectName = if (isErr) {
             "$name-err"
@@ -179,4 +238,10 @@ class DockerComposeServiceTest {
             projectSecretEnvPath = "/tmp/$envDir/secret.env".toPath(),
         )
     }
+
+    private fun dcProjectInfo(name: String, status: String): DCProjectInfo = DCProjectInfo(
+        name = name,
+        status = status,
+        manifestPath = "/tmp/$name/compose.yml",
+    )
 }

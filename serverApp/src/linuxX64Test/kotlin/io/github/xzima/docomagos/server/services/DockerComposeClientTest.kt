@@ -72,9 +72,8 @@ class DockerComposeClientTest {
         val result = dockerComposeClient.listProjects()
 
         // THEN
-        result.shouldHaveSize(1)
-        result.first() should {
-            it.name shouldBe "docker"
+        val projects = result.associateBy { it.name }
+        projects["docker"].shouldNotBeNull() should {
             it.status shouldStartWith "running"
             it.manifestPath.shouldNotBeEmpty()
         }
@@ -89,9 +88,8 @@ class DockerComposeClientTest {
         val result = dockerComposeClient.listProjects()
 
         // THEN
-        result.shouldHaveSize(1)
-        result.first() should {
-            it.name shouldBe "docker"
+        val projects = result.associateBy { it.name }
+        projects["docker"].shouldNotBeNull() should {
             it.status shouldStartWith "running"
             it.manifestPath.shouldNotBeEmpty()
         }
@@ -105,7 +103,6 @@ class DockerComposeClientTest {
 
         // THEN BEFORE
         dockerComposeClient.listProjects() should { result ->
-            result.shouldHaveSize(1)
             val projects = result.associateBy { it.name }
             projects["docker"].shouldNotBeNull() should {
                 it.status shouldStartWith "running"
@@ -128,7 +125,6 @@ class DockerComposeClientTest {
 
         // THEN UP
         dockerComposeClient.listProjects() should { result ->
-            result.shouldHaveSize(2)
             val projects = result.associateBy { it.name }
             projects["docker"].shouldNotBeNull() should {
                 it.status shouldStartWith "running"
@@ -145,7 +141,6 @@ class DockerComposeClientTest {
 
         // THEN DOWN
         dockerComposeClient.listProjects() should { result ->
-            result.shouldHaveSize(1)
             val projects = result.associateBy { it.name }
             projects["docker"].shouldNotBeNull() should {
                 it.status shouldStartWith "running"
@@ -162,7 +157,6 @@ class DockerComposeClientTest {
 
         // THEN BEFORE
         dockerComposeClient.listProjects() should { result ->
-            result.shouldHaveSize(1)
             val projects = result.associateBy { it.name }
             projects["docker"].shouldNotBeNull() should {
                 it.status shouldStartWith "running"
@@ -185,7 +179,6 @@ class DockerComposeClientTest {
 
         // THEN UP
         dockerComposeClient.listProjects() should { result ->
-            result.shouldHaveSize(1)
             val projects = result.associateBy { it.name }
             projects["docker"].shouldNotBeNull() should {
                 it.status shouldStartWith "running"
@@ -198,7 +191,6 @@ class DockerComposeClientTest {
 
         // THEN DOWN
         dockerComposeClient.listProjects() should { result ->
-            result.shouldHaveSize(1)
             val projects = result.associateBy { it.name }
             projects["docker"].shouldNotBeNull() should {
                 it.status shouldStartWith "running"

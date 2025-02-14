@@ -16,12 +16,14 @@
 package io.github.xzima.docomagos.server.services.impl
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.xzima.docomagos.docker.models.ContainerState
 import io.github.xzima.docomagos.logging.from
 import io.github.xzima.docomagos.server.services.DockerComposeClient
 import io.github.xzima.docomagos.server.services.DockerComposeService
 import io.github.xzima.docomagos.server.services.FileReadService
 import io.github.xzima.docomagos.server.services.models.ComposeProjectInfo
 import io.github.xzima.docomagos.server.services.models.SyncStackPlan
+import okio.Path.Companion.toPath
 
 private val logger = KotlinLogging.from(DockerComposeServiceImpl::class)
 
@@ -29,6 +31,12 @@ class DockerComposeServiceImpl(
     private val dockerComposeClient: DockerComposeClient,
     private val fileReadService: FileReadService,
 ) : DockerComposeService {
+    companion object {
+        private const val PROJECT_STATUS_REGEX_STATUS_NAME = "status"
+        private const val PROJECT_STATUS_REGEX_COUNT_NAME = "count"
+        private val PROJECT_STATUS_REGEX = Regex("""^(?<status>\w*)\((?<count>\d*)\)$""")
+    }
+
     override suspend fun executeSyncPlan(syncPlan: SyncStackPlan) {
         logger.debug { "Ignored stacks: ${syncPlan.ignored}" }
 
@@ -64,7 +72,23 @@ class DockerComposeServiceImpl(
         }
     }
 
-    override suspend fun listProjects(): List<ComposeProjectInfo> {
-        TODO("Not yet implemented")
+    override suspend fun listProjects(): List<ComposeProjectInfo> = dockerComposeClient.listProjects().map { p ->
+
+        val statuses = mutableMapOf<ContainerState.Status, Int>()
+        for (item in p.status.split(",")) {
+            val clearItem = item.trim()
+            val match = PROJECT_STATUS_REGEX.find(clearItem) ?: continue
+            val statusStr = match.groups[PROJECT_STATUS_REGEX_STATUS_NAME]?.value ?: continue
+            val status = ContainerState.Status.entries.firstOrNull { it.value == statusStr } ?: continue
+            val count = match.groups[PROJECT_STATUS_REGEX_COUNT_NAME]?.value?.toIntOrNull() ?: 0
+            statuses[status] = count
+        }
+        logger.debug { "Status parsing for project(${p.name}): ${p.status} -> $statuses" }
+
+        ComposeProjectInfo(
+            name = p.name,
+            statuses = statuses,
+            manifestPath = p.manifestPath.toPath(),
+        )
     }
 }
