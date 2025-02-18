@@ -16,6 +16,7 @@
 package io.github.xzima.docomagos.server.services.models
 
 import io.github.xzima.docomagos.docker.models.ContainerState
+import io.github.xzima.docomagos.docker.models.Mount
 import io.github.xzima.docomagos.docker.models.RestartPolicy
 
 data class DockerContainerInfo(
@@ -31,7 +32,7 @@ data class DockerContainerInfo(
     val envs: List<String>,
     val labels: Map<String, String>,
     val binds: List<String>,
-    // val mounts: List<Mount>,
+    val mounts: List<Mount>,
     val autoRemove: Boolean,
     val restartPolicy: RestartPolicy.Name,
 )

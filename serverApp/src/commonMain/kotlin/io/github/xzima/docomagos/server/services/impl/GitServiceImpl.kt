@@ -24,21 +24,21 @@ class GitServiceImpl(
     private val gitClient: GitClient,
 ) : GitService {
 
-    override suspend fun checkMainRepoPath() {
+    override fun checkMainRepoPath() {
         val realPath = gitClient.getRepoPathBy(gitEnv.mainRepoPath)
         if (gitEnv.mainRepoPath != realPath) {
             throw RuntimeException("unexpected git repo path. expected: ${gitEnv.mainRepoPath} actual: $realPath")
         }
     }
 
-    override suspend fun checkMainRepoUrl() {
+    override fun checkMainRepoUrl() {
         val realUrl = gitClient.getRepoUrlBy(gitEnv.mainRepoPath, gitEnv.mainRepoRemote)
         if (gitEnv.mainRepoUrl != realUrl) {
             throw RuntimeException("unexpected git repo url. expected: ${gitEnv.mainRepoUrl} actual: $realUrl")
         }
     }
 
-    override suspend fun checkMainRepoHead() {
+    override fun checkMainRepoHead() {
         gitClient.fetchRemote(
             gitEnv.mainRepoPath,
             gitEnv.mainRepoRemote,
@@ -51,12 +51,16 @@ class GitServiceImpl(
         )
     }
 
-    override suspend fun isActualRepoHead(): Boolean {
+    override fun isActualRepoHead(): Boolean {
         val headLastCommit = gitClient.getLastCommitByRef(gitEnv.mainRepoPath, GitClient.HEAD_REF_NAME)
         val remoteLastCommit = gitClient.getLastCommitByRef(
             gitEnv.mainRepoPath,
             "${gitEnv.mainRepoRemote}/${gitEnv.mainRepoBranch}",
         )
         return headLastCommit == remoteLastCommit
+    }
+
+    override fun actualizeMainRepo() {
+        TODO("Not yet implemented")
     }
 }

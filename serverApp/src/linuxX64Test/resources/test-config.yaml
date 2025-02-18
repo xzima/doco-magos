@@ -2,6 +2,7 @@ logging-level: info
 
 app:
   job-period-ms: 3000
+  ignore-repo-external-stacks-sync: true
   static-ui-path: /tmp/ui
 
 git:
@@ -10,14 +11,21 @@ git:
   main-repo-path: /tmp/repo
   git-ask-pass: /tmp/GIT_ASKPASS
   #main-repo-url:
+  #git-token:
+  #git-token-file:
+  #git-crypt-key-file:
 
 docker:
   logging-level: ALL
   unix-socket-file: /var/run/docker.sock
 
+docker-compose:
+  dry-run: false
+
 sync-job:
   container-name: doco-magos-sync-job
   container-cmd: sync
+  container-auto-remove: true
 
 ktor:
   port: 8080
@@ -27,3 +35,10 @@ ktor:
 
 rsocket:
   max-fragment-size: 1024
+
+repo-structure:
+  env-pattern: "\\.env$"
+  secret-env-pattern: "\\.secret\\.env$"
+  global-env-pattern: "^global(\\.secret)?\\.env$"
+  project-name-pattern: "^((?<order>\\d*)_)?(?<name>[-_\\w]*)$"
+  compose-name-pattern: "^(docker-)?compose.ya?ml$"

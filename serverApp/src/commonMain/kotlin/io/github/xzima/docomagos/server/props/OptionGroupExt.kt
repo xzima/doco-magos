@@ -17,8 +17,14 @@ package io.github.xzima.docomagos.server.props
 
 import com.github.ajalt.clikt.completion.CompletionCandidates
 import com.github.ajalt.clikt.core.ParameterHolder
+import com.github.ajalt.clikt.parameters.arguments.ProcessedArgument
+import com.github.ajalt.clikt.parameters.arguments.RawArgument
+import com.github.ajalt.clikt.parameters.arguments.convert
+import com.github.ajalt.clikt.parameters.options.NullableOption
 import com.github.ajalt.clikt.parameters.options.RawOption
+import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.transform.TransformContext
 
 fun ParameterHolder.customOption(
     name: String,
@@ -40,3 +46,11 @@ fun ParameterHolder.customOption(
     valueSourceKey = name,
     eager = eager,
 )
+
+private val regexConversion: TransformContext.(String) -> Regex = {
+    runCatching { Regex(it) }.getOrNull() ?: fail("A regex string is required")
+}
+
+fun RawArgument.regex(): ProcessedArgument<Regex, Regex> = convert(conversion = regexConversion)
+
+fun RawOption.regex(): NullableOption<Regex, Regex> = convert("regex", conversion = regexConversion)

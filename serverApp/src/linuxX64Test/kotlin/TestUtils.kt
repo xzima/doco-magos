@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import okio.FileSystem
 import okio.Path.Companion.toPath
 
 object TestUtils {
-    val testResourcesDir = "./src/linuxX64Test/resources".toPath()
+    val testResourcesDir = FileSystem.SYSTEM.canonicalize("./src/linuxX64Test/resources".toPath())
 }

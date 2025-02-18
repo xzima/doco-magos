@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Alex Zima(xzima@ro.ru)
+ * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,11 @@
  */
 package io.github.xzima.docomagos.server.services.models
 
-import kotlinx.serialization.*
+import io.github.xzima.docomagos.docker.models.ContainerState
+import okio.*
 
-@Serializable
-data class DCListProjects(
-    @SerialName("Name")
+data class ComposeProjectInfo(
     val name: String,
-    @SerialName("Status")
-    val status: String,
-    @SerialName("ConfigFiles")
-    val configFiles: String,
+    val statuses: Map<ContainerState.Status, Int>,
+    val manifestPath: Path,
 )

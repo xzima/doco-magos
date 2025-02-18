@@ -17,10 +17,12 @@ package io.github.xzima.docomagos.server.props
 
 import com.github.ajalt.clikt.parameters.groups.OptionGroup
 import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.types.boolean
 
 interface SyncJobProps {
     val containerName: String
     val containerCmd: String
+    val containerAutoRemove: Boolean
 }
 
 class SyncJobOptionGroup :
@@ -28,4 +30,5 @@ class SyncJobOptionGroup :
     SyncJobProps {
     override val containerName: String by customOption("sync-job.container-name").required()
     override val containerCmd: String by customOption("sync-job.container-cmd").required()
+    override val containerAutoRemove: Boolean by customOption("sync-job.container-auto-remove").boolean().required()
 }

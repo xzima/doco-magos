@@ -1,5 +1,5 @@
 /**
- * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
+ * Copyright 2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,38 +15,232 @@
  */
 package io.github.xzima.docomagos.server.services
 
-import io.kotest.common.runBlocking
-import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.should
-import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldNotBeEmpty
-import io.kotest.matchers.string.shouldStartWith
+import TestCreator
+import dev.mokkery.answering.calls
+import dev.mokkery.answering.returns
+import dev.mokkery.every
+import dev.mokkery.matcher.any
+import dev.mokkery.mock
+import dev.mokkery.resetAnswers
+import dev.mokkery.resetCalls
+import dev.mokkery.verify
+import dev.mokkery.verify.VerifyMode
+import dev.mokkery.verifyNoMoreCalls
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.Level
+import io.github.xzima.docomagos.docker.models.ContainerState
+import io.github.xzima.docomagos.logging.configureLogging
+import io.github.xzima.docomagos.server.services.impl.DockerComposeServiceImpl
+import io.github.xzima.docomagos.server.services.models.ComposeProjectInfo
+import io.github.xzima.docomagos.server.services.models.DCProjectInfo
+import io.github.xzima.docomagos.server.services.models.ProjectInfo
+import io.github.xzima.docomagos.server.services.models.SyncStackPlan
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import okio.*
+import okio.Path.Companion.toPath
+import kotlin.test.AfterTest
+import kotlin.test.BeforeClass
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class DockerComposeServiceTest {
+    companion object {
+        @BeforeClass
+        fun setUp() = KotlinLogging.configureLogging(Level.TRACE)
+    }
 
-    private val service = DockerComposeService()
+    private val dockerComposeClient = mock<DockerComposeClient>()
+    private val fileReadService = mock<FileReadService>()
+    private lateinit var dockerComposeService: DockerComposeService
 
-    @Test
-    fun versionTest(): Unit = runBlocking {
-        // WHEN
-        val result = service.version()
+    @BeforeTest
+    fun setup() {
+        dockerComposeService = DockerComposeServiceImpl(
+            dockerComposeClient = dockerComposeClient,
+            fileReadService = fileReadService,
+        )
+    }
 
-        // THEN
-        result.version shouldBe "2.31.0"
+    @AfterTest
+    fun tearDown() {
+        verifyNoMoreCalls(dockerComposeClient, fileReadService)
+        resetCalls(dockerComposeClient, fileReadService)
+        resetAnswers(dockerComposeClient, fileReadService)
     }
 
     @Test
-    fun listProjectsTest(): Unit = runBlocking {
+    fun testExecuteSyncPlan() {
+        // GIVEN
+        every { dockerComposeClient.down(any()) } calls {
+            val manifestPath = it.arg<Path>(0)
+            if ("err" in manifestPath.toString()) {
+                throw RuntimeException("exception with $manifestPath")
+            }
+        }
+        every { dockerComposeClient.up(any(), any(), any(), any()) } calls {
+            val manifestPath = it.arg<Path>(0)
+            if ("err" in manifestPath.toString()) {
+                throw RuntimeException("exception with $manifestPath")
+            }
+        }
+        every { fileReadService.readAndMergeEnvs(any<ProjectInfo.Expected>(), false) } calls {
+            val projectInfo = it.arg<ProjectInfo.Expected>(0)
+            val envsPath = listOfNotNull(projectInfo.projectEnvPath, projectInfo.projectSecretEnvPath)
+            if (envsPath.any { "err" in it.toString() }) {
+                throw RuntimeException("exception with envs")
+            }
+            envsPath.associate { it.name to it.segments.size.toString() }
+        }
+
+        val da1 = actualProjectInfo(name = "da1")
+        val de1 = expectedProjectInfo(name = "de1", isEnvErr = true)
+        val da2 = actualProjectInfo(name = "da2", order = 1)
+        val de2 = expectedProjectInfo(name = "de2", isManifestErr = true, order = 1)
+        val da3 = actualProjectInfo(name = "da3", order = 10)
+        val de3 = expectedProjectInfo(name = "de3", order = 10)
+        val da4 = actualProjectInfo(name = "da4", isErr = true, order = 3)
+        val de4 = expectedProjectInfo(name = "de4", order = 3)
+        val ue1 = expectedProjectInfo(name = "ue1")
+        val ue2 = expectedProjectInfo(name = "ue2", order = 1)
+        val ue3 = expectedProjectInfo(name = "ue3", isManifestErr = true, order = 10)
+        val ue4 = expectedProjectInfo(name = "ue4", isManifestErr = true, isEnvErr = true, order = 300)
+        val ue5 = expectedProjectInfo(name = "ue5", order = 3)
+        val ue6 = expectedProjectInfo(name = "ue6", isEnvErr = true, order = 110)
+
+        @Suppress("ktlint:standard:argument-list-wrapping")
+        val syncPlan = SyncStackPlan(
+            toDown = mutableListOf(
+                da1, de1, da2, de2, da3, de3, da4, de4,
+            ),
+            toUp = mutableListOf(
+                ue1, ue2, ue3, ue4, ue5, ue6,
+            ),
+            ignored = mutableListOf(
+                actualProjectInfo(name = "ia1", isErr = true, order = 404),
+                expectedProjectInfo(name = "ie2"),
+            ),
+        )
+
         // WHEN
-        val result = service.listProjects()
+        dockerComposeService.executeSyncPlan(syncPlan)
 
         // THEN
-        result.shouldHaveSize(1)
-        result.first() should {
-            it.name shouldBe "docker"
-            it.status shouldStartWith "running"
-            it.configFiles.shouldNotBeEmpty()
+        verify(mode = VerifyMode.exhaustiveOrder) {
+            dockerComposeClient.down(da1.name)
+            dockerComposeClient.down(de1.name)
+            dockerComposeClient.down(da3.name)
+            dockerComposeClient.down(de3.name)
+            dockerComposeClient.down(da4.name)
+            dockerComposeClient.down(de4.name)
+            dockerComposeClient.down(da2.name)
+            dockerComposeClient.down(de2.name)
+            fileReadService.readAndMergeEnvs(ue2, false)
+            dockerComposeClient.up(ue2.manifestPath, ue2.name, any(), any())
+            fileReadService.readAndMergeEnvs(ue5, false)
+            dockerComposeClient.up(ue5.manifestPath, ue5.name, any(), any())
+            fileReadService.readAndMergeEnvs(ue3, false)
+            dockerComposeClient.up(ue3.manifestPath, ue3.name, any(), any())
+            fileReadService.readAndMergeEnvs(ue6, false)
+            fileReadService.readAndMergeEnvs(ue4, false)
+            fileReadService.readAndMergeEnvs(ue1, false)
+            dockerComposeClient.up(ue1.manifestPath, ue1.name, any(), any())
         }
     }
+
+    @Test
+    fun testListProjects() {
+        // GIVEN
+        every { dockerComposeClient.listProjects() } returns listOf(
+            dcProjectInfo("p1", ""),
+            dcProjectInfo("p2", "exited(1)"),
+            dcProjectInfo("p3", "exited(1), running(5)"),
+            dcProjectInfo("p4", "created(1), running(2), paused(3), restarting(4), removing(5), exited(6), dead(7)"),
+            dcProjectInfo("p5", "exited(1), invalid(5)"),
+            dcProjectInfo("p6", "exited(1), paused"),
+        )
+        // WHEN
+        val actual = dockerComposeService.listProjects()
+        // THEN
+        actual shouldContainExactlyInAnyOrder listOf(
+            ComposeProjectInfo(name = "p1", statuses = emptyMap(), manifestPath = "/tmp/p1/compose.yml".toPath()),
+            ComposeProjectInfo(
+                name = "p2",
+                statuses = mapOf(ContainerState.Status.EXITED to 1),
+                manifestPath = "/tmp/p2/compose.yml".toPath(),
+            ),
+            ComposeProjectInfo(
+                name = "p3",
+                statuses = mapOf(ContainerState.Status.EXITED to 1, ContainerState.Status.RUNNING to 5),
+                manifestPath = "/tmp/p3/compose.yml".toPath(),
+            ),
+            ComposeProjectInfo(
+                name = "p4",
+                statuses = mapOf(
+                    ContainerState.Status.CREATED to 1,
+                    ContainerState.Status.RUNNING to 2,
+                    ContainerState.Status.PAUSED to 3,
+                    ContainerState.Status.RESTARTING to 4,
+                    ContainerState.Status.REMOVING to 5,
+                    ContainerState.Status.EXITED to 6,
+                    ContainerState.Status.DEAD to 7,
+                ),
+                manifestPath = "/tmp/p4/compose.yml".toPath(),
+            ),
+            ComposeProjectInfo(
+                name = "p5",
+                statuses = mapOf(ContainerState.Status.EXITED to 1),
+                manifestPath = "/tmp/p5/compose.yml".toPath(),
+            ),
+            ComposeProjectInfo(
+                name = "p6",
+                statuses = mapOf(ContainerState.Status.EXITED to 1),
+                manifestPath = "/tmp/p6/compose.yml".toPath(),
+            ),
+        )
+
+        verify(mode = VerifyMode.exactly(1)) { dockerComposeClient.listProjects() }
+    }
+
+    fun actualProjectInfo(name: String, isErr: Boolean = false, order: Int = Int.MAX_VALUE): ProjectInfo.Actual {
+        val projectName = if (isErr) {
+            "$name-err"
+        } else {
+            name
+        }
+        return TestCreator.actualProjectInfo().copy(
+            name = projectName,
+            order = order,
+        )
+    }
+
+    fun expectedProjectInfo(
+        name: String,
+        isManifestErr: Boolean = false,
+        isEnvErr: Boolean = false,
+        order: Int = Int.MAX_VALUE,
+    ): ProjectInfo.Expected {
+        val manifestDir = if (isManifestErr) {
+            "$name-err"
+        } else {
+            name
+        }
+        val envDir = if (isEnvErr) {
+            "$name-err"
+        } else {
+            name
+        }
+        return TestCreator.expectedProjectInfo().copy(
+            name = name,
+            order = order,
+            manifestPath = "/tmp/$manifestDir/compose.yml".toPath(),
+            projectEnvPath = "/tmp/$envDir/.env".toPath(),
+            projectSecretEnvPath = "/tmp/$envDir/secret.env".toPath(),
+        )
+    }
+
+    private fun dcProjectInfo(name: String, status: String): DCProjectInfo = DCProjectInfo(
+        name = name,
+        status = status,
+        manifestPath = "/tmp/$name/compose.yml",
+    )
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Alex Zima(xzima@ro.ru)
+ * Copyright 2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,37 +15,11 @@
  */
 package io.github.xzima.docomagos.server.services
 
-import com.kgit2.kommand.process.Command
-import com.kgit2.kommand.process.Stdio
-import io.github.oshai.kotlinlogging.KotlinLogging
-import io.github.xzima.docomagos.logging.from
-import io.github.xzima.docomagos.server.services.models.DCListProjects
-import io.github.xzima.docomagos.server.services.models.DCVersion
-import kotlinx.coroutines.*
-import kotlinx.serialization.json.*
+import io.github.xzima.docomagos.server.services.models.ComposeProjectInfo
+import io.github.xzima.docomagos.server.services.models.SyncStackPlan
 
-private val logger = KotlinLogging.from(DockerComposeService::class)
+interface DockerComposeService {
+    fun executeSyncPlan(syncPlan: SyncStackPlan)
 
-class DockerComposeService {
-
-    suspend fun version(): DCVersion = withContext(Dispatchers.IO) {
-        val command = Command("docker-compose")
-            .args("version", "--format=json")
-            .stdout(Stdio.Pipe)
-        val child = command.spawn()
-        val output = child.waitWithOutput()
-        logger.info { "version result: $output" }
-        Json.decodeFromString<DCVersion>(output.stdout!!)
-    }
-
-    suspend fun listProjects(): List<DCListProjects> = withContext(Dispatchers.IO) {
-        val command = Command("docker-compose")
-            .args("ls", "--format=json")
-            .stdout(Stdio.Pipe)
-        val child = command.spawn()
-        val output = child.waitWithOutput()
-        // output.status == 0 //isOk
-        logger.info { "ls result: $output" }
-        Json.decodeFromString<List<DCListProjects>>(output.stdout!!)
-    }
+    fun listProjects(): List<ComposeProjectInfo>
 }

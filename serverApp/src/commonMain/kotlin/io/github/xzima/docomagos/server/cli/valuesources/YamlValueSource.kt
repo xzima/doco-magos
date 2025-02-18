@@ -30,7 +30,7 @@ class YamlValueSource(
 ) : ValueSource {
 
     private val root: YamlNode by lazy {
-        val source = FileSystem.Companion.SYSTEM.source(path.toPath())
+        val source = FileSystem.SYSTEM.source(path.toPath())
         Yaml.Companion.default.decodeFromSource<YamlNode>(source)
     }
 

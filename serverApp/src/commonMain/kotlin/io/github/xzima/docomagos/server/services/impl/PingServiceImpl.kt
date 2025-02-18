@@ -22,7 +22,7 @@ import io.github.xzima.docomagos.server.services.PingService
 private val logger = KotlinLogging.from(PingServiceImpl::class)
 
 class PingServiceImpl : PingService {
-    override suspend fun ping() {
+    override fun ping() {
         logger.info { "Ping" }
     }
 }

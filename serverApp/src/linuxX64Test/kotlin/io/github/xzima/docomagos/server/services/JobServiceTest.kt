@@ -18,10 +18,11 @@ package io.github.xzima.docomagos.server.services
 import dev.mokkery.MockMode
 import dev.mokkery.answering.returns
 import dev.mokkery.answering.throws
-import dev.mokkery.everySuspend
+import dev.mokkery.every
 import dev.mokkery.mock
 import dev.mokkery.resetAnswers
 import dev.mokkery.resetCalls
+import dev.mokkery.verify
 import dev.mokkery.verify.VerifyMode
 import dev.mokkery.verifyNoMoreCalls
 import dev.mokkery.verifySuspend
@@ -44,58 +45,116 @@ class JobServiceTest {
         override val hostname: String = "any"
         override val staticUiPath: String = "any"
         override val jobPeriodMs: Int = 100
+        override val ignoreRepoExternalStacksSync: Boolean = true
     }
 
     private val pingService = mock<PingService>(MockMode.autoUnit)
     private val gitService = mock<GitService>(MockMode.autoUnit)
     private val dockerService = mock<DockerService>(MockMode.autoUnit)
+    private val syncService = mock<SyncService>(MockMode.autoUnit)
     private lateinit var service: JobServiceImpl
 
     @BeforeTest
-    fun beforeTest(): Unit = runBlocking {
+    fun beforeTest() {
         KotlinLogging.configureLogging(Level.DEBUG)
-        service = JobServiceImpl(appEnv, pingService, gitService, dockerService)
+        service = JobServiceImpl(
+            appEnv = appEnv,
+            pingService = pingService,
+            gitService = gitService,
+            dockerService = dockerService,
+            syncService = syncService,
+        )
     }
 
     @AfterTest
-    fun afterTest(): Unit = runBlocking {
-        verifyNoMoreCalls(pingService, gitService, dockerService)
-        resetCalls(pingService, gitService, dockerService)
-        resetAnswers(pingService, gitService, dockerService)
+    fun afterTest() {
+        verifyNoMoreCalls(pingService, gitService, dockerService, syncService)
+        resetCalls(pingService, gitService, dockerService, syncService)
+        resetAnswers(pingService, gitService, dockerService, syncService)
     }
 
     @Test
-    fun testPositiveExecution(): Unit = runBlocking {
-        coroutineScope {
-            // GIVEN
-            everySuspend { gitService.isActualRepoHead() } returns true
-            val job = service.createJob(this)
+    fun testPositiveExecution() {
+        // GIVEN
+        every { gitService.isActualRepoHead() } returns true
+        every { syncService.isMainRepoStacksUpdateRequired() } returns false
 
-            // WHEN
-            job.start()
-            delay(1.seconds)
-            job.cancelAndJoin()
-
-            // THEN
-            verifySuspend(mode = VerifyMode.atLeast(9)) { pingService.ping() }
-            verifySuspend(mode = VerifyMode.atLeast(9)) { gitService.isActualRepoHead() }
+        // WHEN
+        runBlocking {
+            coroutineScope {
+                val job = service.createJob(this)
+                job.start()
+                delay(1.seconds)
+                job.cancelAndJoin()
+            }
         }
+
+        // THEN
+        verify(mode = VerifyMode.atLeast(9)) { pingService.ping() }
+        verify(mode = VerifyMode.atLeast(9)) { gitService.isActualRepoHead() }
+        verify(mode = VerifyMode.atLeast(9)) { syncService.isMainRepoStacksUpdateRequired() }
     }
 
     @Test
-    fun testFailedEachCall(): Unit = runBlocking {
-        coroutineScope {
-            // GIVEN
-            everySuspend { pingService.ping() } throws Exception("Any error")
-            val job = service.createJob(this)
+    fun testRepoNotActual() {
+        // GIVEN
+        every { gitService.isActualRepoHead() } returns false
 
-            // WHEN
-            job.start()
-            delay(200.milliseconds)
-            job.cancelAndJoin()
-
-            // THEN
-            verifySuspend(mode = VerifyMode.atLeast(1)) { pingService.ping() }
+        // WHEN
+        runBlocking {
+            coroutineScope {
+                val job = service.createJob(this)
+                job.start()
+                delay(200.milliseconds)
+                job.cancelAndJoin()
+            }
         }
+
+        // THEN
+        verify(mode = VerifyMode.atLeast(1)) { pingService.ping() }
+        verify(mode = VerifyMode.atLeast(1)) { gitService.isActualRepoHead() }
+        verifySuspend(mode = VerifyMode.atLeast(1)) { dockerService.tryStartSyncJobService() }
+    }
+
+    @Test
+    fun testRepoStacksUpdateRequired() {
+        // GIVEN
+        every { gitService.isActualRepoHead() } returns true
+        every { syncService.isMainRepoStacksUpdateRequired() } returns true
+
+        // WHEN
+        runBlocking {
+            coroutineScope {
+                val job = service.createJob(this)
+                job.start()
+                delay(200.milliseconds)
+                job.cancelAndJoin()
+            }
+        }
+
+        // THEN
+        verify(mode = VerifyMode.atLeast(1)) { pingService.ping() }
+        verify(mode = VerifyMode.atLeast(1)) { gitService.isActualRepoHead() }
+        verify(mode = VerifyMode.atLeast(1)) { syncService.isMainRepoStacksUpdateRequired() }
+        verifySuspend(mode = VerifyMode.atLeast(1)) { dockerService.tryStartSyncJobService() }
+    }
+
+    @Test
+    fun testFailedEachCall() {
+        // GIVEN
+        every { pingService.ping() } throws Exception("Any error")
+
+        // WHEN
+        runBlocking {
+            coroutineScope {
+                val job = service.createJob(this)
+                job.start()
+                delay(200.milliseconds)
+                job.cancelAndJoin()
+            }
+        }
+
+        // THEN
+        verify(mode = VerifyMode.atLeast(1)) { pingService.ping() }
     }
 }

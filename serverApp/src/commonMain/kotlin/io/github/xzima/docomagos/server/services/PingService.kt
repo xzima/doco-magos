@@ -16,5 +16,5 @@
 package io.github.xzima.docomagos.server.services
 
 interface PingService {
-    suspend fun ping()
+    fun ping()
 }

@@ -1,6 +1,6 @@
 FROM debian:12-slim
 # build args
-ARG APP_BUILD_DOCKER_COMPOSE_VERSION=v2.31.0
+ARG APP_BUILD_DOCKER_COMPOSE_VERSION=v2.32.4
 # labels
 #LABEL org.opencontainers.image.created=2017-08-28T09:24:41Z
 #LABEL org.opencontainers.image.authors=
@@ -17,7 +17,7 @@ LABEL org.opencontainers.image.description="Docker Compose management and gitops
 #LABEL org.opencontainers.image.base.digest=
 #LABEL org.opencontainers.image.base.name=
 # install curl for install docker-compose standalone
-RUN apt-get -y update; apt-get -y install curl git
+RUN apt-get -y update; apt-get -y install curl git git-crypt
 # download and install docker-compose
 RUN curl -SL https://github.com/docker/compose/releases/download/$APP_BUILD_DOCKER_COMPOSE_VERSION/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
 RUN chmod +x /usr/local/bin/docker-compose

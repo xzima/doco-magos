@@ -17,11 +17,13 @@ package io.github.xzima.docomagos.server.services
 
 interface GitService {
 
-    suspend fun checkMainRepoPath()
+    fun checkMainRepoPath()
 
-    suspend fun checkMainRepoUrl()
+    fun checkMainRepoUrl()
 
-    suspend fun checkMainRepoHead()
+    fun checkMainRepoHead()
 
-    suspend fun isActualRepoHead(): Boolean
+    fun isActualRepoHead(): Boolean
+
+    fun actualizeMainRepo()
 }

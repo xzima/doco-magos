@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Alex Zima(xzima@ro.ru)
+ * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ class KomandTest {
             .collect { logger.info { it } }
     }
 
-    private suspend fun getContainers() = withContext(Dispatchers.IO) {
+    private fun getContainers() {
         val c = Command("docker-compose").args("-p", "docker", "ps", "--format=json")
             .stdout(Stdio.Pipe).spawn()
         c.waitWithOutput()

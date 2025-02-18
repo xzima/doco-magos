@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Alex Zima(xzima@ro.ru)
+ * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@ package io.github.xzima.docomagos.server.handlers
 
 import io.github.xzima.docomagos.api.ListProjectsResp
 import io.github.xzima.docomagos.api.Req
-import io.github.xzima.docomagos.server.services.DockerComposeService
+import io.github.xzima.docomagos.server.services.DockerComposeClient
 
 class ListProjectsHandler(
-    private val service: DockerComposeService,
+    private val service: DockerComposeClient,
 ) : ReqHandler<Req.ListProjects, ListProjectsResp> {
 
     override suspend fun handle(request: Req.ListProjects): ListProjectsResp {

@@ -34,7 +34,7 @@ abstract class AbstractServeCommand : CliktCommand(name = "serve") {
 
     abstract suspend fun serveServer()
 
-    private suspend fun checkMainRepo() {
+    private fun checkMainRepo() {
         logger.debug { "main repo: start check" }
         gitService.checkMainRepoPath()
         gitService.checkMainRepoUrl()
