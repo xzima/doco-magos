@@ -36,7 +36,6 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.coroutines.*
 
 private val logger = KotlinLogging.from(DockerClientImpl::class)
 
@@ -58,27 +57,27 @@ class DockerClientImpl(
     private val containerApi = ContainerApi(ApiClient.BASE_URL, client)
     private val systemApi = SystemApi(ApiClient.BASE_URL, client)
 
-    override suspend fun systemInfo(): DockerSystemInfo = withContext(Dispatchers.IO) {
+    override suspend fun systemInfo(): DockerSystemInfo {
         val response = systemApi.systemInfo()
         val body = when (response.status) {
             HttpStatusCode.OK -> response.body()
             else -> throw DockerApiException.from(response)
         }
-        return@withContext DockerSystemInfo(
+        return DockerSystemInfo(
             daemonId = body.id,
             swarmNodeState = body.swarm?.localNodeState,
             serverVersion = body.serverVersion,
         )
     }
 
-    override suspend fun containerInfoOrNull(idOrName: String): DockerContainerInfo? = withContext(Dispatchers.IO) {
+    override suspend fun containerInfoOrNull(idOrName: String): DockerContainerInfo? {
         val response = containerApi.containerInspect(idOrName)
         val body = when (response.status) {
             HttpStatusCode.OK -> response.body()
-            HttpStatusCode.NotFound -> return@withContext null
+            HttpStatusCode.NotFound -> return null
             else -> throw DockerApiException.from(response)
         }
-        return@withContext DockerContainerInfo(
+        return DockerContainerInfo(
             id = body.id,
             name = body.name,
             imageName = body.config?.image,
@@ -102,7 +101,7 @@ class DockerClientImpl(
         cmd: String,
         source: DockerContainerInfo,
         autoRemove: Boolean,
-    ): String? = withContext(Dispatchers.IO) {
+    ): String? {
         val response = containerApi.containerCreate(
             name = name,
             body = ContainerCreateRequest(
@@ -121,7 +120,7 @@ class DockerClientImpl(
             HttpStatusCode.Conflict -> {
                 val error = response.typedBody<ErrorResponse>()
                 logger.warn { "Conflict on creation container($name): ${error.message}" }
-                return@withContext null
+                return null
             }
 
             else -> throw DockerApiException.from(response)
@@ -130,21 +129,21 @@ class DockerClientImpl(
             logger.warn { "On creation container($name): $message" }
         }
 
-        return@withContext body.id
+        return body.id
     }
 
-    override suspend fun deleteContainer(idOrName: String): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun deleteContainer(idOrName: String): Boolean {
         val response = containerApi.containerDelete(idOrName)
-        return@withContext when (response.status) {
+        return when (response.status) {
             HttpStatusCode.NoContent -> true
             HttpStatusCode.NotFound -> false
             else -> throw DockerApiException.from(response)
         }
     }
 
-    override suspend fun startContainer(idOrName: String): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun startContainer(idOrName: String): Boolean {
         val response = containerApi.containerStart(idOrName)
-        return@withContext when (response.status) {
+        return when (response.status) {
             HttpStatusCode.NoContent, HttpStatusCode.NotModified -> true
             HttpStatusCode.NotFound -> false
             else -> throw DockerApiException.from(response)

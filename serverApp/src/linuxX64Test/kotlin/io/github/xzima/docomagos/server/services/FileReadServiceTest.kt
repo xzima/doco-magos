@@ -18,14 +18,14 @@ package io.github.xzima.docomagos.server.services
 import TestUtils
 import dev.mokkery.answering.returns
 import dev.mokkery.answering.throws
-import dev.mokkery.everySuspend
+import dev.mokkery.every
 import dev.mokkery.matcher.any
 import dev.mokkery.mock
 import dev.mokkery.resetAnswers
 import dev.mokkery.resetCalls
+import dev.mokkery.verify
 import dev.mokkery.verify.VerifyMode
 import dev.mokkery.verifyNoMoreCalls
-import dev.mokkery.verifySuspend
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.Level
 import io.github.xzima.docomagos.logging.configureLogging
@@ -34,7 +34,6 @@ import io.github.xzima.docomagos.server.services.models.ProjectInfo
 import io.github.xzima.docomagos.server.services.models.RepoInfo
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.*
 import okio.*
 import okio.Path.Companion.toPath
 import kotlin.test.AfterTest
@@ -66,69 +65,69 @@ class FileReadServiceTest {
     }
 
     @Test
-    fun testCheckRepoEncryptionWithoutKeyPositive(): Unit = runBlocking {
+    fun testCheckRepoEncryptionWithoutKeyPositive() {
         // GIVEN
         val repoPath = "/tmp/test-repo"
-        everySuspend { gitCryptClient.getEncryptedFiles(any()) } returns emptySet()
+        every { gitCryptClient.getEncryptedFiles(any()) } returns emptySet()
 
         // WHEN
         fileReadService.checkRepoEncryption(repoPath, null)
 
         // THEN
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitCryptClient.getEncryptedFiles(repoPath) }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.getEncryptedFiles(repoPath) }
     }
 
     @Test
-    fun testCheckRepoEncryptionWithoutKeyNegative(): Unit = runBlocking {
+    fun testCheckRepoEncryptionWithoutKeyNegative() {
         // GIVEN
         val repoPath = "/tmp/test-repo"
-        everySuspend { gitCryptClient.getEncryptedFiles(any()) } returns setOf("any-file")
+        every { gitCryptClient.getEncryptedFiles(any()) } returns setOf("any-file")
 
         // WHEN
         val actual = shouldThrow<RuntimeException> { fileReadService.checkRepoEncryption(repoPath, null) }
 
         // THEN
         actual.message shouldBe "For repo(/tmp/test-repo) has encrypted files, but key file not specified: [any-file]"
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitCryptClient.getEncryptedFiles(repoPath) }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.getEncryptedFiles(repoPath) }
     }
 
     @Test
-    fun testCheckRepoEncryptionWithoutKeyFailed(): Unit = runBlocking {
+    fun testCheckRepoEncryptionWithoutKeyFailed() {
         // GIVEN
         val repoPath = "/tmp/test-repo"
-        everySuspend { gitCryptClient.getEncryptedFiles(any()) } throws RuntimeException("any exception")
+        every { gitCryptClient.getEncryptedFiles(any()) } throws RuntimeException("any exception")
 
         // WHEN
         val actual = shouldThrow<RuntimeException> { fileReadService.checkRepoEncryption(repoPath, null) }
 
         // THEN
         actual.message shouldBe "any exception"
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitCryptClient.getEncryptedFiles(repoPath) }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.getEncryptedFiles(repoPath) }
     }
 
     @Test
-    fun testCheckRepoEncryptionPositive(): Unit = runBlocking {
+    fun testCheckRepoEncryptionPositive() {
         // GIVEN
         val repoPath = "/tmp/test-repo"
         val repoKeyPath = "/tmp/test-repo-key"
-        everySuspend { gitCryptClient.unlockRepo(any(), any()) } returns Unit
-        everySuspend { gitCryptClient.lockRepo(any()) } returns Unit
+        every { gitCryptClient.unlockRepo(any(), any()) } returns Unit
+        every { gitCryptClient.lockRepo(any()) } returns Unit
 
         // WHEN
         fileReadService.checkRepoEncryption(repoPath, repoKeyPath)
 
         // THEN
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitCryptClient.unlockRepo(repoPath, repoKeyPath) }
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitCryptClient.lockRepo(repoPath) }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.unlockRepo(repoPath, repoKeyPath) }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.lockRepo(repoPath) }
     }
 
     @Test
-    fun testCheckRepoEncryptionFailed(): Unit = runBlocking {
+    fun testCheckRepoEncryptionFailed() {
         // GIVEN
         val repoPath = "/tmp/test-repo"
         val repoKeyPath = "/tmp/test-repo-key"
-        everySuspend { gitCryptClient.unlockRepo(any(), any()) } returns Unit
-        everySuspend { gitCryptClient.lockRepo(any()) } throws RuntimeException("any exception")
+        every { gitCryptClient.unlockRepo(any(), any()) } returns Unit
+        every { gitCryptClient.lockRepo(any()) } throws RuntimeException("any exception")
 
         // WHEN
         val actual = shouldThrow<RuntimeException> { fileReadService.checkRepoEncryption(repoPath, repoKeyPath) }
@@ -136,12 +135,12 @@ class FileReadServiceTest {
         // THEN
         actual.message shouldBe "any exception"
 
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitCryptClient.unlockRepo(repoPath, repoKeyPath) }
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitCryptClient.lockRepo(repoPath) }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.unlockRepo(repoPath, repoKeyPath) }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.lockRepo(repoPath) }
     }
 
     @Test
-    fun testReadAndMergeRepoEnvsWithoutDecryption(): Unit = runBlocking {
+    fun testReadAndMergeRepoEnvsWithoutDecryption() {
         // GIVEN
         val repoPath = TestUtils.testResourcesDir.resolve("test-repo-structure/full")
         val repoInfo = RepoInfo.BaseRepoInfo(
@@ -166,7 +165,7 @@ class FileReadServiceTest {
     }
 
     @Test
-    fun testReadAndMergeRepoEnvsWithoutEncryptedFiles(): Unit = runBlocking {
+    fun testReadAndMergeRepoEnvsWithoutEncryptedFiles() {
         // GIVEN
         val repoPath = TestUtils.testResourcesDir.resolve("test-repo-structure/full")
         val repoInfo = RepoInfo.BaseRepoInfo(
@@ -175,7 +174,7 @@ class FileReadServiceTest {
             secretEnvPath = repoPath.resolve("global.secret.env"),
             envPath = repoPath.resolve("global.env"),
         )
-        everySuspend { gitCryptClient.getEncryptedFiles(any()) } returns emptySet()
+        every { gitCryptClient.getEncryptedFiles(any()) } returns emptySet()
 
         // WHEN
         val actual = fileReadService.readAndMergeEnvs(repoInfo)
@@ -190,11 +189,11 @@ class FileReadServiceTest {
             "OVERRIDE_VAL4" to "global.env",
         )
 
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitCryptClient.getEncryptedFiles(repoPath.toString()) }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.getEncryptedFiles(repoPath.toString()) }
     }
 
     @Test
-    fun testReadAndMergeRepoEnvsWithoutEncryptedEnvs(): Unit = runBlocking {
+    fun testReadAndMergeRepoEnvsWithoutEncryptedEnvs() {
         // GIVEN
         val repoPath = TestUtils.testResourcesDir.resolve("test-repo-structure/full")
         val repoInfo = RepoInfo.BaseRepoInfo(
@@ -203,9 +202,7 @@ class FileReadServiceTest {
             secretEnvPath = repoPath.resolve("global.secret.env"),
             envPath = repoPath.resolve("global.env"),
         )
-        everySuspend { gitCryptClient.getEncryptedFiles(any()) } returns setOf(
-            "another-file",
-        )
+        every { gitCryptClient.getEncryptedFiles(any()) } returns setOf("another-file")
 
         // WHEN
         val actual = fileReadService.readAndMergeEnvs(repoInfo)
@@ -220,11 +217,11 @@ class FileReadServiceTest {
             "OVERRIDE_VAL4" to "global.env",
         )
 
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitCryptClient.getEncryptedFiles(repoPath.toString()) }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.getEncryptedFiles(repoPath.toString()) }
     }
 
     @Test
-    fun testReadAndMergeRepoEnvsPositive(): Unit = runBlocking {
+    fun testReadAndMergeRepoEnvsPositive() {
         // GIVEN
         val repoPath = TestUtils.testResourcesDir.resolve("test-repo-structure/full")
         val repoInfo = RepoInfo.BaseRepoInfo(
@@ -233,11 +230,9 @@ class FileReadServiceTest {
             secretEnvPath = repoPath.resolve("global.secret.env"),
             envPath = repoPath.resolve("global.env"),
         )
-        everySuspend { gitCryptClient.getEncryptedFiles(any()) } returns setOf(
-            "global.secret.env",
-        )
-        everySuspend { gitCryptClient.unlockRepo(any(), any()) } returns Unit
-        everySuspend { gitCryptClient.lockRepo(any()) } returns Unit
+        every { gitCryptClient.getEncryptedFiles(any()) } returns setOf("global.secret.env")
+        every { gitCryptClient.unlockRepo(any(), any()) } returns Unit
+        every { gitCryptClient.lockRepo(any()) } returns Unit
 
         // WHEN
         val actual = fileReadService.readAndMergeEnvs(repoInfo)
@@ -252,15 +247,13 @@ class FileReadServiceTest {
             "OVERRIDE_VAL4" to "global.env",
         )
 
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitCryptClient.getEncryptedFiles(repoPath.toString()) }
-        verifySuspend(mode = VerifyMode.exactly(1)) {
-            gitCryptClient.unlockRepo(repoPath.toString(), "/tmp/test-secret-key")
-        }
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitCryptClient.lockRepo(repoPath.toString()) }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.getEncryptedFiles(repoPath.toString()) }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.unlockRepo(repoPath.toString(), "/tmp/test-secret-key") }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.lockRepo(repoPath.toString()) }
     }
 
     @Test
-    fun testReadAndMergeProjectEnvsPositive(): Unit = runBlocking {
+    fun testReadAndMergeProjectEnvsPositive() {
         // GIVEN
         val repoPath = TestUtils.testResourcesDir.resolve("test-repo-structure/full")
         val repoInfo = ProjectInfo.Expected(
@@ -275,11 +268,9 @@ class FileReadServiceTest {
             projectEnvPath = repoPath.resolve("1_simple-order/.env"),
             projectSecretEnvPath = repoPath.resolve("1_simple-order/.secret.env"),
         )
-        everySuspend { gitCryptClient.getEncryptedFiles(any()) } returns setOf(
-            "global.secret.env",
-        )
-        everySuspend { gitCryptClient.unlockRepo(any(), any()) } returns Unit
-        everySuspend { gitCryptClient.lockRepo(any()) } returns Unit
+        every { gitCryptClient.getEncryptedFiles(any()) } returns setOf("global.secret.env")
+        every { gitCryptClient.unlockRepo(any(), any()) } returns Unit
+        every { gitCryptClient.lockRepo(any()) } returns Unit
 
         // WHEN
         val actual = fileReadService.readAndMergeEnvs(repoInfo, maskSecrets = false)
@@ -296,15 +287,13 @@ class FileReadServiceTest {
             "OVERRIDE_VAL4" to "global.env",
         )
 
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitCryptClient.getEncryptedFiles(repoPath.toString()) }
-        verifySuspend(mode = VerifyMode.exactly(1)) {
-            gitCryptClient.unlockRepo(repoPath.toString(), "/tmp/test-secret-key")
-        }
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitCryptClient.lockRepo(repoPath.toString()) }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.getEncryptedFiles(repoPath.toString()) }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.unlockRepo(repoPath.toString(), "/tmp/test-secret-key") }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.lockRepo(repoPath.toString()) }
     }
 
     @Test
-    fun testReadAndMergeRepoEnvsFailedUnlock(): Unit = runBlocking {
+    fun testReadAndMergeRepoEnvsFailedUnlock() {
         // GIVEN
         val repoPath = TestUtils.testResourcesDir.resolve("test-repo-structure/full")
         val repoInfo = ProjectInfo.Expected(
@@ -319,10 +308,8 @@ class FileReadServiceTest {
             projectEnvPath = repoPath.resolve("1_simple-order/.env"),
             projectSecretEnvPath = repoPath.resolve("1_simple-order/.secret.env"),
         )
-        everySuspend { gitCryptClient.getEncryptedFiles(any()) } returns setOf(
-            "global.secret.env",
-        )
-        everySuspend { gitCryptClient.unlockRepo(any(), any()) } throws RuntimeException("any exception")
+        every { gitCryptClient.getEncryptedFiles(any()) } returns setOf("global.secret.env")
+        every { gitCryptClient.unlockRepo(any(), any()) } throws RuntimeException("any exception")
 
         // WHEN
         val actual = shouldThrow<RuntimeException> { fileReadService.readAndMergeEnvs(repoInfo, maskSecrets = false) }
@@ -330,14 +317,12 @@ class FileReadServiceTest {
         // THEN
         actual.message shouldBe "any exception"
 
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitCryptClient.getEncryptedFiles(repoPath.toString()) }
-        verifySuspend(mode = VerifyMode.exactly(1)) {
-            gitCryptClient.unlockRepo(repoPath.toString(), "/tmp/test-secret-key")
-        }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.getEncryptedFiles(repoPath.toString()) }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.unlockRepo(repoPath.toString(), "/tmp/test-secret-key") }
     }
 
     @Test
-    fun testReadAndMergeRepoEnvsFailedLock(): Unit = runBlocking {
+    fun testReadAndMergeRepoEnvsFailedLock() {
         // GIVEN
         val repoPath = TestUtils.testResourcesDir.resolve("test-repo-structure/full")
         val repoInfo = RepoInfo.BaseRepoInfo(
@@ -346,11 +331,9 @@ class FileReadServiceTest {
             secretEnvPath = repoPath.resolve("global.secret.env"),
             envPath = repoPath.resolve("global.env"),
         )
-        everySuspend { gitCryptClient.getEncryptedFiles(any()) } returns setOf(
-            "global.secret.env",
-        )
-        everySuspend { gitCryptClient.unlockRepo(any(), any()) } returns Unit
-        everySuspend { gitCryptClient.lockRepo(any()) } throws RuntimeException("any exception")
+        every { gitCryptClient.getEncryptedFiles(any()) } returns setOf("global.secret.env")
+        every { gitCryptClient.unlockRepo(any(), any()) } returns Unit
+        every { gitCryptClient.lockRepo(any()) } throws RuntimeException("any exception")
 
         // WHEN
         val actual = fileReadService.readAndMergeEnvs(repoInfo)
@@ -365,15 +348,13 @@ class FileReadServiceTest {
             "OVERRIDE_VAL4" to "global.env",
         )
 
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitCryptClient.getEncryptedFiles(repoPath.toString()) }
-        verifySuspend(mode = VerifyMode.exactly(1)) {
-            gitCryptClient.unlockRepo(repoPath.toString(), "/tmp/test-secret-key")
-        }
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitCryptClient.lockRepo(repoPath.toString()) }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.getEncryptedFiles(repoPath.toString()) }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.unlockRepo(repoPath.toString(), "/tmp/test-secret-key") }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.lockRepo(repoPath.toString()) }
     }
 
     @Test
-    fun testReadAndMergeRepoEnvsFailedReadEnvs(): Unit = runBlocking {
+    fun testReadAndMergeRepoEnvsFailedReadEnvs() {
         // GIVEN
         val repoPath = TestUtils.testResourcesDir.resolve("test-repo-structure/full")
         val repoInfo = RepoInfo.BaseRepoInfo(
@@ -382,11 +363,9 @@ class FileReadServiceTest {
             secretEnvPath = repoPath.resolve("global.secret.env"),
             envPath = repoPath.resolve("404.env"),
         )
-        everySuspend { gitCryptClient.getEncryptedFiles(any()) } returns setOf(
-            "global.secret.env",
-        )
-        everySuspend { gitCryptClient.unlockRepo(any(), any()) } returns Unit
-        everySuspend { gitCryptClient.lockRepo(any()) } returns Unit
+        every { gitCryptClient.getEncryptedFiles(any()) } returns setOf("global.secret.env")
+        every { gitCryptClient.unlockRepo(any(), any()) } returns Unit
+        every { gitCryptClient.lockRepo(any()) } returns Unit
 
         // WHEN
         val actual = shouldThrow<FileNotFoundException> { fileReadService.readAndMergeEnvs(repoInfo) }
@@ -394,10 +373,8 @@ class FileReadServiceTest {
         // THEN
         actual.message shouldBe "No such file or directory"
 
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitCryptClient.getEncryptedFiles(repoPath.toString()) }
-        verifySuspend(mode = VerifyMode.exactly(1)) {
-            gitCryptClient.unlockRepo(repoPath.toString(), "/tmp/test-secret-key")
-        }
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitCryptClient.lockRepo(repoPath.toString()) }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.getEncryptedFiles(repoPath.toString()) }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.unlockRepo(repoPath.toString(), "/tmp/test-secret-key") }
+        verify(mode = VerifyMode.exactly(1)) { gitCryptClient.lockRepo(repoPath.toString()) }
     }
 }

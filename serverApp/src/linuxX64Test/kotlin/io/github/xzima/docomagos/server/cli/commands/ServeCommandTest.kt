@@ -19,10 +19,12 @@ import com.github.ajalt.clikt.testing.test
 import dev.mokkery.MockMode
 import dev.mokkery.answering.returns
 import dev.mokkery.answering.throws
+import dev.mokkery.every
 import dev.mokkery.everySuspend
 import dev.mokkery.mock
 import dev.mokkery.resetAnswers
 import dev.mokkery.resetCalls
+import dev.mokkery.verify
 import dev.mokkery.verify.VerifyMode
 import dev.mokkery.verifyNoMoreCalls
 import dev.mokkery.verifySuspend
@@ -30,7 +32,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.Level
 import io.github.xzima.docomagos.koin.configureKoin
 import io.github.xzima.docomagos.logging.configureLogging
-import io.github.xzima.docomagos.server.cli.commands.AbstractServeCommand
 import io.github.xzima.docomagos.server.services.GitService
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.common.runBlocking
@@ -76,16 +77,16 @@ class ServeCommandTest {
         // THEN
         actual.statusCode shouldBe 0
 
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoPath() }
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoUrl() }
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoHead() }
+        verify(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoPath() }
+        verify(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoUrl() }
+        verify(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoHead() }
         verifySuspend(mode = VerifyMode.exactly(1)) { serveServerFun() }
     }
 
     @Test
-    fun testFailRepoPathCheck(): Unit = runBlocking {
+    fun testFailRepoPathCheck() {
         // GIVEN
-        everySuspend { gitService.checkMainRepoPath() } throws Exception("any exception")
+        every { gitService.checkMainRepoPath() } throws Exception("any exception")
 
         // WHEN
         val actual = shouldThrow<Exception> { command.test() }
@@ -93,13 +94,13 @@ class ServeCommandTest {
         // THEN
         actual.message shouldBe "any exception"
 
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoPath() }
+        verify(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoPath() }
     }
 
     @Test
-    fun testFailRepoUrlCheck(): Unit = runBlocking {
+    fun testFailRepoUrlCheck() {
         // GIVEN
-        everySuspend { gitService.checkMainRepoUrl() } throws Exception("any exception")
+        every { gitService.checkMainRepoUrl() } throws Exception("any exception")
 
         // WHEN
         val actual = shouldThrow<Exception> { command.test() }
@@ -107,14 +108,14 @@ class ServeCommandTest {
         // THEN
         actual.message shouldBe "any exception"
 
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoPath() }
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoUrl() }
+        verify(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoPath() }
+        verify(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoUrl() }
     }
 
     @Test
-    fun testFailRepoHeadCheck(): Unit = runBlocking {
+    fun testFailRepoHeadCheck() {
         // GIVEN
-        everySuspend { gitService.checkMainRepoHead() } throws Exception("any exception")
+        every { gitService.checkMainRepoHead() } throws Exception("any exception")
 
         // WHEN
         val actual = shouldThrow<Exception> { command.test() }
@@ -122,9 +123,9 @@ class ServeCommandTest {
         // THEN
         actual.message shouldBe "any exception"
 
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoPath() }
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoUrl() }
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoHead() }
+        verify(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoPath() }
+        verify(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoUrl() }
+        verify(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoHead() }
     }
 
     @Test
@@ -138,9 +139,9 @@ class ServeCommandTest {
         // THEN
         actual.message shouldBe "any exception"
 
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoPath() }
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoUrl() }
-        verifySuspend(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoHead() }
+        verify(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoPath() }
+        verify(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoUrl() }
+        verify(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoHead() }
         verifySuspend(mode = VerifyMode.exactly(1)) { serveServerFun() }
     }
 }

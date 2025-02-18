@@ -22,31 +22,26 @@ interface GitClient {
         const val HEAD_REF_NAME = "HEAD"
     }
 
-    suspend fun version(): GitVersion?
+    fun version(): GitVersion?
 
     /**
      * @return is success
      */
-    suspend fun cloneRepo(
-        repoUrl: String,
-        repoPath: String,
-        gitToken: String? = null,
-        gitTokenFile: String? = null,
-    ): Boolean
+    fun cloneRepo(repoUrl: String, repoPath: String, gitToken: String? = null, gitTokenFile: String? = null): Boolean
 
     /**
      * @return repo root path
      */
-    suspend fun getRepoPathBy(repoPath: String): String?
+    fun getRepoPathBy(repoPath: String): String?
 
     /**
      * @return repo origin url
      */
-    suspend fun getRepoUrlBy(repoPath: String, remote: String): String?
+    fun getRepoUrlBy(repoPath: String, remote: String): String?
 
-    suspend fun fetchRemote(repoPath: String, remote: String, gitToken: String? = null, gitTokenFile: String? = null)
+    fun fetchRemote(repoPath: String, remote: String, gitToken: String? = null, gitTokenFile: String? = null)
 
-    suspend fun hardResetHeadToRef(repoPath: String, ref: String): Boolean
+    fun hardResetHeadToRef(repoPath: String, ref: String): Boolean
 
-    suspend fun getLastCommitByRef(repoPath: String, ref: String): String?
+    fun getLastCommitByRef(repoPath: String, ref: String): String?
 }

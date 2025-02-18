@@ -16,11 +16,11 @@
 package io.github.xzima.docomagos.server.services
 
 interface GitCryptClient {
-    suspend fun version(): String?
+    fun version(): String?
 
-    suspend fun getEncryptedFiles(repoRoot: String): Set<String>
+    fun getEncryptedFiles(repoRoot: String): Set<String>
 
-    suspend fun unlockRepo(repoRoot: String, keyFilePath: String)
+    fun unlockRepo(repoRoot: String, keyFilePath: String)
 
-    suspend fun lockRepo(repoRoot: String)
+    fun lockRepo(repoRoot: String)
 }

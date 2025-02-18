@@ -22,7 +22,6 @@ import io.github.xzima.docomagos.logging.from
 import io.github.xzima.docomagos.server.services.DockerComposeClient
 import io.github.xzima.docomagos.server.services.models.DCProjectInfo
 import io.github.xzima.docomagos.server.services.models.DCVersion
-import kotlinx.coroutines.*
 import okio.*
 
 private val logger = KotlinLogging.from(DockerComposeClientImpl::class)
@@ -32,25 +31,25 @@ class DockerComposeClientImpl(
 ) : KommandClient("docker-compose"),
     DockerComposeClient {
 
-    override suspend fun version(): DCVersion = withContext(Dispatchers.IO) {
+    override fun version(): DCVersion {
         val output = cmd {
             args("version", "--format=json")
         }
         logger.debug { "version result: $output" }
 
-        return@withContext output.decode<DCVersion>()
+        return output.decode<DCVersion>()
     }
 
-    override suspend fun listProjects(): List<DCProjectInfo> = withContext(Dispatchers.IO) {
+    override fun listProjects(): List<DCProjectInfo> {
         val output = cmd {
             args("ls", "--all", "--format=json")
         }
         logger.debug { "ls result: $output" }
 
-        return@withContext output.decode<List<DCProjectInfo>>()
+        return output.decode<List<DCProjectInfo>>()
     }
 
-    override suspend fun down(stackName: String) {
+    override fun down(stackName: String) {
         val output = cmd {
             args("-p=$stackName", "down", "--remove-orphans", "--rmi=all", "-v")
         }
@@ -60,7 +59,7 @@ class DockerComposeClientImpl(
         output.propagateWarn()
     }
 
-    override suspend fun up(manifestPath: Path, stackName: String, stackPath: Path, envs: Map<String, String>) {
+    override fun up(manifestPath: Path, stackName: String, stackPath: Path, envs: Map<String, String>) {
         val output = cmd {
             args("-p=$stackName", "--project-directory=$stackPath", "-f=$manifestPath", "up", "-d", "--remove-orphans")
             envs(envs)

@@ -21,11 +21,11 @@ import okio.*
 
 interface DockerComposeClient {
 
-    suspend fun version(): DCVersion
+    fun version(): DCVersion
 
-    suspend fun listProjects(): List<DCProjectInfo>
+    fun listProjects(): List<DCProjectInfo>
 
-    suspend fun down(stackName: String)
+    fun down(stackName: String)
 
-    suspend fun up(manifestPath: Path, stackName: String, stackPath: Path, envs: Map<String, String>)
+    fun up(manifestPath: Path, stackName: String, stackPath: Path, envs: Map<String, String>)
 }

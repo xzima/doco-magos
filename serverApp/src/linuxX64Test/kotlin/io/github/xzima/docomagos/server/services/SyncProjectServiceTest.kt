@@ -61,7 +61,7 @@ class SyncProjectServiceTest {
     }
 
     @Test
-    fun testIsUpdateRequiredForProjectWithIgnoreExternal(): Unit = runBlocking {
+    fun testIsUpdateRequiredForProjectWithIgnoreExternal() {
         // GIVEN
         val allCases = generateCases()
 
@@ -97,7 +97,7 @@ class SyncProjectServiceTest {
     }
 
     @Test
-    fun testIsUpdateRequiredForProjectWithoutIgnoreExternal(): Unit = runBlocking {
+    fun testIsUpdateRequiredForProjectWithoutIgnoreExternal() {
         // GIVEN
         val allCases = generateCases()
 
@@ -131,7 +131,7 @@ class SyncProjectServiceTest {
     }
 
     @Test
-    fun testAddSyncPlanForProjectWithIgnoreExternal(): Unit = runBlocking {
+    fun testAddSyncPlanForProjectWithIgnoreExternal() {
         // GIVEN
         val allCases = generateCases()
 
@@ -182,7 +182,7 @@ class SyncProjectServiceTest {
     }
 
     @Test
-    fun testAddSyncPlanForProjectWithoutIgnoreExternal(): Unit = runBlocking {
+    fun testAddSyncPlanForProjectWithoutIgnoreExternal() {
         // GIVEN
         val allCases = generateCases()
 

@@ -37,7 +37,7 @@ class DockerComposeServiceImpl(
         private val PROJECT_STATUS_REGEX = Regex("""^(?<status>\w*)\((?<count>\d*)\)$""")
     }
 
-    override suspend fun executeSyncPlan(syncPlan: SyncStackPlan) {
+    override fun executeSyncPlan(syncPlan: SyncStackPlan) {
         logger.trace { "Ignored stacks: ${syncPlan.ignored}" }
 
         val toDown = syncPlan.toDown.sortedByDescending { it.order }
@@ -72,7 +72,7 @@ class DockerComposeServiceImpl(
         }
     }
 
-    override suspend fun listProjects(): List<ComposeProjectInfo> = dockerComposeClient.listProjects().map { p ->
+    override fun listProjects(): List<ComposeProjectInfo> = dockerComposeClient.listProjects().map { p ->
 
         val statuses = mutableMapOf<ContainerState.Status, Int>()
         for (item in p.status.split(",")) {

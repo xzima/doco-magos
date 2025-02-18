@@ -38,44 +38,39 @@ class GitClientImpl(
         private val VERSION_REGEX = Regex("^git version (?<version>.*)$")
     }
 
-    override suspend fun version(): GitVersion? = withContext(Dispatchers.IO) {
+    override fun version(): GitVersion? {
         val output = cmd {
             args("--version")
         }
         logger.debug { "version result: $output" }
 
-        val result = output.resultOrNull() ?: return@withContext null
+        val result = output.resultOrNull() ?: return null
         val version = VERSION_REGEX.find(result)
             ?.groups
             ?.get("version")
             ?.value
-            ?.trim() ?: return@withContext null
+            ?.trim() ?: return null
 
-        return@withContext GitVersion(version)
+        return GitVersion(version)
     }
 
     /**
      * @return is success
      */
-    override suspend fun cloneRepo(
-        repoUrl: String,
-        repoPath: String,
-        gitToken: String?,
-        gitTokenFile: String?,
-    ): Boolean = withContext(Dispatchers.IO) {
+    override fun cloneRepo(repoUrl: String, repoPath: String, gitToken: String?, gitTokenFile: String?): Boolean {
         val output = cmd {
             args("clone", repoUrl, repoPath)
             configureCredentials(gitToken = gitToken, gitTokenFile = gitTokenFile)
         }
         logger.debug { "clone result: $output" }
 
-        return@withContext 0 == output.status
+        return 0 == output.status
     }
 
     /**
      * @return repo root path
      */
-    override suspend fun getRepoPathBy(repoPath: String): String? = withContext(Dispatchers.IO) {
+    override fun getRepoPathBy(repoPath: String): String? {
         val output = cmd {
             cwd(repoPath)
             args("rev-parse", "--show-toplevel")
@@ -83,13 +78,13 @@ class GitClientImpl(
 
         logger.debug { "get repo path result: $output" }
 
-        return@withContext output.resultOrNull()
+        return output.resultOrNull()
     }
 
     /**
      * @return repo origin url
      */
-    override suspend fun getRepoUrlBy(repoPath: String, remote: String): String? = withContext(Dispatchers.IO) {
+    override fun getRepoUrlBy(repoPath: String, remote: String): String? {
         val output = cmd {
             cwd(repoPath)
             args("remote", "get-url", remote)
@@ -97,15 +92,10 @@ class GitClientImpl(
 
         logger.debug { "get repo url result: $output" }
 
-        return@withContext output.resultOrNull()
+        return output.resultOrNull()
     }
 
-    override suspend fun fetchRemote(
-        repoPath: String,
-        remote: String,
-        gitToken: String?,
-        gitTokenFile: String?,
-    ): Unit = withContext(Dispatchers.IO) {
+    override fun fetchRemote(repoPath: String, remote: String, gitToken: String?, gitTokenFile: String?) {
         val output = cmd {
             cwd(repoPath)
             args("fetch", remote)
@@ -117,7 +107,7 @@ class GitClientImpl(
         output.resultOrNull()
     }
 
-    override suspend fun hardResetHeadToRef(repoPath: String, ref: String): Boolean = withContext(Dispatchers.IO) {
+    override fun hardResetHeadToRef(repoPath: String, ref: String): Boolean {
         val output = cmd {
             cwd(repoPath)
             args("reset", "--hard", ref)
@@ -125,10 +115,10 @@ class GitClientImpl(
 
         logger.debug { "hard reset repo result: $output" }
 
-        return@withContext 0 == output.status
+        return 0 == output.status
     }
 
-    override suspend fun getLastCommitByRef(repoPath: String, ref: String): String? = withContext(Dispatchers.IO) {
+    override fun getLastCommitByRef(repoPath: String, ref: String): String? {
         val output = cmd {
             cwd(repoPath)
             args("rev-parse", ref)
@@ -136,7 +126,7 @@ class GitClientImpl(
 
         logger.debug { "get last commit by ref=$ref result: $output" }
 
-        return@withContext output.resultOrNull()
+        return output.resultOrNull()
     }
 
     private fun Command.configureCredentials(gitToken: String? = null, gitTokenFile: String? = null) {

@@ -20,7 +20,6 @@ import io.github.xzima.docomagos.logging.from
 import io.github.xzima.docomagos.server.props.RepoStructureProps
 import io.github.xzima.docomagos.server.services.RepoStructureService
 import io.github.xzima.docomagos.server.services.models.RepoInfo
-import kotlinx.coroutines.*
 import okio.*
 
 private val logger = KotlinLogging.from(RepoStructureServiceImpl::class)
@@ -33,113 +32,111 @@ class RepoStructureServiceImpl(
         private const val PROJECT_ORDER_REGEX_GROUP_NAME = "order"
     }
 
-    override suspend fun getBaseInfo(repoPath: Path, repoEncryptionKeyPath: Path?): RepoInfo.BaseRepoInfo =
-        withContext(Dispatchers.IO) {
-            val globalSecretEnvPaths = mutableListOf<Path>()
-            val globalEnvPaths = mutableListOf<Path>()
-            for (repoEntryPath in FileSystem.Companion.SYSTEM.list(repoPath)) {
-                val repoEntryMeta = FileSystem.Companion.SYSTEM.metadata(repoEntryPath)
-                if (repoEntryMeta.isRegularFile) {
+    override fun getBaseInfo(repoPath: Path, repoEncryptionKeyPath: Path?): RepoInfo.BaseRepoInfo {
+        val globalSecretEnvPaths = mutableListOf<Path>()
+        val globalEnvPaths = mutableListOf<Path>()
+        for (repoEntryPath in FileSystem.Companion.SYSTEM.list(repoPath)) {
+            val repoEntryMeta = FileSystem.Companion.SYSTEM.metadata(repoEntryPath)
+            if (repoEntryMeta.isRegularFile) {
+                if (!repoProps.globalEnvPattern.containsMatchIn(repoEntryPath.name)) continue
+                when {
+                    repoProps.secretEnvPattern.containsMatchIn(repoEntryPath.name) -> {
+                        globalSecretEnvPaths.add(repoEntryPath)
+                    }
+
+                    repoProps.envPattern.containsMatchIn(repoEntryPath.name) -> globalEnvPaths.add(repoEntryPath)
+                }
+            }
+        }
+        val globalSecretEnvPath = globalSecretEnvPaths.singleOrWarn(
+            "can't select secret env file for repo($repoPath) from: $globalSecretEnvPaths",
+        )
+
+        val globalEnvPath = globalEnvPaths.singleOrWarn(
+            "can't select env file for repo($repoPath) from: $globalEnvPaths",
+        )
+
+        return RepoInfo.BaseRepoInfo(
+            path = repoPath,
+            encryptionKeyFilePath = repoEncryptionKeyPath,
+            secretEnvPath = globalSecretEnvPath,
+            envPath = globalEnvPath,
+        )
+    }
+
+    override fun getFullInfo(repoPath: Path, repoEncryptionKeyPath: Path?): RepoInfo.FullRepoInfo {
+        val globalEnvPaths = mutableListOf<Path>()
+        val globalSecretEnvPaths = mutableListOf<Path>()
+        val projects = mutableListOf<RepoInfo.FullRepoInfo.RepoProjectInfo>()
+        for (repoEntryPath in FileSystem.Companion.SYSTEM.list(repoPath)) {
+            val repoEntryMeta = FileSystem.Companion.SYSTEM.metadata(repoEntryPath)
+            when {
+                repoEntryMeta.isRegularFile -> {
                     if (!repoProps.globalEnvPattern.containsMatchIn(repoEntryPath.name)) continue
                     when {
                         repoProps.secretEnvPattern.containsMatchIn(repoEntryPath.name) -> {
                             globalSecretEnvPaths.add(repoEntryPath)
                         }
 
-                        repoProps.envPattern.containsMatchIn(repoEntryPath.name) -> globalEnvPaths.add(repoEntryPath)
-                    }
-                }
-            }
-            val globalSecretEnvPath = globalSecretEnvPaths.singleOrWarn(
-                "can't select secret env file for repo($repoPath) from: $globalSecretEnvPaths",
-            )
+                        repoProps.envPattern.containsMatchIn(repoEntryPath.name) -> {
+                            globalEnvPaths.add(repoEntryPath)
+                        }
 
-            val globalEnvPath = globalEnvPaths.singleOrWarn(
-                "can't select env file for repo($repoPath) from: $globalEnvPaths",
-            )
-
-            return@withContext RepoInfo.BaseRepoInfo(
-                path = repoPath,
-                encryptionKeyFilePath = repoEncryptionKeyPath,
-                secretEnvPath = globalSecretEnvPath,
-                envPath = globalEnvPath,
-            )
-        }
-
-    override suspend fun getFullInfo(repoPath: Path, repoEncryptionKeyPath: Path?): RepoInfo.FullRepoInfo =
-        withContext(Dispatchers.IO) {
-            val globalEnvPaths = mutableListOf<Path>()
-            val globalSecretEnvPaths = mutableListOf<Path>()
-            val projects = mutableListOf<RepoInfo.FullRepoInfo.RepoProjectInfo>()
-            for (repoEntryPath in FileSystem.Companion.SYSTEM.list(repoPath)) {
-                val repoEntryMeta = FileSystem.Companion.SYSTEM.metadata(repoEntryPath)
-                when {
-                    repoEntryMeta.isRegularFile -> {
-                        if (!repoProps.globalEnvPattern.containsMatchIn(repoEntryPath.name)) continue
-                        when {
-                            repoProps.secretEnvPattern.containsMatchIn(repoEntryPath.name) -> {
-                                globalSecretEnvPaths.add(repoEntryPath)
-                            }
-
-                            repoProps.envPattern.containsMatchIn(repoEntryPath.name) -> {
-                                globalEnvPaths.add(repoEntryPath)
-                            }
-
-                            else -> logger.warn {
-                                "File $repoEntryPath match global env pattern, but not match specified env patterns"
-                            }
+                        else -> logger.warn {
+                            "File $repoEntryPath match global env pattern, but not match specified env patterns"
                         }
                     }
+                }
 
-                    repoEntryMeta.isDirectory -> {
-                        val regexGroups = repoProps.projectNamePattern.find(repoEntryPath.name)?.groups ?: continue
-                        val projectName = regexGroups[PROJECT_NAME_REGEX_GROUP_NAME]?.value ?: continue
-                        val projectOrder = regexGroups[PROJECT_ORDER_REGEX_GROUP_NAME]?.value?.toInt() ?: Int.MAX_VALUE
+                repoEntryMeta.isDirectory -> {
+                    val regexGroups = repoProps.projectNamePattern.find(repoEntryPath.name)?.groups ?: continue
+                    val projectName = regexGroups[PROJECT_NAME_REGEX_GROUP_NAME]?.value ?: continue
+                    val projectOrder = regexGroups[PROJECT_ORDER_REGEX_GROUP_NAME]?.value?.toInt() ?: Int.MAX_VALUE
 
-                        val (composePaths, projectEnvPaths, projectSecretEnvPaths) = getProjectInfo(repoEntryPath)
+                    val (composePaths, projectEnvPaths, projectSecretEnvPaths) = getProjectInfo(repoEntryPath)
 
-                        val composePath = composePaths.singleOrWarn(
-                            "ignore project($repoEntryPath) because too many composes: $composePaths",
-                        ) ?: continue
+                    val composePath = composePaths.singleOrWarn(
+                        "ignore project($repoEntryPath) because too many composes: $composePaths",
+                    ) ?: continue
 
-                        val secretEnvPath = projectSecretEnvPaths.singleOrWarn(
-                            "can't select secret env file for project($repoEntryPath) from: $projectSecretEnvPaths",
-                        )
+                    val secretEnvPath = projectSecretEnvPaths.singleOrWarn(
+                        "can't select secret env file for project($repoEntryPath) from: $projectSecretEnvPaths",
+                    )
 
-                        val envPath = projectEnvPaths.singleOrWarn(
-                            "can't select env file for project($repoEntryPath) from: $projectEnvPaths",
-                        )
+                    val envPath = projectEnvPaths.singleOrWarn(
+                        "can't select env file for project($repoEntryPath) from: $projectEnvPaths",
+                    )
 
-                        projects.add(
-                            RepoInfo.FullRepoInfo.RepoProjectInfo(
-                                name = projectName,
-                                path = repoEntryPath,
-                                order = projectOrder,
-                                manifestPath = composePath,
-                                secretEnvPath = secretEnvPath,
-                                envPath = envPath,
-                            ),
-                        )
-                    }
+                    projects.add(
+                        RepoInfo.FullRepoInfo.RepoProjectInfo(
+                            name = projectName,
+                            path = repoEntryPath,
+                            order = projectOrder,
+                            manifestPath = composePath,
+                            secretEnvPath = secretEnvPath,
+                            envPath = envPath,
+                        ),
+                    )
                 }
             }
-
-            val globalSecretEnvPath = globalSecretEnvPaths.singleOrWarn(
-                "can't select secret env file for repo($repoPath) from: $globalSecretEnvPaths",
-            )
-
-            val globalEnvPath = globalEnvPaths.singleOrWarn(
-                "can't select env file for repo($repoPath) from: $globalEnvPaths",
-            )
-
-            return@withContext RepoInfo.FullRepoInfo(
-                path = repoPath,
-                encryptionKeyFilePath = repoEncryptionKeyPath,
-                secretEnvPath = globalSecretEnvPath,
-                envPath = globalEnvPath,
-                projects = projects,
-            )
         }
+
+        val globalSecretEnvPath = globalSecretEnvPaths.singleOrWarn(
+            "can't select secret env file for repo($repoPath) from: $globalSecretEnvPaths",
+        )
+
+        val globalEnvPath = globalEnvPaths.singleOrWarn(
+            "can't select env file for repo($repoPath) from: $globalEnvPaths",
+        )
+
+        return RepoInfo.FullRepoInfo(
+            path = repoPath,
+            encryptionKeyFilePath = repoEncryptionKeyPath,
+            secretEnvPath = globalSecretEnvPath,
+            envPath = globalEnvPath,
+            projects = projects,
+        )
+    }
 
     /**
      * @return (composePaths, projectEnvPaths, projectSecretEnvPaths)

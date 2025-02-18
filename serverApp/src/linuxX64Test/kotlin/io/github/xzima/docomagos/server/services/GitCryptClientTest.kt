@@ -18,7 +18,6 @@ package io.github.xzima.docomagos.server.services
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.Level
 import io.github.xzima.docomagos.logging.configureLogging
-import io.github.xzima.docomagos.logging.from
 import io.github.xzima.docomagos.server.ext.dotenv.okioFileReader
 import io.github.xzima.docomagos.server.services.impl.GitClientImpl
 import io.github.xzima.docomagos.server.services.impl.GitCryptClientImpl
@@ -27,14 +26,11 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
-import kotlinx.coroutines.*
 import okio.*
 import okio.Path.Companion.toPath
 import kotlin.test.BeforeClass
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-
-private val logger = KotlinLogging.from(GitCryptClientTest::class)
 
 class GitCryptClientTest {
     companion object {
@@ -47,7 +43,7 @@ class GitCryptClientTest {
     private val gitCryptClient: GitCryptClient = GitCryptClientImpl()
 
     @BeforeTest
-    fun setup(): Unit = runBlocking {
+    fun setup() {
         val pwdPath = FileSystem.SYSTEM.canonicalize("./".toPath())
 
         val gitTokenFile = pwdPath.resolve("../.git-token", normalize = true)
@@ -65,7 +61,7 @@ class GitCryptClientTest {
     }
 
     @Test
-    fun testVersion(): Unit = runBlocking {
+    fun testVersion() {
         // WHEN
         val actual = gitCryptClient.version()
 
@@ -74,7 +70,7 @@ class GitCryptClientTest {
     }
 
     @Test
-    fun testListEncryptedFiles(): Unit = runBlocking {
+    fun testListEncryptedFiles() {
         // WHEN
         val actual = gitCryptClient.getEncryptedFiles(repoRoot.toString())
 
@@ -90,7 +86,7 @@ class GitCryptClientTest {
     }
 
     @Test
-    fun testLockUnlockRepo(): Unit = runBlocking {
+    fun testLockUnlockRepo() {
         // THEN-0
         var content = okioFileReader(repoRoot.resolve("global.secret.env")).joinToString(separator = "\n")
         content shouldContain "GITCRYPT"

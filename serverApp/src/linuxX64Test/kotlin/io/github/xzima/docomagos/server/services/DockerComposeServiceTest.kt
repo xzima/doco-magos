@@ -18,14 +18,14 @@ package io.github.xzima.docomagos.server.services
 import TestCreator
 import dev.mokkery.answering.calls
 import dev.mokkery.answering.returns
-import dev.mokkery.everySuspend
+import dev.mokkery.every
 import dev.mokkery.matcher.any
 import dev.mokkery.mock
 import dev.mokkery.resetAnswers
 import dev.mokkery.resetCalls
+import dev.mokkery.verify
 import dev.mokkery.verify.VerifyMode
 import dev.mokkery.verifyNoMoreCalls
-import dev.mokkery.verifySuspend
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.Level
 import io.github.xzima.docomagos.docker.models.ContainerState
@@ -36,7 +36,6 @@ import io.github.xzima.docomagos.server.services.models.DCProjectInfo
 import io.github.xzima.docomagos.server.services.models.ProjectInfo
 import io.github.xzima.docomagos.server.services.models.SyncStackPlan
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import kotlinx.coroutines.*
 import okio.*
 import okio.Path.Companion.toPath
 import kotlin.test.AfterTest
@@ -70,21 +69,21 @@ class DockerComposeServiceTest {
     }
 
     @Test
-    fun testExecuteSyncPlan(): Unit = runBlocking {
+    fun testExecuteSyncPlan() {
         // GIVEN
-        everySuspend { dockerComposeClient.down(any()) } calls {
+        every { dockerComposeClient.down(any()) } calls {
             val manifestPath = it.arg<Path>(0)
             if ("err" in manifestPath.toString()) {
                 throw RuntimeException("exception with $manifestPath")
             }
         }
-        everySuspend { dockerComposeClient.up(any(), any(), any(), any()) } calls {
+        every { dockerComposeClient.up(any(), any(), any(), any()) } calls {
             val manifestPath = it.arg<Path>(0)
             if ("err" in manifestPath.toString()) {
                 throw RuntimeException("exception with $manifestPath")
             }
         }
-        everySuspend { fileReadService.readAndMergeEnvs(any<ProjectInfo.Expected>(), false) } calls {
+        every { fileReadService.readAndMergeEnvs(any<ProjectInfo.Expected>(), false) } calls {
             val projectInfo = it.arg<ProjectInfo.Expected>(0)
             val envsPath = listOfNotNull(projectInfo.projectEnvPath, projectInfo.projectSecretEnvPath)
             if (envsPath.any { "err" in it.toString() }) {
@@ -126,7 +125,7 @@ class DockerComposeServiceTest {
         dockerComposeService.executeSyncPlan(syncPlan)
 
         // THEN
-        verifySuspend(mode = VerifyMode.exhaustiveOrder) {
+        verify(mode = VerifyMode.exhaustiveOrder) {
             dockerComposeClient.down(da1.name)
             dockerComposeClient.down(de1.name)
             dockerComposeClient.down(da3.name)
@@ -149,9 +148,9 @@ class DockerComposeServiceTest {
     }
 
     @Test
-    fun testListProjects(): Unit = runBlocking {
+    fun testListProjects() {
         // GIVEN
-        everySuspend { dockerComposeClient.listProjects() } returns listOf(
+        every { dockerComposeClient.listProjects() } returns listOf(
             dcProjectInfo("p1", ""),
             dcProjectInfo("p2", "exited(1)"),
             dcProjectInfo("p3", "exited(1), running(5)"),
@@ -199,7 +198,7 @@ class DockerComposeServiceTest {
             ),
         )
 
-        verifySuspend(mode = VerifyMode.exactly(1)) { dockerComposeClient.listProjects() }
+        verify(mode = VerifyMode.exactly(1)) { dockerComposeClient.listProjects() }
     }
 
     fun actualProjectInfo(name: String, isErr: Boolean = false, order: Int = Int.MAX_VALUE): ProjectInfo.Actual {

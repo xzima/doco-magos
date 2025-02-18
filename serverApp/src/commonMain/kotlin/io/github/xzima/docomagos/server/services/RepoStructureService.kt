@@ -20,7 +20,7 @@ import okio.*
 
 interface RepoStructureService {
 
-    suspend fun getBaseInfo(repoPath: Path, repoEncryptionKeyPath: Path? = null): RepoInfo.BaseRepoInfo
+    fun getBaseInfo(repoPath: Path, repoEncryptionKeyPath: Path? = null): RepoInfo.BaseRepoInfo
 
-    suspend fun getFullInfo(repoPath: Path, repoEncryptionKeyPath: Path? = null): RepoInfo.FullRepoInfo
+    fun getFullInfo(repoPath: Path, repoEncryptionKeyPath: Path? = null): RepoInfo.FullRepoInfo
 }

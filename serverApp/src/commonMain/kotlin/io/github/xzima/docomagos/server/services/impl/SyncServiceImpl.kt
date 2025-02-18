@@ -27,7 +27,6 @@ import io.github.xzima.docomagos.server.services.models.ComposeProjectInfo
 import io.github.xzima.docomagos.server.services.models.ProjectInfo
 import io.github.xzima.docomagos.server.services.models.RepoInfo
 import io.github.xzima.docomagos.server.services.models.SyncStackPlan
-import kotlinx.coroutines.*
 import okio.Path.Companion.toPath
 
 @Suppress("ktlint:standard:max-line-length")
@@ -43,7 +42,7 @@ class SyncServiceImpl(
     private val syncProjectService: SyncProjectService,
     private val dockerComposeService: DockerComposeService,
 ) : SyncService {
-    override suspend fun isMainRepoStacksUpdateRequired(): Boolean = buildProjectInfoSequence().any {
+    override fun isMainRepoStacksUpdateRequired(): Boolean = buildProjectInfoSequence().any {
         val (actualInfo, expectedInfo) = it
         val isUpdateRequired = syncProjectService.isUpdateRequiredForProject(
             actual = actualInfo,
@@ -54,7 +53,7 @@ class SyncServiceImpl(
         isUpdateRequired
     }
 
-    override suspend fun createSyncPlanForMainRepo(): SyncStackPlan = buildProjectInfoSequence()
+    override fun createSyncPlanForMainRepo(): SyncStackPlan = buildProjectInfoSequence()
         .fold(SyncStackPlan()) { plan, (actualInfo, expectedInfo) ->
             syncProjectService.addSyncPlanForProject(
                 plan = plan,
@@ -66,12 +65,17 @@ class SyncServiceImpl(
             plan
         }
 
-    private suspend fun buildProjectInfoSequence(): Sequence<Pair<ProjectInfo.Actual?, ProjectInfo.Expected?>> {
-        val (allComposeProjects, repoInfo) = asyncGetProjectInfos()
+    private fun buildProjectInfoSequence(): Sequence<Pair<ProjectInfo.Actual?, ProjectInfo.Expected?>> {
+        val allComposeProjects = dockerComposeService.listProjects()
+        val repoInfo = repoStructureService.getFullInfo(
+            repoPath = gitProps.mainRepoPath.toPath(),
+            repoEncryptionKeyPath = gitProps.gitCryptKeyFile?.toPath(),
+        )
         when {
             logger.isTraceEnabled() -> logger.trace {
                 "Project info aggregation complete:\ncompose: $allComposeProjects\nrepo: $repoInfo"
             }
+
             logger.isDebugEnabled() -> logger.debug { "Project info aggregation complete" }
         }
 
@@ -123,17 +127,5 @@ class SyncServiceImpl(
             item.add(info)
         }
         return nameToProjects
-    }
-
-    private suspend fun asyncGetProjectInfos(): Pair<List<ComposeProjectInfo>, RepoInfo.FullRepoInfo> = coroutineScope {
-        val composeProjectsDeferred = async { dockerComposeService.listProjects() }
-        val repoInfoDeferred = async {
-            repoStructureService.getFullInfo(
-                repoPath = gitProps.mainRepoPath.toPath(),
-                repoEncryptionKeyPath = gitProps.gitCryptKeyFile?.toPath(),
-            )
-        }
-
-        composeProjectsDeferred.await() to repoInfoDeferred.await()
     }
 }

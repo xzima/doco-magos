@@ -19,7 +19,7 @@ import io.github.xzima.docomagos.server.services.models.SyncStackPlan
 
 interface SyncService {
 
-    suspend fun isMainRepoStacksUpdateRequired(): Boolean
+    fun isMainRepoStacksUpdateRequired(): Boolean
 
-    suspend fun createSyncPlanForMainRepo(): SyncStackPlan
+    fun createSyncPlanForMainRepo(): SyncStackPlan
 }

@@ -23,8 +23,6 @@ import io.github.xzima.docomagos.server.props.RepoStructureProps
 import io.github.xzima.docomagos.server.services.impl.RepoStructureServiceImpl
 import io.github.xzima.docomagos.server.services.models.RepoInfo
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.*
-import okio.*
 import kotlin.test.BeforeClass
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -53,7 +51,7 @@ class RepoStructureServiceTest {
     }
 
     @Test
-    fun testBaseInfo(): Unit = runBlocking {
+    fun testBaseInfo() {
         // GIVEN
         val repoRoot = TestUtils.testResourcesDir.resolve("test-repo-structure/full")
         // WHEN
@@ -69,7 +67,7 @@ class RepoStructureServiceTest {
     }
 
     @Test
-    fun testBaseInfoWithEncryptionKey(): Unit = runBlocking {
+    fun testBaseInfoWithEncryptionKey() {
         // GIVEN
         val repoRoot = TestUtils.testResourcesDir.resolve("test-repo-structure/empty")
         // WHEN
@@ -85,7 +83,7 @@ class RepoStructureServiceTest {
     }
 
     @Test
-    fun testFullInfo(): Unit = runBlocking {
+    fun testFullInfo() {
         // GIVEN
         val repoRoot = TestUtils.testResourcesDir.resolve("test-repo-structure/full")
         // WHEN
@@ -135,7 +133,7 @@ class RepoStructureServiceTest {
     }
 
     @Test
-    fun testFullInfoWithEncryptionKey(): Unit = runBlocking {
+    fun testFullInfoWithEncryptionKey() {
         // GIVEN
         val repoRoot = TestUtils.testResourcesDir.resolve("test-repo-structure/empty")
         // WHEN

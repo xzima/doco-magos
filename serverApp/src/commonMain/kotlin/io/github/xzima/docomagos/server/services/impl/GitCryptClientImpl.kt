@@ -18,7 +18,6 @@ package io.github.xzima.docomagos.server.services.impl
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.xzima.docomagos.logging.from
 import io.github.xzima.docomagos.server.services.GitCryptClient
-import kotlinx.coroutines.*
 
 private val logger = KotlinLogging.from(GitCryptClientImpl::class)
 
@@ -30,40 +29,40 @@ class GitCryptClientImpl :
         private val VERSION_REGEX = Regex("^git-crypt (?<version>.*)$")
     }
 
-    override suspend fun version(): String? = withContext(Dispatchers.IO) {
+    override fun version(): String? {
         val output = cmd {
             args("version")
         }
         logger.debug { "version result: $output" }
 
-        val result = output.resultOrNull() ?: return@withContext null
+        val result = output.resultOrNull() ?: return null
         val version = VERSION_REGEX.find(result)
             ?.groups
             ?.get("version")
             ?.value
-            ?.trim() ?: return@withContext null
+            ?.trim() ?: return null
 
-        return@withContext version
+        return version
     }
 
-    override suspend fun getEncryptedFiles(repoRoot: String): Set<String> = withContext(Dispatchers.IO) {
+    override fun getEncryptedFiles(repoRoot: String): Set<String> {
         val output = cmd {
             cwd(repoRoot)
             args("status", "-e")
         }
         logger.debug { "status result: $output" }
 
-        val result = output.resultOrNull() ?: return@withContext emptySet()
+        val result = output.resultOrNull() ?: return emptySet()
         val files = result.splitToSequence("\n").mapNotNull {
             val items = it.split(":")
             if (2 != items.size) return@mapNotNull null
             items[1].trim()
         }
 
-        return@withContext files.toSet()
+        return files.toSet()
     }
 
-    override suspend fun unlockRepo(repoRoot: String, keyFile: String): Unit = withContext(Dispatchers.IO) {
+    override fun unlockRepo(repoRoot: String, keyFile: String) {
         val output = cmd {
             cwd(repoRoot)
             args("unlock", keyFile)
@@ -73,7 +72,7 @@ class GitCryptClientImpl :
         output.resultOrNull()
     }
 
-    override suspend fun lockRepo(repoRoot: String): Unit = withContext(Dispatchers.IO) {
+    override fun lockRepo(repoRoot: String) {
         val output = cmd {
             cwd(repoRoot)
             args("lock")

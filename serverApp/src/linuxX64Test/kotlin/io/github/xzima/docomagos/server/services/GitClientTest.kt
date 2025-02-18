@@ -24,9 +24,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldEndWith
 import io.kotest.matchers.string.shouldNotBeBlank
-import kotlinx.coroutines.runBlocking
-import okio.FileSystem
-import okio.Path
+import okio.*
 import okio.Path.Companion.toPath
 import kotlin.test.BeforeClass
 import kotlin.test.BeforeTest
@@ -55,7 +53,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testVersion(): Unit = runBlocking {
+    fun testVersion() {
         // WHEN
         val actual = gitClient.version()
 
@@ -64,7 +62,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testCloneWithoutCredentials(): Unit = runBlocking {
+    fun testCloneWithoutCredentials() {
         // WHEN
         val actual = gitClient.cloneRepo(
             "https://github.com/xzima/home-composes.git",
@@ -76,7 +74,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testClonePositive(): Unit = runBlocking {
+    fun testClonePositive() {
         // WHEN
         val actual = gitClient.cloneRepo(
             "https://github.com/xzima/home-composes.git",
@@ -89,7 +87,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testCloneAlreadyCloned(): Unit = runBlocking {
+    fun testCloneAlreadyCloned() {
         // GIVEN
         gitClient.cloneRepo(
             "https://github.com/xzima/home-composes.git",
@@ -109,7 +107,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testCloneEmptyDirExist(): Unit = runBlocking {
+    fun testCloneEmptyDirExist() {
         // GIVEN
         FileSystem.SYSTEM.createDirectory(repoRoot)
 
@@ -125,7 +123,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testCloneDirWithFilesExist(): Unit = runBlocking {
+    fun testCloneDirWithFilesExist() {
         // GIVEN
         FileSystem.SYSTEM.createDirectory(repoRoot)
         FileSystem.SYSTEM.write(repoRoot.resolve("any-file.txt")) {
@@ -144,7 +142,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testGetRepoPathPositive(): Unit = runBlocking {
+    fun testGetRepoPathPositive() {
         // GIVEN
         gitClient.cloneRepo(
             "https://github.com/xzima/home-composes.git",
@@ -160,7 +158,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testGetRepoPathFromParent(): Unit = runBlocking {
+    fun testGetRepoPathFromParent() {
         // GIVEN
         gitClient.cloneRepo(
             "https://github.com/xzima/home-composes.git",
@@ -176,7 +174,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testGetRepoPathFromChild(): Unit = runBlocking {
+    fun testGetRepoPathFromChild() {
         // GIVEN
         gitClient.cloneRepo(
             "https://github.com/xzima/home-composes.git",
@@ -192,7 +190,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testGetRepoPathFromNotGitDirectory(): Unit = runBlocking {
+    fun testGetRepoPathFromNotGitDirectory() {
         // WHEN
         val actual = shouldThrow<RuntimeException> { gitClient.getRepoPathBy("/tmp") }
 
@@ -203,7 +201,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testGetRepoUrlPositive(): Unit = runBlocking {
+    fun testGetRepoUrlPositive() {
         // GIVEN
         gitClient.cloneRepo(
             "https://github.com/xzima/home-composes.git",
@@ -219,7 +217,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testGetRepoUrlWithUnexpectedRemote(): Unit = runBlocking {
+    fun testGetRepoUrlWithUnexpectedRemote() {
         // GIVEN
         gitClient.cloneRepo(
             "https://github.com/xzima/home-composes.git",
@@ -236,7 +234,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testGetRepoFromNotGitDirectory(): Unit = runBlocking {
+    fun testGetRepoFromNotGitDirectory() {
         // WHEN
         val actual = shouldThrow<RuntimeException> { gitClient.getRepoUrlBy("/tmp", "origin") }
 
@@ -247,7 +245,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testFetchPositive(): Unit = runBlocking {
+    fun testFetchPositive() {
         // GIVEN
         gitClient.cloneRepo(
             "https://github.com/xzima/home-composes.git",
@@ -260,7 +258,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testFetchWithoutCredentials(): Unit = runBlocking {
+    fun testFetchWithoutCredentials() {
         // GIVEN
         gitClient.cloneRepo(
             "https://github.com/xzima/home-composes.git",
@@ -278,7 +276,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testFetchWithUnexpectedRemote(): Unit = runBlocking {
+    fun testFetchWithUnexpectedRemote() {
         // GIVEN
         gitClient.cloneRepo(
             "https://github.com/xzima/home-composes.git",
@@ -301,7 +299,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testFetchFromNotGitDirectory(): Unit = runBlocking {
+    fun testFetchFromNotGitDirectory() {
         // WHEN
         val actual = shouldThrow<RuntimeException> {
             gitClient.fetchRemote("/tmp", "origin", gitTokenFile = gitTokenFile.toString())
@@ -314,7 +312,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testHardResetHeadPositive(): Unit = runBlocking {
+    fun testHardResetHeadPositive() {
         // GIVEN
         gitClient.cloneRepo(
             "https://github.com/xzima/home-composes.git",
@@ -330,7 +328,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testHardResetHeadWithUnexpectedRef(): Unit = runBlocking {
+    fun testHardResetHeadWithUnexpectedRef() {
         // GIVEN
         gitClient.cloneRepo(
             "https://github.com/xzima/home-composes.git",
@@ -346,7 +344,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testHardResetHeadFromNotGitDirectory(): Unit = runBlocking {
+    fun testHardResetHeadFromNotGitDirectory() {
         // WHEN
         val actual = gitClient.hardResetHeadToRef("/tmp", "origin/master")
 
@@ -355,7 +353,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testGetLastCommitWithRemoteRef(): Unit = runBlocking {
+    fun testGetLastCommitWithRemoteRef() {
         // GIVEN
         gitClient.cloneRepo(
             "https://github.com/xzima/home-composes.git",
@@ -371,7 +369,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testGetLastCommitWithHeadRef(): Unit = runBlocking {
+    fun testGetLastCommitWithHeadRef() {
         // GIVEN
         gitClient.cloneRepo(
             "https://github.com/xzima/home-composes.git",
@@ -387,7 +385,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testGetLastCommitWithUnexpectedRef(): Unit = runBlocking {
+    fun testGetLastCommitWithUnexpectedRef() {
         // GIVEN
         gitClient.cloneRepo(
             "https://github.com/xzima/home-composes.git",
@@ -409,7 +407,7 @@ class GitClientTest {
     }
 
     @Test
-    fun testGetLastCommitFromNotGitDirectory(): Unit = runBlocking {
+    fun testGetLastCommitFromNotGitDirectory() {
         // WHEN
         val actual = shouldThrow<RuntimeException> { gitClient.getLastCommitByRef("/tmp", "origin/master") }
 

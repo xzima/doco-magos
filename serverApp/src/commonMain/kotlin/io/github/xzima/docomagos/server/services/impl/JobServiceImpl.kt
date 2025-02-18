@@ -36,8 +36,12 @@ class JobServiceImpl(
     private val dockerService: DockerService,
     private val syncService: SyncService,
 ) : JobService {
+    companion object {
+        @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
+        private val dispatcher: CoroutineDispatcher = newSingleThreadContext("JobService-worker")
+    }
 
-    override fun createJob(scope: CoroutineScope): Job = scope.launch(start = CoroutineStart.LAZY) {
+    override fun createJob(scope: CoroutineScope): Job = scope.launch(dispatcher, start = CoroutineStart.LAZY) {
         try {
             onStart()
             while (true) {
@@ -49,7 +53,7 @@ class JobServiceImpl(
         }
     }
 
-    private suspend fun onStart() = try {
+    private fun onStart() = try {
         logger.debug { "on start phase: started" }
     } catch (e: Exception) {
         logger.error(e) { "on start phase: failed" }
@@ -82,7 +86,7 @@ class JobServiceImpl(
         }
     }
 
-    private suspend fun onStop() = try {
+    private fun onStop() = try {
         logger.debug { "on stop phase: started" }
     } catch (e: Exception) {
         logger.error(e) { "on stop phase: failed" }

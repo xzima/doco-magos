@@ -25,7 +25,6 @@ import io.github.xzima.docomagos.server.services.impl.GitClientImpl
 import io.github.xzima.docomagos.server.services.impl.GitCryptClientImpl
 import io.github.xzima.docomagos.server.services.models.ProjectInfo
 import io.github.xzima.docomagos.server.services.models.RepoInfo
-import kotlinx.coroutines.*
 import okio.*
 import okio.Path.Companion.toPath
 import kotlin.test.BeforeClass
@@ -46,7 +45,7 @@ class FileReadServiceSmoke {
     private lateinit var fileReadService: FileReadService
 
     @BeforeTest
-    fun setUp(): Unit = runBlocking {
+    fun setUp() {
         val pwdPath = FileSystem.Companion.SYSTEM.canonicalize("./".toPath())
 
         keyFile = pwdPath.resolve("../.git-crypt-key", normalize = true)
@@ -73,7 +72,7 @@ class FileReadServiceSmoke {
 
     @Test
     @Ignore
-    fun testRead(): Unit = runBlocking {
+    fun testRead() {
         // GIVEN
         val repoInfo = RepoInfo.BaseRepoInfo(
             path = repoRoot,

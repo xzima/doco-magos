@@ -31,7 +31,7 @@ private val logger = KotlinLogging.from(FileReadServiceImpl::class)
 class FileReadServiceImpl(
     private val gitCryptClient: GitCryptClient,
 ) : FileReadService {
-    override suspend fun checkRepoEncryption(repoRoot: String, keyFilePath: String?) {
+    override fun checkRepoEncryption(repoRoot: String, keyFilePath: String?) {
         if (null == keyFilePath) {
             val encryptedFiles = gitCryptClient.getEncryptedFiles(repoRoot)
             if (encryptedFiles.isNotEmpty()) {
@@ -48,49 +48,47 @@ class FileReadServiceImpl(
         }
     }
 
-    override suspend fun readAndMergeEnvs(info: RepoInfo, maskSecrets: Boolean): Map<String, String> =
-        withContext(Dispatchers.IO) {
-            var repoDecrypted = false
-            try {
-                repoDecrypted = decryptRepoIfNeed(
-                    info.path,
-                    info.encryptionKeyFilePath,
-                    info.envPath,
-                    info.secretEnvPath,
-                )
+    override fun readAndMergeEnvs(info: RepoInfo, maskSecrets: Boolean): Map<String, String> {
+        var repoDecrypted = false
+        try {
+            repoDecrypted = decryptRepoIfNeed(
+                info.path,
+                info.encryptionKeyFilePath,
+                info.envPath,
+                info.secretEnvPath,
+            )
 
-                return@withContext readEnvs(
-                    info.envPath to false,
-                    info.secretEnvPath to maskSecrets,
-                )
-            } finally {
-                encryptRepoIfNeed(repoDecrypted, info.path)
-            }
+            return readEnvs(
+                info.envPath to false,
+                info.secretEnvPath to maskSecrets,
+            )
+        } finally {
+            encryptRepoIfNeed(repoDecrypted, info.path)
         }
+    }
 
-    override suspend fun readAndMergeEnvs(info: ProjectInfo.Expected, maskSecrets: Boolean): Map<String, String> =
-        withContext(Dispatchers.IO) {
-            var repoDecrypted = false
-            try {
-                repoDecrypted = decryptRepoIfNeed(
-                    info.repoPath,
-                    info.repoEncryptionKeyFilePath,
-                    info.repoEnvPath,
-                    info.repoSecretEnvPath,
-                    info.projectEnvPath,
-                    info.projectSecretEnvPath,
-                )
+    override fun readAndMergeEnvs(info: ProjectInfo.Expected, maskSecrets: Boolean): Map<String, String> {
+        var repoDecrypted = false
+        try {
+            repoDecrypted = decryptRepoIfNeed(
+                info.repoPath,
+                info.repoEncryptionKeyFilePath,
+                info.repoEnvPath,
+                info.repoSecretEnvPath,
+                info.projectEnvPath,
+                info.projectSecretEnvPath,
+            )
 
-                return@withContext readEnvs(
-                    info.repoEnvPath to false,
-                    info.repoSecretEnvPath to maskSecrets,
-                    info.projectEnvPath to false,
-                    info.projectSecretEnvPath to maskSecrets,
-                )
-            } finally {
-                encryptRepoIfNeed(repoDecrypted, info.repoPath)
-            }
+            return readEnvs(
+                info.repoEnvPath to false,
+                info.repoSecretEnvPath to maskSecrets,
+                info.projectEnvPath to false,
+                info.projectSecretEnvPath to maskSecrets,
+            )
+        } finally {
+            encryptRepoIfNeed(repoDecrypted, info.repoPath)
         }
+    }
 
     private fun readEnvs(vararg elements: Pair<Path?, Boolean>): Map<String, String> {
         val accumulator = mutableMapOf<String, String>()
@@ -113,11 +111,7 @@ class FileReadServiceImpl(
         return accumulator
     }
 
-    private suspend fun decryptRepoIfNeed(
-        repoPath: Path,
-        repoEncryptionKeyFilePath: Path?,
-        vararg envPaths: Path?,
-    ): Boolean {
+    private fun decryptRepoIfNeed(repoPath: Path, repoEncryptionKeyFilePath: Path?, vararg envPaths: Path?): Boolean {
         if (null == repoEncryptionKeyFilePath) {
             logger.debug { "Repo encryption not need" }
             return false
@@ -142,7 +136,7 @@ class FileReadServiceImpl(
         return true
     }
 
-    private suspend fun encryptRepoIfNeed(repoDecrypted: Boolean, repoPath: Path) {
+    private fun encryptRepoIfNeed(repoDecrypted: Boolean, repoPath: Path) {
         if (repoDecrypted) {
             try {
                 gitCryptClient.lockRepo(repoPath.toString())

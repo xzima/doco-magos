@@ -20,7 +20,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.Level
 import io.github.xzima.docomagos.logging.configureLogging
 import io.github.xzima.docomagos.server.services.impl.DockerComposeClientImpl
-import io.kotest.common.runBlocking
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -38,7 +37,7 @@ class DockerComposeClientTest {
     private lateinit var dockerComposeClient: DockerComposeClient
 
     @Test
-    fun testVersion(): Unit = runBlocking {
+    fun testVersion() {
         // GIVEN
         dockerComposeClient = DockerComposeClientImpl(false)
 
@@ -50,7 +49,7 @@ class DockerComposeClientTest {
     }
 
     @Test
-    fun testVersionDryRun(): Unit = runBlocking {
+    fun testVersionDryRun() {
         // GIVEN
         dockerComposeClient = DockerComposeClientImpl(true)
 
@@ -62,7 +61,7 @@ class DockerComposeClientTest {
     }
 
     @Test
-    fun testListProjects(): Unit = runBlocking {
+    fun testListProjects() {
         // GIVEN
         dockerComposeClient = DockerComposeClientImpl(false)
 
@@ -78,7 +77,7 @@ class DockerComposeClientTest {
     }
 
     @Test
-    fun testListProjectsDryRun(): Unit = runBlocking {
+    fun testListProjectsDryRun() {
         // GIVEN
         dockerComposeClient = DockerComposeClientImpl(true)
 
@@ -94,7 +93,7 @@ class DockerComposeClientTest {
     }
 
     @Test
-    fun testUpDown(): Unit = runBlocking {
+    fun testUpDown() {
         // GIVEN
         dockerComposeClient = DockerComposeClientImpl(false)
         val stackName = "test_up_down"
@@ -148,7 +147,7 @@ class DockerComposeClientTest {
     }
 
     @Test
-    fun testUpDownDryRun(): Unit = runBlocking {
+    fun testUpDownDryRun() {
         // GIVEN
         dockerComposeClient = DockerComposeClientImpl(true)
         val stackName = "test_up_down_dry_run"

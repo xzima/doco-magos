@@ -40,7 +40,6 @@ import io.github.xzima.docomagos.server.services.PingService
 import io.github.xzima.docomagos.server.services.RepoStructureService
 import io.github.xzima.docomagos.server.services.SyncProjectService
 import io.github.xzima.docomagos.server.services.SyncService
-import io.kotest.common.runBlocking
 import io.kotest.inspectors.forAll
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -97,7 +96,7 @@ class AppCommandTest {
 
     @Test
     @OptIn(KoinInternalApi::class)
-    fun testPositive(): Unit = runBlocking {
+    fun testPositive() {
         // GIVEN
         val envs = mapOf(
             "HOSTNAME" to "localhost",
@@ -126,7 +125,7 @@ class AppCommandTest {
     }
 
     @Test
-    fun testFailedWithoutEnvs(): Unit = runBlocking {
+    fun testFailedWithoutEnvs() {
         // WHEN
         val actual = command.test()
 

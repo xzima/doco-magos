@@ -19,7 +19,7 @@ import io.github.xzima.docomagos.server.services.models.ComposeProjectInfo
 import io.github.xzima.docomagos.server.services.models.SyncStackPlan
 
 interface DockerComposeService {
-    suspend fun executeSyncPlan(syncPlan: SyncStackPlan)
+    fun executeSyncPlan(syncPlan: SyncStackPlan)
 
-    suspend fun listProjects(): List<ComposeProjectInfo>
+    fun listProjects(): List<ComposeProjectInfo>
 }
