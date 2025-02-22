@@ -91,7 +91,7 @@ class DockerServiceImpl(
                 source = current,
                 autoRemove = syncJobProps.containerAutoRemove,
             ) ?: run {
-                logger.error { "container(name=${syncJobProps.containerName}) still exist" }
+                logger.error { "container(name=${syncJobProps.containerName}) still exists" }
                 return
             }
         }

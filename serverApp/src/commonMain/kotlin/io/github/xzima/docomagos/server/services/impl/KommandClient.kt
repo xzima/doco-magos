@@ -39,7 +39,7 @@ open class KommandClient(
     protected fun Output.resultOrNull(): String? = if (0 == status) {
         stdout?.trim().takeUnless { it.isNullOrBlank() }
     } else {
-        throw RuntimeException("command failed. status: $status message: $stderr")
+        throw RuntimeException("command failed\nstatus: $status\nmessage: $stderr")
     }
 
     protected inline fun <reified T> Output.decode(): T {

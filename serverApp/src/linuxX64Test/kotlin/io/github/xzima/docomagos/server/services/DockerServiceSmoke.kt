@@ -59,10 +59,10 @@ class DockerServiceSmoke {
     /**
      * Scenarios:
      * - hostname not found
-     * - container doco-magos-sync-job exist: different image name
+     * - container doco-magos-sync-job exists: different image name
      * - container doco-magos-sync-job created -> started
-     * - container doco-magos-sync-job exist: already running
-     * - container doco-magos-sync-job exist: stopped -> delete -> recreated -> started
+     * - container doco-magos-sync-job exists: already running
+     * - container doco-magos-sync-job exists: stopped -> delete -> recreated -> started
      */
     @Test
     @Ignore

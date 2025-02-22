@@ -15,9 +15,15 @@
  */
 package io.github.xzima.docomagos.server.services.impl
 
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.xzima.docomagos.logging.from
 import io.github.xzima.docomagos.server.props.GitProps
 import io.github.xzima.docomagos.server.services.GitClient
 import io.github.xzima.docomagos.server.services.GitService
+import okio.*
+import okio.Path.Companion.toPath
+
+private val logger = KotlinLogging.from(GitServiceImpl::class)
 
 class GitServiceImpl(
     private val gitEnv: GitProps,
@@ -61,6 +67,26 @@ class GitServiceImpl(
     }
 
     override fun actualizeMainRepo() {
-        TODO("Not yet implemented")
+        val dirItems = FileSystem.SYSTEM.listOrNull(gitEnv.mainRepoPath.toPath())
+            ?: throw RuntimeException("${gitEnv.mainRepoPath} is file or not exists")
+        if (dirItems.isEmpty()) {
+            logger.debug { "${gitEnv.mainRepoPath} is empty directory -> start clone" }
+            gitClient.cloneRepo(
+                repoUrl = gitEnv.mainRepoUrl,
+                repoPath = gitEnv.mainRepoPath,
+                gitToken = gitEnv.gitToken,
+                gitTokenFile = gitEnv.gitTokenFile,
+            )
+        } else {
+            logger.debug { "${gitEnv.mainRepoPath} is not empty directory -> check repo" }
+            checkMainRepoPath()
+            checkMainRepoUrl()
+            checkMainRepoHead()
+        }
+        logger.debug { "${gitEnv.mainRepoPath} is expected repo -> start head reset" }
+        gitClient.hardResetHeadToRef(
+            gitEnv.mainRepoPath,
+            "${gitEnv.mainRepoRemote}/${gitEnv.mainRepoBranch}",
+        )
     }
 }

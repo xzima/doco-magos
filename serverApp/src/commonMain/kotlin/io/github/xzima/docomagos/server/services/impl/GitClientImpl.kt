@@ -57,14 +57,14 @@ class GitClientImpl(
     /**
      * @return is success
      */
-    override fun cloneRepo(repoUrl: String, repoPath: String, gitToken: String?, gitTokenFile: String?): Boolean {
+    override fun cloneRepo(repoUrl: String, repoPath: String, gitToken: String?, gitTokenFile: String?) {
         val output = cmd {
             args("clone", repoUrl, repoPath)
             configureCredentials(gitToken = gitToken, gitTokenFile = gitTokenFile)
         }
         logger.debug { "clone result: $output" }
 
-        return 0 == output.status
+        output.resultOrNull()
     }
 
     /**
@@ -107,7 +107,7 @@ class GitClientImpl(
         output.resultOrNull()
     }
 
-    override fun hardResetHeadToRef(repoPath: String, ref: String): Boolean {
+    override fun hardResetHeadToRef(repoPath: String, ref: String) {
         val output = cmd {
             cwd(repoPath)
             args("reset", "--hard", ref)
@@ -115,7 +115,7 @@ class GitClientImpl(
 
         logger.debug { "hard reset repo result: $output" }
 
-        return 0 == output.status
+        output.resultOrNull()
     }
 
     override fun getLastCommitByRef(repoPath: String, ref: String): String? {
