@@ -27,7 +27,7 @@ interface GitClient {
     /**
      * @return is success
      */
-    fun cloneRepo(repoUrl: String, repoPath: String, gitToken: String? = null, gitTokenFile: String? = null): Boolean
+    fun cloneRepo(repoUrl: String, repoPath: String, gitToken: String? = null, gitTokenFile: String? = null)
 
     /**
      * @return repo root path
@@ -41,7 +41,7 @@ interface GitClient {
 
     fun fetchRemote(repoPath: String, remote: String, gitToken: String? = null, gitTokenFile: String? = null)
 
-    fun hardResetHeadToRef(repoPath: String, ref: String): Boolean
+    fun hardResetHeadToRef(repoPath: String, ref: String)
 
     fun getLastCommitByRef(repoPath: String, ref: String): String?
 }

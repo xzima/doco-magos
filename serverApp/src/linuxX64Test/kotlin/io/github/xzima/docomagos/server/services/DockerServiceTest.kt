@@ -189,7 +189,7 @@ class DockerServiceTest {
     }
 
     @Test
-    fun testJobContainerExistWithDifferentImageName(): Unit = runBlocking {
+    fun testJobContainerExistsWithDifferentImageName(): Unit = runBlocking {
         // GIVEN
         every { syncJobProps.containerAutoRemove } returns false
         val currentContainer = TestCreator.dockerContainerInfo().copy(
@@ -217,7 +217,7 @@ class DockerServiceTest {
     }
 
     @Test
-    fun testJobContainerExistWithRunningStatus(): Unit = runBlocking {
+    fun testJobContainerExistsWithRunningStatus(): Unit = runBlocking {
         // GIVEN
         every { syncJobProps.containerAutoRemove } returns true
         val currentContainer = TestCreator.dockerContainerInfo().copy(

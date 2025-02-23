@@ -15,11 +15,14 @@
  */
 package io.github.xzima.docomagos.server.services
 
+import TestUtils
+import com.kgit2.kommand.exception.KommandException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.Level
 import io.github.xzima.docomagos.logging.configureLogging
 import io.github.xzima.docomagos.server.services.impl.GitClientImpl
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldEndWith
@@ -64,26 +67,31 @@ class GitClientTest {
     @Test
     fun testCloneWithoutCredentials() {
         // WHEN
-        val actual = gitClient.cloneRepo(
-            "https://github.com/xzima/home-composes.git",
-            repoRoot.toString(),
-        )
+        val actual = shouldThrow<RuntimeException> {
+            gitClient.cloneRepo(
+                "https://github.com/xzima/home-composes.git",
+                repoRoot.toString(),
+            )
+        }
 
         // THEN
-        actual shouldBe false
+        actual.message shouldBe "command failed\n" +
+            "status: 128\n" +
+            "message: Cloning into '$repoRoot'...\n" +
+            "fatal: could not read Username for 'https://github.com': terminal prompts disabled\n"
     }
 
     @Test
     fun testClonePositive() {
         // WHEN
-        val actual = gitClient.cloneRepo(
+        gitClient.cloneRepo(
             "https://github.com/xzima/home-composes.git",
             repoRoot.toString(),
             gitTokenFile = gitTokenFile.toString(),
         )
 
         // THEN
-        actual shouldBe true
+        FileSystem.SYSTEM.metadata(repoRoot.resolve(".git")).isDirectory.shouldBeTrue()
     }
 
     @Test
@@ -96,30 +104,34 @@ class GitClientTest {
         )
 
         // WHEN
-        val actual = gitClient.cloneRepo(
-            "https://github.com/xzima/home-composes.git",
-            repoRoot.toString(),
-            gitTokenFile = gitTokenFile.toString(),
-        )
+        val actual = shouldThrow<RuntimeException> {
+            gitClient.cloneRepo(
+                "https://github.com/xzima/home-composes.git",
+                repoRoot.toString(),
+                gitTokenFile = gitTokenFile.toString(),
+            )
+        }
 
         // THEN
-        actual shouldBe false
+        actual.message shouldBe "command failed\n" +
+            "status: 128\n" +
+            "message: fatal: destination path '$repoRoot' already exists and is not an empty directory.\n"
     }
 
     @Test
-    fun testCloneEmptyDirExist() {
+    fun testCloneEmptyDirExists() {
         // GIVEN
         FileSystem.SYSTEM.createDirectory(repoRoot)
 
         // WHEN
-        val actual = gitClient.cloneRepo(
+        gitClient.cloneRepo(
             "https://github.com/xzima/home-composes.git",
             repoRoot.toString(),
             gitTokenFile = gitTokenFile.toString(),
         )
 
         // THEN
-        actual shouldBe true
+        FileSystem.SYSTEM.metadata(repoRoot.resolve(".git")).isDirectory.shouldBeTrue()
     }
 
     @Test
@@ -131,14 +143,38 @@ class GitClientTest {
         }
 
         // WHEN
-        val actual = gitClient.cloneRepo(
-            "https://github.com/xzima/home-composes.git",
-            repoRoot.toString(),
-            gitTokenFile = gitTokenFile.toString(),
-        )
+        val actual = shouldThrow<RuntimeException> {
+            gitClient.cloneRepo(
+                "https://github.com/xzima/home-composes.git",
+                repoRoot.toString(),
+                gitTokenFile = gitTokenFile.toString(),
+            )
+        }
 
         // THEN
-        actual shouldBe false
+        actual.message shouldBe "command failed\n" +
+            "status: 128\n" +
+            "message: fatal: destination path '$repoRoot' already exists and is not an empty directory.\n"
+    }
+
+    @Test
+    fun testCloneToFile() {
+        // GIVEN
+        val repoPath = TestUtils.testResourcesDir.resolve("test-config.yaml").toString()
+
+        // WHEN
+        val actual = shouldThrow<RuntimeException> {
+            gitClient.cloneRepo(
+                "https://github.com/xzima/home-composes.git",
+                repoPath,
+                gitTokenFile = gitTokenFile.toString(),
+            )
+        }
+
+        // THEN
+        actual.message shouldBe "command failed\n" +
+            "status: 128\n" +
+            "message: fatal: destination path '$repoPath' already exists and is not an empty directory.\n"
     }
 
     @Test
@@ -195,8 +231,9 @@ class GitClientTest {
         val actual = shouldThrow<RuntimeException> { gitClient.getRepoPathBy("/tmp") }
 
         // THEN
-        actual.shouldNotBeNull().message shouldBe
-            "command failed. status: 128 message: fatal: not a git repository (or any parent up to mount point /)\n" +
+        actual.shouldNotBeNull().message shouldBe "command failed\n" +
+            "status: 128\n" +
+            "message: fatal: not a git repository (or any parent up to mount point /)\n" +
             "Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\n"
     }
 
@@ -229,8 +266,9 @@ class GitClientTest {
         val actual = shouldThrow<RuntimeException> { gitClient.getRepoUrlBy(repoRoot.toString(), "strange-remote") }
 
         // THEN
-        actual.message shouldBe
-            "command failed. status: 2 message: error: No such remote 'strange-remote'\n"
+        actual.message shouldBe "command failed\n" +
+            "status: 2\n" +
+            "message: error: No such remote 'strange-remote'\n"
     }
 
     @Test
@@ -239,8 +277,9 @@ class GitClientTest {
         val actual = shouldThrow<RuntimeException> { gitClient.getRepoUrlBy("/tmp", "origin") }
 
         // THEN
-        actual.message shouldBe
-            "command failed. status: 128 message: fatal: not a git repository (or any parent up to mount point /)\n" +
+        actual.message shouldBe "command failed\n" +
+            "status: 128\n" +
+            "message: fatal: not a git repository (or any parent up to mount point /)\n" +
             "Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\n"
     }
 
@@ -270,9 +309,9 @@ class GitClientTest {
         val actual = shouldThrow<RuntimeException> { gitClient.fetchRemote(repoRoot.toString(), "origin") }
 
         // THEN
-        actual.message shouldBe
-            "command failed. status: 128 message: " +
-            "fatal: could not read Username for 'https://github.com': terminal prompts disabled\n"
+        actual.message shouldBe "command failed\n" +
+            "status: 128\n" +
+            "message: fatal: could not read Username for 'https://github.com': terminal prompts disabled\n"
     }
 
     @Test
@@ -290,8 +329,9 @@ class GitClientTest {
         }
 
         // THEN
-        actual.message shouldBe
-            "command failed. status: 128 message: fatal: 'strange-remote' does not appear to be a git repository\n" +
+        actual.message shouldBe "command failed\n" +
+            "status: 128\n" +
+            "message: fatal: 'strange-remote' does not appear to be a git repository\n" +
             "fatal: Could not read from remote repository.\n" +
             "\n" +
             "Please make sure you have the correct access rights\n" +
@@ -306,9 +346,40 @@ class GitClientTest {
         }
 
         // THEN
-        actual.message shouldBe
-            "command failed. status: 128 message: fatal: not a git repository (or any parent up to mount point /)\n" +
+        actual.message shouldBe "command failed\n" +
+            "status: 128\n" +
+            "message: fatal: not a git repository (or any parent up to mount point /)\n" +
             "Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\n"
+    }
+
+    @Test
+    fun testFetchFromNotExistedDirectory() {
+        // WHEN
+        val actual = shouldThrow<KommandException> {
+            gitClient.fetchRemote(
+                TestUtils.testResourcesDir.resolve("404").toString(),
+                "origin",
+                gitTokenFile = gitTokenFile.toString(),
+            )
+        }
+
+        // THEN
+        actual.message shouldBe "No such file or directory (os error 2)"
+    }
+
+    @Test
+    fun testFetchFromFile() {
+        // WHEN
+        val actual = shouldThrow<KommandException> {
+            gitClient.fetchRemote(
+                TestUtils.testResourcesDir.resolve("test-config.yaml").toString(),
+                "origin",
+                gitTokenFile = gitTokenFile.toString(),
+            )
+        }
+
+        // THEN
+        actual.message shouldBe "Not a directory (os error 20)"
     }
 
     @Test
@@ -319,12 +390,15 @@ class GitClientTest {
             repoRoot.toString(),
             gitTokenFile = gitTokenFile.toString(),
         )
+        val expectedRef = gitClient.getLastCommitByRef(repoRoot.toString(), GitClient.HEAD_REF_NAME)
+        gitClient.hardResetHeadToRef(repoRoot.toString(), "${GitClient.HEAD_REF_NAME}~10")
 
         // WHEN
-        val actual = gitClient.hardResetHeadToRef(repoRoot.toString(), "origin/master")
+        gitClient.hardResetHeadToRef(repoRoot.toString(), "origin/master")
 
         // THEN
-        actual shouldBe true
+        val actualRef = gitClient.getLastCommitByRef(repoRoot.toString(), GitClient.HEAD_REF_NAME)
+        actualRef shouldBe expectedRef
     }
 
     @Test
@@ -335,21 +409,31 @@ class GitClientTest {
             repoRoot.toString(),
             gitTokenFile = gitTokenFile.toString(),
         )
+        val ref = "origin/strange-branch"
 
         // WHEN
-        val actual = gitClient.hardResetHeadToRef(repoRoot.toString(), "origin/strange-branch")
+        val actual = shouldThrow<RuntimeException> {
+            gitClient.hardResetHeadToRef(repoRoot.toString(), ref)
+        }
 
         // THEN
-        actual shouldBe false
+        actual.message shouldBe "command failed\n" +
+            "status: 128\n" +
+            "message: fatal: ambiguous argument '$ref': unknown revision or path not in the working tree.\n" +
+            "Use '--' to separate paths from revisions, like this:\n" +
+            "'git <command> [<revision>...] -- [<file>...]'\n"
     }
 
     @Test
     fun testHardResetHeadFromNotGitDirectory() {
         // WHEN
-        val actual = gitClient.hardResetHeadToRef("/tmp", "origin/master")
+        val actual = shouldThrow<RuntimeException> { gitClient.hardResetHeadToRef("/tmp", "origin/master") }
 
         // THEN
-        actual shouldBe false
+        actual.message shouldBe "command failed\n" +
+            "status: 128\n" +
+            "message: fatal: not a git repository (or any parent up to mount point /)\n" +
+            "Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\n"
     }
 
     @Test
@@ -399,8 +483,9 @@ class GitClientTest {
         }
 
         // THEN
-        actual.message shouldBe
-            "command failed. status: 128 message: fatal: ambiguous argument 'origin/strange-branch': " +
+        actual.message shouldBe "command failed\n" +
+            "status: 128\n" +
+            "message: fatal: ambiguous argument 'origin/strange-branch': " +
             "unknown revision or path not in the working tree.\n" +
             "Use '--' to separate paths from revisions, like this:\n" +
             "'git <command> [<revision>...] -- [<file>...]'\n"
@@ -412,8 +497,9 @@ class GitClientTest {
         val actual = shouldThrow<RuntimeException> { gitClient.getLastCommitByRef("/tmp", "origin/master") }
 
         // THEN
-        actual.message shouldBe
-            "command failed. status: 128 message: fatal: not a git repository (or any parent up to mount point /)\n" +
+        actual.message shouldBe "command failed\n" +
+            "status: 128\n" +
+            "message: fatal: not a git repository (or any parent up to mount point /)\n" +
             "Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\n"
     }
 }
