@@ -45,7 +45,7 @@ class DockerComposeClientTest {
         val result = dockerComposeClient.version()
 
         // THEN
-        result.version shouldBe "2.32.4"
+        result.version shouldBe "2.39.2"
     }
 
     @Test
@@ -57,7 +57,7 @@ class DockerComposeClientTest {
         val result = dockerComposeClient.version()
 
         // THEN
-        result.version shouldBe "2.32.4"
+        result.version shouldBe "2.39.2"
     }
 
     @Test

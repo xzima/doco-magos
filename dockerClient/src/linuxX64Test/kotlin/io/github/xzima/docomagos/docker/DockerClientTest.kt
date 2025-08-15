@@ -59,10 +59,10 @@ class DockerClientTest {
         // WHEN
         val resp = containerApi.containerList()
         // THEN
-        resp.status shouldBe HttpStatusCode.Companion.OK
+        resp.status shouldBe HttpStatusCode.OK
         resp.headers should {
             it[HttpHeaders.ContentType].shouldNotBeNull() shouldContain ContentType.Application.Json.toString()
-            it[HttpHeaders.Server].shouldNotBeNull() shouldContain "Docker/27.3.1 (linux)"
+            it[HttpHeaders.Server].shouldNotBeNull() shouldContain "Docker/28.3.3 (linux)"
             it[HttpHeaders.Date].shouldNotBeNull()
         }
         val list = resp.body()
@@ -75,18 +75,18 @@ class DockerClientTest {
         // WHEN
         val resp = systemApi.systemInfo()
         // THEN
-        resp.status shouldBe HttpStatusCode.Companion.OK
+        resp.status shouldBe HttpStatusCode.OK
         resp.headers should {
             it[HttpHeaders.ContentType].shouldNotBeNull() shouldContain ContentType.Application.Json.toString()
-            it[HttpHeaders.Server].shouldNotBeNull() shouldContain "Docker/27.3.1 (linux)"
+            it[HttpHeaders.Server].shouldNotBeNull() shouldContain "Docker/28.3.3 (linux)"
             it[HttpHeaders.Date].shouldNotBeNull()
         }
         val info = resp.body()
         println(info)
-        info.containers shouldBe 7
+        info.containers shouldBe 6
         info.containersRunning shouldBe 6
         info.containersPaused shouldBe 0
-        info.containersStopped shouldBe 1
+        info.containersStopped shouldBe 0
     }
 
     @Test
@@ -94,7 +94,7 @@ class DockerClientTest {
         // WHEN
         val resp = containerApi.containerStats(id = "ed5ab81c6ce2", stream = false)
         // THEN
-        resp.status shouldBe HttpStatusCode.Companion.OK
+        resp.status shouldBe HttpStatusCode.OK
         println(resp.body())
     }
 }
