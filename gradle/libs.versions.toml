@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.2.10"
-androidx-lifecycle = "2.8.4"
+androidx-lifecycle = "2.9.2"
 rsocket = "0.16.0"
 nebula-info = "13.3.0"
 vlsi = "1.90"
