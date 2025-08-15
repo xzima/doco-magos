@@ -40,4 +40,4 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 compose = { id = "org.jetbrains.compose", version = "1.8.2" }
 mock = { id = "dev.mokkery", version = "2.6.1" }
 spotless = { id = "com.diffplug.spotless", version = "6.25.0" }
-openapi = { id = "org.openapi.generator", version = "7.10.0" }
+openapi = { id = "org.openapi.generator", version = "7.14.0" }
