@@ -1,4 +1,4 @@
-FROM debian:12-slim
+FROM debian:13-slim
 # build args
 ARG APP_BUILD_DOCKER_COMPOSE_VERSION=v2.39.2
 # labels
