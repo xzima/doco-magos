@@ -1,6 +1,6 @@
 FROM debian:12-slim
 # build args
-ARG APP_BUILD_DOCKER_COMPOSE_VERSION=v2.32.4
+ARG APP_BUILD_DOCKER_COMPOSE_VERSION=v2.39.2
 # labels
 #LABEL org.opencontainers.image.created=2017-08-28T09:24:41Z
 #LABEL org.opencontainers.image.authors=
