@@ -62,10 +62,10 @@ class GitCryptClientImpl :
         return files.toSet()
     }
 
-    override fun unlockRepo(repoRoot: String, keyFile: String) {
+    override fun unlockRepo(repoRoot: String, keyFilePath: String) {
         val output = cmd {
             cwd(repoRoot)
-            args("unlock", keyFile)
+            args("unlock", keyFilePath)
         }
         logger.debug { "unlock result: $output" }
 

@@ -22,7 +22,7 @@ import io.github.oshai.kotlinlogging.Level
 import kotlinx.datetime.*
 
 actual fun loggingAppender(): Appender = object : FormattingAppender() {
-    override fun logFormattedMessage(loggingEvent: KLoggingEvent, ignore: Any?) {
+    override fun logFormattedMessage(loggingEvent: KLoggingEvent, formattedMessage: Any?) {
         when (loggingEvent.level) {
             Level.OFF -> Unit
             Level.INFO -> console.info(*formatMessage(loggingEvent))

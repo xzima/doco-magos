@@ -39,8 +39,8 @@ import org.koin.core.logger.MESSAGE
 private val logger = KotlinLogging.from(KoinLogger::class)
 
 class KoinLogger : Logger(KotlinLoggingConfiguration.logLevel.toKoinLevel()) {
-    override fun display(koinLevel: Level, msg: MESSAGE) {
-        when (koinLevel) {
+    override fun display(level: Level, msg: MESSAGE) {
+        when (level) {
             Level.DEBUG -> logger.debug { msg }
             Level.INFO -> logger.info { msg }
             Level.WARNING -> logger.warn { msg }

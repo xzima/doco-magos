@@ -70,7 +70,7 @@ spotless {
 }
 
 fun BaseKotlinExtension.configureSpotlessKotlin(yearPlaceholder: String, author: String) {
-    ktlint("1.5.0").customRuleSets(
+    ktlint("1.7.1").customRuleSets(
         listOf(
             "io.nlopez.compose.rules:ktlint:0.4.27",
         ),
