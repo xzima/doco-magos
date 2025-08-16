@@ -57,7 +57,7 @@ rootProject.plugins.withType(YarnPlugin::class.java) {
 
 spotless {
     ratchetFrom = "origin/master"
-    val yearPlaceholder = "\$YEAR"
+    val yearPlaceholder = $$"$YEAR"
     val author = "Alex Zima(xzima@ro.ru)"
     kotlin {
         target("**/*.kt")
