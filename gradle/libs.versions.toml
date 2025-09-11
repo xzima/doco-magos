@@ -9,7 +9,7 @@ vlsi = "1.90"
 bom-kotlinxCoroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-bom", version = "1.10.2" }
 bom-kotlinxSerialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-bom", version = "1.9.0" }
 bom-kotlinLibs = { group = "org.jetbrains.kotlin", name = "kotlin-bom", version.ref = "kotlin" }
-bom-ktor = { group = "io.ktor", name = "ktor-bom", version = "2.3.13" }
+bom-ktor = { group = "io.ktor", name = "ktor-bom", version = "3.3.0" }
 bom-koin = { group = "io.insert-koin", name = "koin-bom", version = "4.0.0" }
 bom-kotest = { group = "io.kotest", name = "kotest-bom", version = "5.9.1" }
 
