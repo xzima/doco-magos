@@ -18,7 +18,7 @@ ui-lifecycle-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lif
 ui-highlights = { group = "dev.snipme", name = "highlights", version = "1.0.0" }
 ui-routing = { group = "app.softwork", name = "routing-compose", version = "0.4.0" }
 
-kaml = { group = "com.charleskorn.kaml", name = "kaml", version = "0.67.0" }
+kaml = { group = "com.charleskorn.kaml", name = "kaml", version = "0.96.0" }
 okio = { group = "com.squareup.okio", name = "okio", version = "3.9.1" }
 kotest-assertions-ktor = { group = "io.kotest.extensions", name = "kotest-assertions-ktor", version = "2.0.0" }
 kommand = { group = "com.kgit2", name = "kommand", version = "2.2.1" }
