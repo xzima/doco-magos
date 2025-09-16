@@ -37,7 +37,7 @@ kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime",
 multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-compose = { id = "org.jetbrains.compose", version = "1.8.2" }
+compose = { id = "org.jetbrains.compose", version = "1.9.0" }
 mock = { id = "dev.mokkery", version = "2.10.0" }
 spotless = { id = "com.diffplug.spotless", version = "7.2.1" }
 openapi = { id = "org.openapi.generator", version = "7.15.0" }
