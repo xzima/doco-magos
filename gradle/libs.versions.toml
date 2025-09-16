@@ -1,7 +1,7 @@
 [versions]
 kotlin = "2.2.10"
 androidx-lifecycle = "2.9.2"
-rsocket = "0.16.0"
+rsocket = "0.20.0"
 nebula-info = "13.3.0"
 vlsi = "1.90"
 
@@ -9,7 +9,7 @@ vlsi = "1.90"
 bom-kotlinxCoroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-bom", version = "1.10.2" }
 bom-kotlinxSerialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-bom", version = "1.9.0" }
 bom-kotlinLibs = { group = "org.jetbrains.kotlin", name = "kotlin-bom", version.ref = "kotlin" }
-bom-ktor = { group = "io.ktor", name = "ktor-bom", version = "2.3.13" }
+bom-ktor = { group = "io.ktor", name = "ktor-bom", version = "3.3.0" }
 bom-koin = { group = "io.insert-koin", name = "koin-bom", version = "4.0.0" }
 bom-kotest = { group = "io.kotest", name = "kotest-bom", version = "5.9.1" }
 
@@ -26,8 +26,8 @@ clikt = { group = "com.github.ajalt.clikt", name = "clikt", version = "5.0.2" }
 rsocket-ktor-ws-client = { group = "io.rsocket.kotlin", name = "rsocket-transport-ktor-websocket-client", version.ref = "rsocket" }
 rsocket-ktor-ws-server = { group = "io.rsocket.kotlin", name = "rsocket-transport-ktor-websocket-server", version.ref = "rsocket" }
 rsocket-core = { group = "io.rsocket.kotlin", name = "rsocket-core", version.ref = "rsocket" }
-rsocket-ktor-server = { group = "io.rsocket.kotlin", name = "rsocket-ktor-server", version.ref = "rsocket" }
-rsocket-ktor-client = { group = "io.rsocket.kotlin", name = "rsocket-ktor-client", version.ref = "rsocket" }
+rsocket-ktor-server = { group = "io.rsocket.kotlin", name = "ktor-server-rsocket", version.ref = "rsocket" }
+rsocket-ktor-client = { group = "io.rsocket.kotlin", name = "ktor-client-rsocket", version.ref = "rsocket" }
 logging = { group = "io.github.oshai", name = "kotlin-logging", version = "7.0.3" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version = "0.6.1" }
 

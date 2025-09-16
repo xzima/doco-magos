@@ -61,7 +61,7 @@ class GitClientTest {
         val actual = gitClient.version()
 
         // THEN
-        actual.shouldNotBeNull().version shouldBe "2.50.1"
+        actual.shouldNotBeNull().version shouldBe "2.51.0"
     }
 
     @Test

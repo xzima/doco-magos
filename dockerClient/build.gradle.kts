@@ -26,7 +26,7 @@ kotlin {
             dependencies {
                 api(projects.serverCore)
 
-                api(ktor.ktorClientCore)
+                api(ktor.ktorClientCio)
                 api(ktor.ktorNetwork)
                 api(ktor.ktorHttpCio)
                 api(ktor.ktorClientContentNegotiation)

@@ -25,6 +25,7 @@ import io.github.xzima.docomagos.api.encodeToPayload
 import io.github.xzima.docomagos.logging.from
 import io.github.xzima.docomagos.server.handlers.ReqHandler
 import io.ktor.server.routing.*
+import io.ktor.utils.io.readText
 import io.rsocket.kotlin.RSocketRequestHandler
 import io.rsocket.kotlin.ktor.server.rSocket
 import kotlinx.serialization.*

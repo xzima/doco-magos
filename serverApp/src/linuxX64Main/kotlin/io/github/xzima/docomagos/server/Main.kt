@@ -21,6 +21,7 @@ import com.github.ajalt.clikt.core.subcommands
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.xzima.docomagos.logging.from
 import io.github.xzima.docomagos.server.cli.commands.AppCommand
+import io.github.xzima.docomagos.server.cli.commands.ServeCommand
 import io.github.xzima.docomagos.server.cli.commands.SyncCommand
 import kotlin.system.exitProcess
 
