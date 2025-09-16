@@ -15,7 +15,7 @@ bom-kotest = { group = "io.kotest", name = "kotest-bom", version = "5.9.1" }
 
 ui-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
 ui-lifecycle-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
-ui-highlights = { group = "dev.snipme", name = "highlights", version = "1.0.0" }
+ui-highlights = { group = "dev.snipme", name = "highlights", version = "1.1.0" }
 ui-routing = { group = "app.softwork", name = "routing-compose", version = "0.4.0" }
 
 kaml = { group = "com.charleskorn.kaml", name = "kaml", version = "0.67.0" }
