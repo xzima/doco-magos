@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.2.10"
+kotlin = "2.2.20"
 androidx-lifecycle = "2.9.2"
 rsocket = "0.20.0"
 nebula-info = "13.3.0"
