@@ -18,7 +18,7 @@
     "@semantic-release/changelog": "6.0.3",
     "conventional-changelog-conventionalcommits": "9.1.0",
     "zx": "8.8.1",
-    "@inquirer/prompts": "7.8.2",
+    "@inquirer/prompts": "7.8.6",
     "properties-reader": "2.3.0"
   }
 }
