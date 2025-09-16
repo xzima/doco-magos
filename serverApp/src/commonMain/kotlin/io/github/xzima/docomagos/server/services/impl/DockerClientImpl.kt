@@ -19,7 +19,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.xzima.docomagos.docker.apis.ContainerApi
 import io.github.xzima.docomagos.docker.apis.SystemApi
 import io.github.xzima.docomagos.docker.infrastructure.ApiClient
-import io.github.xzima.docomagos.docker.ktor.engine.socket.SocketCIO
 import io.github.xzima.docomagos.docker.models.ContainerCreateRequest
 import io.github.xzima.docomagos.docker.models.ErrorResponse
 import io.github.xzima.docomagos.docker.models.HostConfig
@@ -32,6 +31,8 @@ import io.github.xzima.docomagos.server.services.DockerClient
 import io.github.xzima.docomagos.server.services.models.DockerContainerInfo
 import io.github.xzima.docomagos.server.services.models.DockerSystemInfo
 import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
@@ -42,9 +43,9 @@ private val logger = KotlinLogging.from(DockerClientImpl::class)
 class DockerClientImpl(
     private val props: DockerProps,
 ) : DockerClient {
-    private val client = HttpClient(SocketCIO) {
-        engine {
-            unixSocketPath = props.unixSocketFile
+    private val client = HttpClient(CIO) {
+        defaultRequest {
+            unixSocket(props.unixSocketFile)
         }
         install(Logging) {
             level = props.loggingLevel

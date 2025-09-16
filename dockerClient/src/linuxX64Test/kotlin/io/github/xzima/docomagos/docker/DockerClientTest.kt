@@ -20,7 +20,6 @@ import io.github.oshai.kotlinlogging.Level
 import io.github.xzima.docomagos.docker.apis.ContainerApi
 import io.github.xzima.docomagos.docker.apis.SystemApi
 import io.github.xzima.docomagos.docker.infrastructure.ApiClient
-import io.github.xzima.docomagos.docker.ktor.engine.socket.SocketCIO
 import io.github.xzima.docomagos.logging.HttpClientLogger
 import io.github.xzima.docomagos.logging.configureLogging
 import io.kotest.matchers.collections.shouldContain
@@ -29,6 +28,8 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
@@ -38,16 +39,16 @@ import kotlinx.serialization.json.*
 import kotlin.test.Test
 
 class DockerClientTest {
-    private val client = HttpClient(SocketCIO) {
+    private val client = HttpClient(CIO) {
         KotlinLogging.configureLogging(Level.DEBUG)
-        engine {
-            unixSocketPath = "/var/run/docker.sock"
+        defaultRequest {
+            unixSocket("/var/run/docker.sock")
         }
-        install(Logging.Companion) {
+        install(Logging) {
             level = LogLevel.ALL
             logger = HttpClientLogger()
         }
-        install(ContentNegotiation.Plugin) {
+        install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })
         }
     }

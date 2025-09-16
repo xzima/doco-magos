@@ -19,20 +19,20 @@ import com.github.ajalt.clikt.core.CliktCommand
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.xzima.docomagos.koin.inject
 import io.github.xzima.docomagos.logging.from
+import io.github.xzima.docomagos.server.services.AppServer
 import io.github.xzima.docomagos.server.services.GitService
 import kotlinx.coroutines.*
 
-private val logger = KotlinLogging.from(AbstractServeCommand::class)
+private val logger = KotlinLogging.from(ServeCommand::class)
 
-abstract class AbstractServeCommand : CliktCommand(name = "serve") {
+class ServeCommand : CliktCommand(name = "serve") {
     private val gitService by lazy { inject<GitService>() }
+    private val appServer by lazy { inject<AppServer>() }
 
     override fun run(): Unit = runBlocking {
         checkMainRepo()
-        serveServer()
+        appServer.start()
     }
-
-    abstract suspend fun serveServer()
 
     private fun checkMainRepo() {
         logger.debug { "main repo: start check" }

@@ -23,11 +23,12 @@ import io.github.xzima.docomagos.client.DockerComposeApiServiceImpl
 import io.github.xzima.docomagos.client.createRsocketClient
 import io.github.xzima.docomagos.logging.configureLogging
 import io.github.xzima.docomagos.logging.from
-import io.github.xzima.docomagos.server.App
 import io.github.xzima.docomagos.server.handlers.ReqHandler
 import io.github.xzima.docomagos.server.props.KtorProps
 import io.github.xzima.docomagos.server.props.RsocketProps
+import io.github.xzima.docomagos.server.services.AppServer
 import io.github.xzima.docomagos.server.services.JobService
+import io.github.xzima.docomagos.server.services.impl.AppServerImpl
 import io.kotest.assertions.ktor.client.shouldHaveStatus
 import io.kotest.common.runBlocking
 import io.kotest.matchers.collections.shouldHaveSize
@@ -40,7 +41,6 @@ import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.server.engine.*
 import io.rsocket.kotlin.RSocket
 import kotlinx.coroutines.*
 import org.koin.core.context.stopKoin
@@ -82,14 +82,14 @@ class RouteIntegrationTest {
         )
     }
 
-    private lateinit var server: ApplicationEngine
+    private lateinit var server: AppServer
     private lateinit var httpClient: HttpClient
     private lateinit var rSocketClient: RSocket
 
     @BeforeTest
     fun beforeTest(): Unit = runBlocking {
         KotlinLogging.configureLogging(Level.TRACE)
-        server = App.createServer(
+        server = AppServerImpl(
             rsocketProps = rsocketProps,
             jobService = jobService,
             routeInjectors = listOf(
@@ -98,7 +98,8 @@ class RouteIntegrationTest {
                 ),
             ),
             ktorProps = ktorProps,
-        ).start(wait = false)
+        )
+        server.start(wait = false)
 
         httpClient = HttpClient(CIO) {
             defaultRequest {

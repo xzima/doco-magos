@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Alex Zima(xzima@ro.ru)
+ * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package io.github.xzima.docomagos.api
 
-import io.ktor.utils.io.core.*
 import io.rsocket.kotlin.ExperimentalMetadataApi
 import io.rsocket.kotlin.RSocket
 import io.rsocket.kotlin.metadata.RoutingMetadata
@@ -24,6 +23,7 @@ import io.rsocket.kotlin.metadata.read
 import io.rsocket.kotlin.payload.Payload
 import io.rsocket.kotlin.payload.buildPayload
 import io.rsocket.kotlin.payload.data
+import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
 
@@ -32,11 +32,12 @@ import kotlinx.serialization.protobuf.*
 val ConfiguredProtoBuf = ProtoBuf
 
 @ExperimentalSerializationApi
-inline fun <reified T> ProtoBuf.decodeFromPayload(payload: Payload): T = decodeFromByteArray(payload.data.readBytes())
+inline fun <reified T> ProtoBuf.decodeFromPayload(payload: Payload): T =
+    decodeFromByteArray(payload.data.readByteArray())
 
 @ExperimentalSerializationApi
 fun ProtoBuf.decodeFromRequest(payload: Payload): Req<Any> =
-    decodeFromByteArray(Req.polymorphicSerializer, payload.data.readBytes())
+    decodeFromByteArray(Req.polymorphicSerializer, payload.data.readByteArray())
 
 @ExperimentalSerializationApi
 inline fun <reified T> ProtoBuf.encodeToPayload(value: T): Payload = buildPayload {
@@ -67,7 +68,7 @@ inline fun <reified I> ProtoBuf.decodingToEmpty(payload: Payload, block: (I) -> 
 }
 
 @OptIn(ExperimentalMetadataApi::class)
-fun Payload(route: String, packet: ByteReadPacket = ByteReadPacket.Empty): Payload = buildPayload {
+fun Payload(route: String, packet: Buffer): Payload = buildPayload {
     data(packet)
     metadata(RoutingMetadata(route))
 }

@@ -13,21 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.xzima.docomagos.docker.ktor.engine.socket
+package io.github.xzima.docomagos.server.services
 
-import io.ktor.client.engine.HttpClientEngine
-import io.ktor.client.engine.HttpClientEngineFactory
-import io.ktor.client.engine.engines
-import io.ktor.util.InternalAPI
+interface AppServer {
+    suspend fun start(wait: Boolean = true)
 
-@OptIn(InternalAPI::class)
-object SocketCIO : HttpClientEngineFactory<SocketCIOEngineConfig> {
-    init {
-        engines.append(SocketCIO)
-    }
-
-    override fun create(block: SocketCIOEngineConfig.() -> Unit): HttpClientEngine =
-        SocketCIOEngine(SocketCIOEngineConfig().apply(block))
-
-    override fun toString(): String = "SocketCIO"
+    suspend fun stop()
 }

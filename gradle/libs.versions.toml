@@ -26,8 +26,8 @@ clikt = { group = "com.github.ajalt.clikt", name = "clikt", version = "5.0.2" }
 rsocket-ktor-ws-client = { group = "io.rsocket.kotlin", name = "rsocket-transport-ktor-websocket-client", version.ref = "rsocket" }
 rsocket-ktor-ws-server = { group = "io.rsocket.kotlin", name = "rsocket-transport-ktor-websocket-server", version.ref = "rsocket" }
 rsocket-core = { group = "io.rsocket.kotlin", name = "rsocket-core", version.ref = "rsocket" }
-rsocket-ktor-server = { group = "io.rsocket.kotlin", name = "rsocket-ktor-server", version.ref = "rsocket" }
-rsocket-ktor-client = { group = "io.rsocket.kotlin", name = "rsocket-ktor-client", version.ref = "rsocket" }
+rsocket-ktor-server = { group = "io.rsocket.kotlin", name = "ktor-server-rsocket", version.ref = "rsocket" }
+rsocket-ktor-client = { group = "io.rsocket.kotlin", name = "ktor-client-rsocket", version.ref = "rsocket" }
 logging = { group = "io.github.oshai", name = "kotlin-logging", version = "7.0.3" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version = "0.6.1" }
 

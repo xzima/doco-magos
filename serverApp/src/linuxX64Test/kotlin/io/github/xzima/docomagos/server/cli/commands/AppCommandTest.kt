@@ -27,6 +27,7 @@ import io.github.xzima.docomagos.server.props.RepoStructureProps
 import io.github.xzima.docomagos.server.props.RsocketProps
 import io.github.xzima.docomagos.server.props.SyncJobProps
 import io.github.xzima.docomagos.server.routes.RouteInjector
+import io.github.xzima.docomagos.server.services.AppServer
 import io.github.xzima.docomagos.server.services.DockerClient
 import io.github.xzima.docomagos.server.services.DockerComposeClient
 import io.github.xzima.docomagos.server.services.DockerComposeService
@@ -92,6 +93,7 @@ class AppCommandTest {
         SyncService::class,
         JobService::class,
         ListProjectsHandler::class,
+        AppServer::class,
     )
 
     @Test

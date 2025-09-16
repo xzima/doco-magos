@@ -49,6 +49,7 @@ import io.github.xzima.docomagos.server.props.customOption
 import io.github.xzima.docomagos.server.routes.RouteInjector
 import io.github.xzima.docomagos.server.routes.RsocketRouteInjector
 import io.github.xzima.docomagos.server.routes.StaticUiRouteInjector
+import io.github.xzima.docomagos.server.services.AppServer
 import io.github.xzima.docomagos.server.services.DockerClient
 import io.github.xzima.docomagos.server.services.DockerComposeClient
 import io.github.xzima.docomagos.server.services.DockerComposeService
@@ -62,6 +63,7 @@ import io.github.xzima.docomagos.server.services.PingService
 import io.github.xzima.docomagos.server.services.RepoStructureService
 import io.github.xzima.docomagos.server.services.SyncProjectService
 import io.github.xzima.docomagos.server.services.SyncService
+import io.github.xzima.docomagos.server.services.impl.AppServerImpl
 import io.github.xzima.docomagos.server.services.impl.DockerClientImpl
 import io.github.xzima.docomagos.server.services.impl.DockerComposeClientImpl
 import io.github.xzima.docomagos.server.services.impl.DockerComposeServiceImpl
@@ -155,5 +157,14 @@ class AppCommand(
         single { RsocketRouteInjector(get<ListProjectsHandler>()) } bind RouteInjector::class
         // handlers
         single { ListProjectsHandler(get<DockerComposeClient>()) }
+        //
+        single<AppServer> {
+            AppServerImpl(
+                get<RsocketProps>(),
+                get<JobService>(),
+                getAll<RouteInjector>(),
+                get<KtorProps>(),
+            )
+        }
     }
 }

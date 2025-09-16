@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Alex Zima(xzima@ro.ru)
+ * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,17 @@
  */
 package io.github.xzima.docomagos.server
 
-import io.github.oshai.kotlinlogging.KotlinLogging
-import io.github.xzima.docomagos.logging.from
 import kotlinx.cinterop.*
-import kotlinx.coroutines.*
 import platform.posix.*
 import kotlin.concurrent.AtomicReference
 
-private val logger = KotlinLogging.from(::initGracefulShutdown)
-private val holder = AtomicReference(Job())
+private val shutdownHook: AtomicReference<() -> Unit> = AtomicReference {}
 
 @OptIn(ExperimentalForeignApi::class)
-fun initGracefulShutdown(): CompletableJob {
+actual fun doOnSigterm(block: () -> Unit) {
+    shutdownHook.value = block
     val handler = staticCFunction<Int, Unit> {
-        logger.info { "start holder complete" }
-        holder.value.complete()
-        logger.info { "end holder complete" }
+        shutdownHook.value()
     }
-    signal(SIGINT, handler)
     signal(SIGTERM, handler)
-    return holder.value
 }

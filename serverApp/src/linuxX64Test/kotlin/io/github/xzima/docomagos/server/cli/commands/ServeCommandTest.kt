@@ -17,7 +17,6 @@ package io.github.xzima.docomagos.server.cli.commands
 
 import com.github.ajalt.clikt.testing.test
 import dev.mokkery.MockMode
-import dev.mokkery.answering.returns
 import dev.mokkery.answering.throws
 import dev.mokkery.every
 import dev.mokkery.everySuspend
@@ -32,6 +31,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.Level
 import io.github.xzima.docomagos.koin.configureKoin
 import io.github.xzima.docomagos.logging.configureLogging
+import io.github.xzima.docomagos.server.services.AppServer
 import io.github.xzima.docomagos.server.services.GitService
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.common.runBlocking
@@ -44,33 +44,29 @@ import kotlin.test.Test
 class ServeCommandTest {
 
     private val gitService = mock<GitService>(MockMode.autoUnit)
-    private val serveServerFun = mock<suspend () -> Unit>()
-    private lateinit var command: AbstractServeCommand
+    private val appServer = mock<AppServer>(MockMode.autoUnit)
+    private lateinit var command: ServeCommand
 
     @BeforeTest
     fun before() {
         KotlinLogging.configureLogging(Level.DEBUG)
         configureKoin {
             single<GitService> { gitService }
+            single<AppServer> { appServer }
         }
-        command = object : AbstractServeCommand() {
-            override suspend fun serveServer() = serveServerFun()
-        }
+        command = ServeCommand()
     }
 
     @AfterTest
     fun after() {
-        verifyNoMoreCalls(gitService, serveServerFun)
-        resetCalls(gitService, serveServerFun)
-        resetAnswers(gitService, serveServerFun)
+        verifyNoMoreCalls(gitService, appServer)
+        resetCalls(gitService, appServer)
+        resetAnswers(gitService, appServer)
         stopKoin()
     }
 
     @Test
     fun testPositive(): Unit = runBlocking {
-        // GIVEN
-        everySuspend { serveServerFun() } returns Unit
-
         // WHEN
         val actual = command.test()
 
@@ -80,7 +76,7 @@ class ServeCommandTest {
         verify(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoPath() }
         verify(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoUrl() }
         verify(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoHead() }
-        verifySuspend(mode = VerifyMode.exactly(1)) { serveServerFun() }
+        verifySuspend(mode = VerifyMode.exactly(1)) { appServer.start() }
     }
 
     @Test
@@ -131,7 +127,7 @@ class ServeCommandTest {
     @Test
     fun testFailServeServer(): Unit = runBlocking {
         // GIVEN
-        everySuspend { serveServerFun() } throws Exception("any exception")
+        everySuspend { appServer.start() } throws Exception("any exception")
 
         // WHEN
         val actual = shouldThrow<Exception> { command.test() }
@@ -142,6 +138,6 @@ class ServeCommandTest {
         verify(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoPath() }
         verify(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoUrl() }
         verify(mode = VerifyMode.exactly(1)) { gitService.checkMainRepoHead() }
-        verifySuspend(mode = VerifyMode.exactly(1)) { serveServerFun() }
+        verifySuspend(mode = VerifyMode.exactly(1)) { appServer.start() }
     }
 }
