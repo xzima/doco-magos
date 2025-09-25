@@ -39,5 +39,5 @@ serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref 
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 compose = { id = "org.jetbrains.compose", version = "1.8.2" }
 mock = { id = "dev.mokkery", version = "2.10.0" }
-spotless = { id = "com.diffplug.spotless", version = "7.2.1" }
+spotless = { id = "com.diffplug.spotless", version = "8.0.0" }
 openapi = { id = "org.openapi.generator", version = "7.15.0" }
