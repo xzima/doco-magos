@@ -17,7 +17,7 @@
     "@semantic-release/git": "10.0.1",
     "@semantic-release/changelog": "6.0.3",
     "conventional-changelog-conventionalcommits": "9.1.0",
-    "zx": "8.8.1",
+    "zx": "8.8.3",
     "@inquirer/prompts": "7.8.6",
     "properties-reader": "2.3.0"
   }
