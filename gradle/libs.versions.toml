@@ -19,7 +19,7 @@ ui-highlights = { group = "dev.snipme", name = "highlights", version = "1.1.0" }
 ui-routing = { group = "app.softwork", name = "routing-compose", version = "0.4.0" }
 
 kaml = { group = "com.charleskorn.kaml", name = "kaml", version = "0.97.0" }
-okio = { group = "com.squareup.okio", name = "okio", version = "3.9.1" }
+okio = { group = "com.squareup.okio", name = "okio", version = "3.16.0" }
 kotest-assertions-ktor = { group = "io.kotest.extensions", name = "kotest-assertions-ktor", version = "2.0.0" }
 kommand = { group = "com.kgit2", name = "kommand", version = "2.3.0" }
 clikt = { group = "com.github.ajalt.clikt", name = "clikt", version = "5.0.3" }
