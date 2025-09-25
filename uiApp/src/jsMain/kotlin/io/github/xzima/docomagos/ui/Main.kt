@@ -25,6 +25,7 @@ import io.ktor.client.engine.js.*
 import io.ktor.client.plugins.logging.*
 import kotlinx.browser.*
 import org.jetbrains.skiko.wasm.onWasmReady
+import org.w3c.dom.HTMLTitleElement
 
 @OptIn(ExperimentalComposeUiApi::class)
 suspend fun main() {
@@ -35,9 +36,18 @@ suspend fun main() {
 
     val client = createRsocketClient(Js, window.location.host, reqRespLogLevel)
     initKoinModule(client)
+    setDocumentTitle(UiConstants.APP_NAME)
     onWasmReady {
-        CanvasBasedWindow(title = UiConstants.APP_NAME) {
+        ComposeViewport {
             App()
         }
     }
+}
+
+private fun setDocumentTitle(title: String) {
+    val htmlTitleElement = (
+        document.head!!.getElementsByTagName("title").item(0)
+            ?: document.createElement("title").also { document.head!!.appendChild(it) }
+    ) as HTMLTitleElement
+    htmlTitleElement.textContent = title
 }

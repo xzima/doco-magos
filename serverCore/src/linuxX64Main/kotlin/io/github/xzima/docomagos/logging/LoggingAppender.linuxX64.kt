@@ -20,8 +20,10 @@ import io.github.oshai.kotlinlogging.FormattingAppender
 import io.github.oshai.kotlinlogging.KLoggingEvent
 import io.github.oshai.kotlinlogging.Level
 import kotlinx.cinterop.*
-import kotlinx.datetime.*
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 @OptIn(ExperimentalForeignApi::class)
 actual fun loggingAppender(): Appender = object : FormattingAppender() {
     override fun logFormattedMessage(loggingEvent: KLoggingEvent, formattedMessage: Any?) {

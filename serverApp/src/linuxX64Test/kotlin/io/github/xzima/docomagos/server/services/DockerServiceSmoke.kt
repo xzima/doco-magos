@@ -24,7 +24,7 @@ import io.github.xzima.docomagos.server.props.SyncJobProps
 import io.github.xzima.docomagos.server.services.impl.DockerClientImpl
 import io.github.xzima.docomagos.server.services.impl.DockerServiceImpl
 import io.ktor.client.plugins.logging.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.test.*
 import kotlin.test.Ignore
 import kotlin.test.Test
 
@@ -36,7 +36,7 @@ import kotlin.test.Test
 class DockerServiceSmoke {
 
     private val appProps = object : AppProps {
-        override val hostname: String = ""
+        override val hostname: String = "404"
         override val staticUiPath: String = "ignore"
         override val jobPeriodMs: Int = 0
         override val ignoreRepoExternalStacksSync: Boolean = true
@@ -66,7 +66,7 @@ class DockerServiceSmoke {
      */
     @Test
     @Ignore
-    fun runSmoke() = runBlocking {
+    fun runSmoke() = runTest {
         KotlinLogging.configureLogging(Level.DEBUG)
         dockerService.tryStartSyncJobService()
     }

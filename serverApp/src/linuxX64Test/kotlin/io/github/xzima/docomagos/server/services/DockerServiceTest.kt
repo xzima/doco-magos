@@ -37,7 +37,7 @@ import io.github.xzima.docomagos.server.props.SyncJobProps
 import io.github.xzima.docomagos.server.services.impl.DockerServiceImpl
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.*
+import kotlinx.coroutines.test.*
 import kotlin.test.AfterTest
 import kotlin.test.BeforeClass
 import kotlin.test.BeforeTest
@@ -81,7 +81,7 @@ class DockerServiceTest {
     }
 
     @Test
-    fun testSearchHostnameThrow(): Unit = runBlocking {
+    fun testSearchHostnameThrow(): Unit = runTest {
         // GIVEN
         everySuspend { dockerClient.containerInfoOrNull(appProps.hostname) } throws RuntimeException("any exception")
 
@@ -94,7 +94,7 @@ class DockerServiceTest {
     }
 
     @Test
-    fun testHostnameNotFound(): Unit = runBlocking {
+    fun testHostnameNotFound(): Unit = runTest {
         // GIVEN
         everySuspend { dockerClient.containerInfoOrNull(appProps.hostname) } returns null
 
@@ -106,7 +106,7 @@ class DockerServiceTest {
     }
 
     @Test
-    fun testJobContainerCreationThrow(): Unit = runBlocking {
+    fun testJobContainerCreationThrow(): Unit = runTest {
         // GIVEN
         every { syncJobProps.containerAutoRemove } returns true
         val currentContainer = TestCreator.dockerContainerInfo().copy(
@@ -132,7 +132,7 @@ class DockerServiceTest {
     }
 
     @Test
-    fun testSearchJobContainerThrow(): Unit = runBlocking {
+    fun testSearchJobContainerThrow(): Unit = runTest {
         // GIVEN
         every { syncJobProps.containerAutoRemove } returns false
         val currentContainer = TestCreator.dockerContainerInfo().copy(
@@ -162,7 +162,7 @@ class DockerServiceTest {
     }
 
     @Test
-    fun testJobContainerNotFound(): Unit = runBlocking {
+    fun testJobContainerNotFound(): Unit = runTest {
         // GIVEN
         every { syncJobProps.containerAutoRemove } returns true
         val currentContainer = TestCreator.dockerContainerInfo().copy(
@@ -189,7 +189,7 @@ class DockerServiceTest {
     }
 
     @Test
-    fun testJobContainerExistsWithDifferentImageName(): Unit = runBlocking {
+    fun testJobContainerExistsWithDifferentImageName(): Unit = runTest {
         // GIVEN
         every { syncJobProps.containerAutoRemove } returns false
         val currentContainer = TestCreator.dockerContainerInfo().copy(
@@ -217,7 +217,7 @@ class DockerServiceTest {
     }
 
     @Test
-    fun testJobContainerExistsWithRunningStatus(): Unit = runBlocking {
+    fun testJobContainerExistsWithRunningStatus(): Unit = runTest {
         // GIVEN
         every { syncJobProps.containerAutoRemove } returns true
         val currentContainer = TestCreator.dockerContainerInfo().copy(
@@ -248,7 +248,7 @@ class DockerServiceTest {
     }
 
     @Test
-    fun testJobContainerDeleteThrow(): Unit = runBlocking {
+    fun testJobContainerDeleteThrow(): Unit = runTest {
         // GIVEN
         every { syncJobProps.containerAutoRemove } returns false
         val currentContainer = TestCreator.dockerContainerInfo().copy(
@@ -283,7 +283,7 @@ class DockerServiceTest {
     }
 
     @Test
-    fun testJobContainerDeleteNotFound(): Unit = runBlocking {
+    fun testJobContainerDeleteNotFound(): Unit = runTest {
         // GIVEN
         every { syncJobProps.containerAutoRemove } returns true
         val currentContainer = TestCreator.dockerContainerInfo().copy(
@@ -317,7 +317,7 @@ class DockerServiceTest {
     }
 
     @Test
-    fun testJobContainerRecreateThrow(): Unit = runBlocking {
+    fun testJobContainerRecreateThrow(): Unit = runTest {
         // GIVEN
         every { syncJobProps.containerAutoRemove } returns false
         val currentContainer = TestCreator.dockerContainerInfo().copy(
@@ -355,7 +355,7 @@ class DockerServiceTest {
     }
 
     @Test
-    fun testJobContainerRecreateStillNull(): Unit = runBlocking {
+    fun testJobContainerRecreateStillNull(): Unit = runTest {
         // GIVEN
         every { syncJobProps.containerAutoRemove } returns true
         val currentContainer = TestCreator.dockerContainerInfo().copy(
@@ -392,7 +392,7 @@ class DockerServiceTest {
     }
 
     @Test
-    fun testJobContainerRecreateAndStartThrow(): Unit = runBlocking {
+    fun testJobContainerRecreateAndStartThrow(): Unit = runTest {
         // GIVEN
         every { syncJobProps.containerAutoRemove } returns false
         val currentContainer = TestCreator.dockerContainerInfo().copy(
@@ -432,7 +432,7 @@ class DockerServiceTest {
     }
 
     @Test
-    fun testJobContainerRecreateAndStartNotFound(): Unit = runBlocking {
+    fun testJobContainerRecreateAndStartNotFound(): Unit = runTest {
         // GIVEN
         every { syncJobProps.containerAutoRemove } returns true
         val currentContainer = TestCreator.dockerContainerInfo().copy(
@@ -471,7 +471,7 @@ class DockerServiceTest {
     }
 
     @Test
-    fun testJobContainerRecreateAndStartSuccess(): Unit = runBlocking {
+    fun testJobContainerRecreateAndStartSuccess(): Unit = runTest {
         // GIVEN
         every { syncJobProps.containerAutoRemove } returns false
         val currentContainer = TestCreator.dockerContainerInfo().copy(
@@ -510,7 +510,7 @@ class DockerServiceTest {
     }
 
     @Test
-    fun testJobContainerCreatedAndStartThrow(): Unit = runBlocking {
+    fun testJobContainerCreatedAndStartThrow(): Unit = runTest {
         // GIVEN
         every { syncJobProps.containerAutoRemove } returns true
         val currentContainer = TestCreator.dockerContainerInfo().copy(
@@ -538,7 +538,7 @@ class DockerServiceTest {
     }
 
     @Test
-    fun testJobContainerCreatedAndStartNotFound(): Unit = runBlocking {
+    fun testJobContainerCreatedAndStartNotFound(): Unit = runTest {
         // GIVEN
         every { syncJobProps.containerAutoRemove } returns false
         val currentContainer = TestCreator.dockerContainerInfo().copy(
@@ -565,7 +565,7 @@ class DockerServiceTest {
     }
 
     @Test
-    fun testJobContainerCreatedAndStartSuccess(): Unit = runBlocking {
+    fun testJobContainerCreatedAndStartSuccess(): Unit = runTest {
         // GIVEN
         every { syncJobProps.containerAutoRemove } returns true
         val currentContainer = TestCreator.dockerContainerInfo().copy(

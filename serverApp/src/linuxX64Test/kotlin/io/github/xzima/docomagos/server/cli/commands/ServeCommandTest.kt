@@ -34,8 +34,8 @@ import io.github.xzima.docomagos.logging.configureLogging
 import io.github.xzima.docomagos.server.services.AppServer
 import io.github.xzima.docomagos.server.services.GitService
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.common.runBlocking
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.test.runTest
 import org.koin.core.context.stopKoin
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -66,7 +66,7 @@ class ServeCommandTest {
     }
 
     @Test
-    fun testPositive(): Unit = runBlocking {
+    fun testPositive(): Unit = runTest {
         // WHEN
         val actual = command.test()
 
@@ -125,7 +125,7 @@ class ServeCommandTest {
     }
 
     @Test
-    fun testFailServeServer(): Unit = runBlocking {
+    fun testFailServeServer(): Unit = runTest {
         // GIVEN
         everySuspend { appServer.start() } throws Exception("any exception")
 

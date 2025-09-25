@@ -35,6 +35,7 @@ import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.*
 import kotlin.test.Test
 
@@ -56,7 +57,7 @@ class DockerClientTest {
     private val systemApi = SystemApi(ApiClient.BASE_URL, client)
 
     @Test
-    fun testContainersList(): Unit = runBlocking {
+    fun testContainersList(): Unit = runTest {
         // WHEN
         val resp = containerApi.containerList()
         // THEN
@@ -72,7 +73,7 @@ class DockerClientTest {
     }
 
     @Test
-    fun testInfo(): Unit = runBlocking {
+    fun testInfo(): Unit = runTest {
         // WHEN
         val resp = systemApi.systemInfo()
         // THEN

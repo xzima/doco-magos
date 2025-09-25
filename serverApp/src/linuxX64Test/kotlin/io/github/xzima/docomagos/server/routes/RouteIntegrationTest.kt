@@ -30,7 +30,6 @@ import io.github.xzima.docomagos.server.services.AppServer
 import io.github.xzima.docomagos.server.services.JobService
 import io.github.xzima.docomagos.server.services.impl.AppServerImpl
 import io.kotest.assertions.ktor.client.shouldHaveStatus
-import io.kotest.common.runBlocking
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -43,6 +42,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.rsocket.kotlin.RSocket
 import kotlinx.coroutines.*
+import kotlinx.coroutines.test.runTest
 import org.koin.core.context.stopKoin
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -87,7 +87,7 @@ class RouteIntegrationTest {
     private lateinit var rSocketClient: RSocket
 
     @BeforeTest
-    fun beforeTest(): Unit = runBlocking {
+    fun beforeTest(): Unit = runTest {
         KotlinLogging.configureLogging(Level.TRACE)
         server = AppServerImpl(
             rsocketProps = rsocketProps,
@@ -110,14 +110,14 @@ class RouteIntegrationTest {
     }
 
     @AfterTest
-    fun afterTest(): Unit = runBlocking {
+    fun afterTest(): Unit = runTest {
         server.stop()
         stopKoin()
         delay(1.seconds)
     }
 
     @Test
-    fun testHttpHealth(): Unit = runBlocking {
+    fun testHttpHealth(): Unit = runTest {
         // WHEN
         val response = httpClient.get("/health")
 
@@ -127,7 +127,7 @@ class RouteIntegrationTest {
     }
 
     @Test
-    fun testListProjects(): Unit = runBlocking {
+    fun testListProjects(): Unit = runTest {
         val service = DockerComposeApiServiceImpl(rSocketClient)
 
         // WHEN

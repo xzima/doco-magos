@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Alex Zima(xzima@ro.ru)
+ * Copyright 2024-2025 Alex Zima(xzima@ro.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,10 @@ package io.github.xzima.docomagos.ui
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import io.github.xzima.docomagos.ui.components.AppScaffold
-import org.koin.compose.KoinContext
 
 @Composable
 fun App() {
-    KoinContext {
-        MaterialTheme(colors = darkColors()) {
-            AppScaffold()
-        }
+    MaterialTheme(colors = darkColors()) {
+        AppScaffold()
     }
 }

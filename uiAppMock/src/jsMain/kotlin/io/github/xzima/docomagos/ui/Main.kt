@@ -24,8 +24,10 @@ import io.github.xzima.docomagos.client.DockerComposeApiService
 import io.github.xzima.docomagos.koin.configureKoin
 import io.github.xzima.docomagos.logging.configureLogging
 import io.github.xzima.docomagos.ui.states.DCProjectsListViewModel
+import kotlinx.browser.*
 import kotlinx.coroutines.*
 import org.jetbrains.skiko.wasm.onWasmReady
+import org.w3c.dom.HTMLTitleElement
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -47,9 +49,18 @@ fun main() {
         }
         factory { DCProjectsListViewModel(get()) }
     }
+    setDocumentTitle(UiConstants.APP_NAME)
     onWasmReady {
-        CanvasBasedWindow(title = UiConstants.APP_NAME) {
+        ComposeViewport {
             App()
         }
     }
+}
+
+private fun setDocumentTitle(title: String) {
+    val htmlTitleElement = (
+        document.head!!.getElementsByTagName("title").item(0)
+            ?: document.createElement("title").also { document.head!!.appendChild(it) }
+    ) as HTMLTitleElement
+    htmlTitleElement.textContent = title
 }

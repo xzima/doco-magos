@@ -31,7 +31,6 @@ import io.github.oshai.kotlinlogging.Level
 import io.github.xzima.docomagos.logging.configureLogging
 import io.github.xzima.docomagos.server.props.AppProps
 import io.github.xzima.docomagos.server.services.impl.JobServiceImpl
-import io.kotest.common.runBlocking
 import kotlinx.coroutines.*
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest

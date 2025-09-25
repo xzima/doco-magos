@@ -23,6 +23,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.xzima.docomagos.logging.from
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.test.*
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
@@ -33,7 +34,7 @@ private val logger = KotlinLogging.from(KomandTest::class)
 class KomandTest {
 
     @Test
-    fun testKomand() = runBlocking {
+    fun testKomand() = runTest {
         getForever(getStats())
             .onCompletion { logger.info { "Completion: $it" } }
             .timeout(10.seconds)
